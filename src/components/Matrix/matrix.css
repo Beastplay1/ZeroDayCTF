@@ -1,0 +1,22 @@
+.matrix-rain-single {
+  position: relative;
+  top: 10px;
+  left: 12px; /* Center horizontally */
+}
+
+.matrix-triangle {
+  position: relative;
+  left: 30px;
+  top: 7px;
+}
+
+.matrix-container {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 20px;
+}
+
+.text-container {
+  position: relative;
+  left: -20px;
+}
