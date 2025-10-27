@@ -1,1 +1,1 @@
-# Add new section in home page with scroll anim
+# Add scroll animations for new sections. Split sections into separate components.
