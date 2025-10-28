@@ -1,0 +1,106 @@
+<div className="flex justify-center items-center ml-[-200px] sm:ml-[-220px] md:ml-[-220px] lg:ml-[-320px] max-sm:mb-[-50]">
+        <span
+          className="welcome-text text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold"
+          style={{
+            WebkitTextStroke: "4px transparent",
+            WebkitTextFillColor: "#eaeaeaff",
+            backgroundImage: "linear-gradient(315deg, #03a9f4, #ff0058)",
+            backgroundSize: "200% auto",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            paintOrder: "stroke fill",
+            textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+          }}
+        >
+          Welcome to
+        </span>
+      </div>
+      <div
+        className="max-sm:scale-70 max-sm:flex max-sm:flex-col max-sm:items-center max-sm:gap-6 max-sm:ml-[-60px] 
+ container relative sm:mt-20 max-sm:ml-[-100px] xl:ml-[-130px] 2xl:ml-0
+    sm:flex sm:flex-col sm:items-center sm:gap-8 sm:ml-[-120px]
+    xl:flex-none xl:block"
+      >
+        <div className="matrix">
+          <div className="text-container">
+            <span className="select-none text-4xl text-[#919098] font-bold">
+              {" "}
+              Learn.{" "}
+            </span>
+            <span className="select-none text-4xl text-red-400 animate-pulse font-bold">
+              Hack.
+            </span>
+            <br />
+            <Typewriter
+              text="3XPL0IT."
+              className={`select-none text-2xl text-zerogreen font-bold ${orbitron.className}`}
+              typingSpeed={150}
+              deletingSpeed={150}
+              pauseDuration={2000}
+              loop={true}
+              showCursor={true}
+              cursorClassName="border-r-2 border-zerogreen animate-pulse ml-0.5"
+            />
+          </div>
+        </div>
+        <div className="matrix-container sm:hidden xl:block">
+          <div>
+            <MatrixRainSingle
+              width={20}
+              height={230}
+              color="#0F0"
+              fontSize={15}
+              speed={100}
+              fadeEffect={0.05}
+              className="matrix-rain-single"
+            />
+          </div>
+          <div className="matrix-triangle">
+            <MatrixRainTriangle
+              width={240}
+              height={230}
+              color="#0F0"
+              fontSize={15}
+              speed={100}
+              fadeEffect={0.05}
+              columns={12}
+              className="matrix-rain-triangle"
+            />
+          </div>
+        </div>
+        <div
+          className="max-sm:scale-70 max-sm:flex max-sm:flex-row max-sm:items-center max-sm:justify-center max-sm:gap-4 max-sm:order-[-1]
+    sm:flex sm:flex-row sm:items-center sm:justify-center sm:gap-6 
+    xl:block xl:static sm:order-[-1]
+  "
+        >
+          <div className="naming  xl:order-none xl:absolute xl:left-[330px] xl:top-0 ">
+            <span
+              className={`glitch-container text-white text-[360px] font-bold leading-none ml-6 select-none ${roboto.className}`}
+            >
+              0<span>0</span>
+              <span>0</span>
+            </span>
+            <span
+              className={`
+    absolute xl:top-[40px]
+    text-white text-[120px] font-bold select-none leading-none ${bungee.className}`}
+            >
+              day
+            </span>
+            <span
+              className={`xl:absolute xl:top-[170px] text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-[length:200%_auto] animate-gradient text-[180px] font-bold select-none leading-none ${bungee.className}`}
+            >
+              CTF
+            </span>
+          </div>
+          <div className="flex justify-center xl:absolute xl:top-0 xl:ml-[930px]">
+            <Image
+              src={flag}
+              alt="flag"
+              width={230}
+              style={{ maxWidth: "230px" }}
+            />
+          </div>
+        </div>
+      </div>
