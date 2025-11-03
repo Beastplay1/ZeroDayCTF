@@ -2,7 +2,7 @@
   "name": "zerodayctf",
   "version": "0.1.0",
   "private": true,
-    "scripts": {
+  "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
@@ -13,11 +13,13 @@
     "@heroui/react": "^2.8.5",
     "@heroui/system": "^2.4.23",
     "@heroui/theme": "^2.4.23",
+    "cookies-next": "^6.1.1",
     "framer-motion": "^12.23.24",
     "next": "15.5.6",
     "postcss": "^8.5.6",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "rsuite": "^5.83.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
