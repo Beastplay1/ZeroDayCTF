@@ -1,12 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardBody, CardHeader, Input, Button, Checkbox } from "@heroui/react";
 import { Orbitron } from "next/font/google";
 import Link from "next/link";
+import { validateUsername } from '@/lib/validateUsername';
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function SignUp() {
+
+  //1. validating username
+  //2. validating email
+  //3. validating passwords
+  //4. save to test db for now in future in normal db
+  //5. checking creds with existing usernames and mails
+  //FUTURE IDEA!! Encrypt creds in db with AES-256 i mean why not :D
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

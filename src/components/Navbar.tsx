@@ -67,7 +67,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               </Link>
               <Link
                 href="/profile"
-                className={`font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
+                className={`hidden font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
                   theme === "dark" ? "text-white" : "text-gray-900"
                 }`}
               >
