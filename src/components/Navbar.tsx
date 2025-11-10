@@ -6,12 +6,6 @@ import { SelectPicker } from "rsuite";
 import { getCookie, hasCookie, setCookie } from "cookies-next";
 import "@/styles/navbar.css";
 
-declare global {
-  interface Window {
-    google: any;
-    googleTranslateElementInit: () => void;
-  }
-}
 
 interface NavbarProps {
   theme: "dark" | "light";
@@ -23,7 +17,6 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
   return (
     <>
-      <div id="google_translate_element" style={{ display: "none" }}></div>
       <nav
         className={`fixed top-0 left-0 w-full backdrop-blur-sm z-50 ${
           theme === "dark" ? "bg-black/30" : "bg-white/30"

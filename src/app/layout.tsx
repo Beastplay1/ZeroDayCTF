@@ -33,14 +33,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <style>{`
-          .goog-te-banner-frame { display: none !important; }
-          .goog-te-gadget { color: transparent !important; }
-          body { top: 0 !important; }
-          #google_translate_element { display: none; }
-        `}</style>
-      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} ${koulen.variable} antialiased overflow-x-hidden`}>
         <Providers>
           <ClientLayout>{children}</ClientLayout>

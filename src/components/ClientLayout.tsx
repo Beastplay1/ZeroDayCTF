@@ -23,38 +23,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     }
   }, [theme, mounted]);
 
-  useEffect(() => {
-    if (!mounted) return;
-    
-    const script = document.createElement("script");
-    script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-    script.async = true;
-
-    (window as any).googleTranslateElementInit = function() {
-      if (window.google && window.google.translate) {
-        new (window as any).google.translate.TranslateElement(
-          {
-            pageLanguage: 'en',
-            includedLanguages: 'en,ru,hy',
-            layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
-            autoDisplay: false
-          },
-          'google_translate_element'
-        );
-      }
-    };
-
-    document.body.appendChild(script);
-
-    return () => {
-      const existingScript = document.querySelector(
-        'script[src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"]'
-      );
-      if (existingScript) {
-        existingScript.remove();
-      }
-    };
-  }, [mounted]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
