@@ -9,8 +9,8 @@ import {
   Checkbox,
 } from "@heroui/react";
 import { Orbitron } from "next/font/google";
+import axios from "axios";
 import Link from "next/link";
-import { validateUsername } from "@/lib/validations/validateUsername";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
@@ -21,6 +21,40 @@ export default function SignUp() {
   //4. save to test db for now in future in normal db
   //5. checking creds with existing usernames and mails
   //FUTURE IDEA!! Encrypt creds in db with AES-256 i mean why not :D
+
+  const [user, setUser] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agreeToTerms: false,
+  });
+
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMessage(""); // Clear previous errors
+
+    try {
+      if (!user.agreeToTerms) {
+        setErrorMessage("Please agree to the terms and conditions.");
+        return;
+      }
+
+      if (user.password !== user.confirmPassword) {
+        setErrorMessage("Passwords do not match.");
+        return;
+      }
+
+      const res = await axios.post("/api/auth/signup", user);
+      console.log(res);
+      
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("An error occurred during signup. Please try again.");
+    }
+  };
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
@@ -49,17 +83,23 @@ export default function SignUp() {
             </div>
           </CardHeader>
           <CardBody className="px-6 pb-6">
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Input
                   type="text"
                   label="Username"
                   placeholder="elite_hacker"
+                  required
+                  value={user.username}
+                  onChange={(e) =>
+                    setUser({ ...user, username: e.target.value })
+                  }
                   classNames={{
                     input: "bg-transparent text-white",
                     inputWrapper:
                       "bg-[#0f0f0f] border border-gray-700 hover:border-zerogreen focus-within:border-zerogreen",
                     label: "text-gray-400",
+                    errorMessage: "font-bold text-red-500",
                   }}
                   startContent={
                     <span className="text-zerogreen text-sm">{">"}</span>
@@ -72,11 +112,15 @@ export default function SignUp() {
                   type="email"
                   label="Email"
                   placeholder="hacker@example.com"
+                  required
+                  value={user.email}
+                  onChange={(e) => setUser({ ...user, email: e.target.value })}
                   classNames={{
                     input: "bg-transparent text-white",
                     inputWrapper:
                       "bg-[#0f0f0f] border border-gray-700 hover:border-zerogreen focus-within:border-zerogreen",
                     label: "text-gray-400",
+                    errorMessage: "font-bold text-red-500",
                   }}
                   startContent={
                     <span className="text-zerogreen text-sm">{">"}</span>
@@ -89,11 +133,17 @@ export default function SignUp() {
                   type="password"
                   label="Password"
                   placeholder="••••••••"
+                  required
+                  value={user.password}
+                  onChange={(e) =>
+                    setUser({ ...user, password: e.target.value })
+                  }
                   classNames={{
                     input: "bg-transparent text-white",
                     inputWrapper:
                       "bg-[#0f0f0f] border border-gray-700 hover:border-zerogreen focus-within:border-zerogreen",
                     label: "text-gray-400",
+                    errorMessage: "font-bold text-red-500",
                   }}
                   startContent={
                     <span className="text-zerogreen text-sm">{">"}</span>
@@ -109,11 +159,17 @@ export default function SignUp() {
                   type="password"
                   label="Confirm Password"
                   placeholder="••••••••"
+                  required
+                  value={user.confirmPassword}
+                  onChange={(e) =>
+                    setUser({ ...user, confirmPassword: e.target.value })
+                  }
                   classNames={{
                     input: "bg-transparent text-white",
                     inputWrapper:
                       "bg-[#0f0f0f] border border-gray-700 hover:border-zerogreen focus-within:border-zerogreen",
                     label: "text-gray-400",
+                    errorMessage: "font-bold text-red-500",
                   }}
                   startContent={
                     <span className="text-zerogreen text-sm">{">"}</span>
@@ -121,8 +177,22 @@ export default function SignUp() {
                 />
               </div>
 
+              {errorMessage && (
+                <div className="mb-2">
+                  <span className="text-lg font-bold text-red-500">{errorMessage}</span>
+                </div>
+              )}
+
               <div className="flex items-start gap-2">
                 <Checkbox
+                  required
+                  checked={user.agreeToTerms}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      agreeToTerms: (e.target as HTMLInputElement).checked,
+                    })
+                  }
                   classNames={{
                     wrapper:
                       "border-zerogreen data-[selected=true]:bg-zerogreen",
