@@ -11,6 +11,7 @@ import {
 import { Orbitron } from "next/font/google";
 import axios from "axios";
 import Link from "next/link";
+import { validateUsername } from "@/lib/validations/validateUsername";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
@@ -36,14 +37,22 @@ export default function SignUp() {
     e.preventDefault();
     setErrorMessage(""); // Clear previous errors
 
+    const usernameValidation = validateUsername(user.username);
+
+    if (!usernameValidation.isValid) {
+      setErrorMessage(usernameValidation.error || "Invalid username");
+      return;
+    }
+
     try {
-      if (!user.agreeToTerms) {
-        setErrorMessage("Please agree to the terms and conditions.");
+      
+      if (user.password !== user.confirmPassword) {
+        setErrorMessage("Passwords do not match.");
         return;
       }
 
-      if (user.password !== user.confirmPassword) {
-        setErrorMessage("Passwords do not match.");
+      if (!user.agreeToTerms) {
+        setErrorMessage("Please agree to the terms and conditions.");
         return;
       }
 

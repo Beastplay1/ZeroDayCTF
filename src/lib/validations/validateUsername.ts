@@ -13,14 +13,7 @@ const USERNAME_CONSTS = {
 export function validateUsername(username: string): ValidationResult {
   const username_trimmed = username.trim();
 
-  if (!username) {
-    return {
-      isValid: false,
-      error: "No username provided!",
-    };
-  }
-
-  if (username_trimmed === "") {
+  if (!username || username_trimmed === "") {
     return {
       isValid: false,
       error: "Username cannot be empty!",
