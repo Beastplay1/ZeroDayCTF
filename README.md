@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZeroDayCTF — Local CTF Platform (Developer Preview)
 
-## Getting Started
+ZeroDayCTF is a small Next.js-based Capture The Flag (CTF) project scaffold designed for prototyping security challenges, practicing vulnerability detection, and teaching web security concepts.
 
-First, run the development server:
+## Purpose
+
+- Provide a lightweight playground for building and testing CTF-style challenges.
+- Demonstrate simple server- and client-side validation, including a development-only fake WAF that returns 403 for clearly malicious inputs.
+- Serve as a starting point for adding challenge logic, user accounts, leaderboards, and admin tooling.
+
+## Key features
+
+- Next.js app using the app router and Tailwind CSS for styling.
+- Signup and signin UI with client-side validation and server-side validation hooks.
+- `validateUsername` contains normalization, control-character stripping, percent-decoded payload detection, and heuristics for XSS/SQL patterns. Malicious inputs return HTTP 403 (development-only fake WAF behavior).
+- A fake WAF/testing switch in the signup UI (dev) to force 403 responses for testing flows.
+- Static challenge and leaderboard UI to extend with dynamic data and persistence.
+
+## Getting started (development)
+
+1. Install dependencies and run the dev server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Open your browser at http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Testing validation and fake WAF
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Use curl, Postman, or the UI to submit the signup form. Example curl commands:
 
-## Learn More
+Valid username (expect 201):
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+curl -i -X POST http://localhost:3000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"username":"elite_hacker","email":"a@a.com","password":"pass1234","confirmPassword":"pass1234","agreeToTerms":true}'
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Encoded XSS (expect 403):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+curl -i -X POST http://localhost:3000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"username":"%3Cscript%3Ealert(1)%3C%2Fscript%3E","email":"a@a.com","password":"p","confirmPassword":"p","agreeToTerms":true}'
+```
 
-## Deploy on Vercel
+## What this repo is not
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- This is not production-ready security tooling. The fake WAF and heuristics are for development/testing only and will produce false positives.
+- Do not rely on client-side validation for security — always validate and sanitize on the server and use parameterized queries for database access.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Roadmap / next steps
+
+- Add database persistence (SQLite or similar) and real authentication/session management.
+- Implement admin panel for creating and managing challenges.
+- Add unit tests for validation logic and end-to-end tests for signup/signin flows.
+- Replace fake WAF with a production-grade WAF or hardened rules before deployment.
+
+## License & notes
+
+- This project is a learning/demo scaffold. Use and modify freely for education or prototyping.
+
+If you want, I can add a small `403` page, unit tests for `validateUsername`, or a database-backed user store next.

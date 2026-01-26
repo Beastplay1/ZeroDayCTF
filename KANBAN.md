@@ -28,6 +28,7 @@
 - [ ] Update leaderboard with real data
 - [ ] Implement profile page functionality
 - [ ] Add admin panel for managing challenges
+ - [ ] Create custom 403 error page
 
 ## In Progress
 

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardBody,
@@ -33,35 +33,35 @@ export default function SignUp() {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrorMessage(""); // Clear previous errors
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  // Submit to server regardless of client-side validation so API 400s are returned
+  const submitToServer = async () => {
+    setErrorMessage("");
 
     const usernameValidation = validateUsername(user.username);
-
     if (!usernameValidation.isValid) {
       setErrorMessage(usernameValidation.error || "Invalid username");
-      return;
     }
 
     try {
-      
       if (user.password !== user.confirmPassword) {
         setErrorMessage("Passwords do not match.");
-        return;
       }
 
       if (!user.agreeToTerms) {
         setErrorMessage("Please agree to the terms and conditions.");
-        return;
       }
 
       const res = await axios.post("/api/auth/signup", user);
       console.log(res);
-      
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setErrorMessage("An error occurred during signup. Please try again.");
+      if (err.response?.data?.error) {
+        setErrorMessage(err.response.data.error);
+      } else {
+        setErrorMessage("An error occurred during signup. Please try again.");
+      }
     }
   };
 
@@ -92,7 +92,11 @@ export default function SignUp() {
             </div>
           </CardHeader>
           <CardBody className="px-6 pb-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              ref={formRef}
+              onSubmit={(e) => e.preventDefault()}
+              className="space-y-4"
+            >
               <div>
                 <Input
                   type="text"
@@ -188,7 +192,9 @@ export default function SignUp() {
 
               {errorMessage && (
                 <div className="mb-2">
-                  <span className="text-lg font-bold text-red-500">{errorMessage}</span>
+                  <span className="text-lg font-bold text-red-500">
+                    {errorMessage}
+                  </span>
                 </div>
               )}
 
@@ -228,7 +234,14 @@ export default function SignUp() {
               </div>
 
               <Button
-                type="submit"
+                type="button"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  if (formRef.current && !formRef.current.checkValidity()) {
+                    formRef.current.reportValidity();
+                  }
+                  await submitToServer();
+                }}
                 className="w-full bg-zerogreen text-black font-bold text-lg hover:bg-zerogreen/90 transition-all duration-300 mt-6"
                 size="lg"
               >

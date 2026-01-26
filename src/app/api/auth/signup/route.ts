@@ -7,23 +7,30 @@ export const POST = async (request: NextRequest) => {
     const { username, email, password, confirmPassword, agreeToTerms } = body;
 
     const validation = validateUsername(username);
+    if (validation.isMalicious) {
+      return NextResponse.json(
+        { error: validation.error || "Forbidden" },
+        { status: 403 },
+      );
+    }
+
     if (!validation.isValid) {
       return NextResponse.json(
         { error: validation.error || "Invalid username" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.log("Signup request received:", { username, password });
     return NextResponse.json(
       { message: "User signed up successfully" },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
