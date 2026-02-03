@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateUsername } from "@/lib/validations/validateUsername";
+import { validateEmail } from "@/lib/validations/validateEmail";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -17,6 +18,14 @@ export const POST = async (request: NextRequest) => {
     if (!validation.isValid) {
       return NextResponse.json(
         { error: validation.error || "Invalid username" },
+        { status: 400 },
+      );
+    }
+
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return NextResponse.json(
+        { error: emailValidation.error || "Invalid email" },
         { status: 400 },
       );
     }

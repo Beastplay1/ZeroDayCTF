@@ -12,12 +12,11 @@ import { Orbitron } from "next/font/google";
 import axios from "axios";
 import Link from "next/link";
 import { validateUsername } from "@/lib/validations/validateUsername";
+import { validateEmail } from "@/lib/validations/validateEmail";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function SignUp() {
-  //1. validating username
-  //2. validating email
   //3. validating passwords
   //4. save to test db for now in future in normal db
   //5. checking creds with existing usernames and mails
@@ -42,6 +41,11 @@ export default function SignUp() {
     const usernameValidation = validateUsername(user.username);
     if (!usernameValidation.isValid) {
       setErrorMessage(usernameValidation.error || "Invalid username");
+    }
+
+    const emailValidation = validateEmail(user.email);
+    if (!emailValidation.isValid) {
+      setErrorMessage(emailValidation.error || "Invalid email");
     }
 
     try {
