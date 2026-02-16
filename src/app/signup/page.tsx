@@ -41,22 +41,26 @@ export default function SignUp() {
     const usernameValidation = validateUsername(user.username);
     if (!usernameValidation.isValid) {
       setErrorMessage(usernameValidation.error || "Invalid username");
+      return;
     }
 
     const emailValidation = validateEmail(user.email);
     if (!emailValidation.isValid) {
       setErrorMessage(emailValidation.error || "Invalid email");
+      return;
+    }
+
+    if (user.password !== user.confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    if (!user.agreeToTerms) {
+      setErrorMessage("Please agree to the terms and conditions.");
+      return;
     }
 
     try {
-      if (user.password !== user.confirmPassword) {
-        setErrorMessage("Passwords do not match.");
-      }
-
-      if (!user.agreeToTerms) {
-        setErrorMessage("Please agree to the terms and conditions.");
-      }
-
       const res = await axios.post("/api/auth/signup", user);
       console.log(res);
     } catch (err: any) {
