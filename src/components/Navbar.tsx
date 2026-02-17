@@ -219,7 +219,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               <Link
                 href="/profile"
                 onClick={() => setIsOpen(false)}
-                className={`font-[Koulen] text-lg px-3 py-2 border ${
+                className={`hidden font-[Koulen] text-lg px-3 py-2 border ${
                   theme === "dark"
                     ? "border-gray-700 text-white"
                     : "border-gray-300 text-gray-900"

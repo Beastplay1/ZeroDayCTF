@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateUsername } from "@/lib/validations/validateUsername";
 import { validateEmail } from "@/lib/validations/validateEmail";
 import { validatePassword } from "@/lib/validations/validatePassword";
+import { saveUser } from "@/lib/storage/userStore";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -31,15 +32,6 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    // Ensure user accepted terms
-    if (!agreeToTerms) {
-      return NextResponse.json(
-        { error: "You must agree to the terms and conditions" },
-        { status: 400 },
-      );
-    }
-
-    // Check password presence and strength
     if (!password) {
       return NextResponse.json({ error: "Password is required" }, { status: 400 });
     }
@@ -53,11 +45,28 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Passwords do not match" }, { status: 400 });
     }
 
-    console.log("Signup request received:", { username, password });
-    return NextResponse.json(
-      { message: "User signed up successfully" },
-      { status: 201 },
-    );
+    if (!agreeToTerms) {
+      return NextResponse.json(
+        { error: "You must agree to the terms and conditions" },
+        { status: 400 },
+      );
+    }
+
+    // Persist user temporarily
+    try {
+      const stored = await saveUser({ username, email, password });
+      console.log("Saved user:", { id: stored.id, username: stored.username });
+      return NextResponse.json(
+        { message: "User signed up successfully", id: stored.id },
+        { status: 201 },
+      );
+    } catch (e: any) {
+      if (e.code === "DUPLICATE_USERNAME" || e.code === "DUPLICATE_EMAIL") {
+        return NextResponse.json({ error: e.message }, { status: 409 });
+      }
+      console.error("Error saving user:", e);
+      return NextResponse.json({ error: "Failed to save user" }, { status: 500 });
+    }
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(
