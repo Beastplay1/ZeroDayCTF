@@ -2,13 +2,13 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
-type NewUser = {
+export type NewUser = {
   username: string;
   email: string;
   password: string;
 };
 
-type StoredUser = {
+export type StoredUser = {
   id: number;
   username: string;
   email: string;

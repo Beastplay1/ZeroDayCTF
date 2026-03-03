@@ -3,16 +3,8 @@
     "id": 1,
     "username": "test",
     "email": "test@test.com",
-    "passwordHash": "6db69f51be5ff7f2ce42eb5bd7f3fd4ee52e30bf2f2ddb03b5a3727d2233f7daa742992e60176acf98f66d2fca213ae7e11462074bb32e8b9099e994bf8dfb8e",
-    "salt": "090a80e53421009857ce362cd0cac13e",
-    "createdAt": "2026-02-17T12:42:33.924Z"
-  },
-  {
-    "id": 2,
-    "username": "test2",
-    "email": "test2@test.com",
-    "passwordHash": "92c5724162443437b8a9c6114ad2ecd627544568304550b024922dde67e7a9280e60411b167662a499a4e18d6f66ebc9182313d9d8dc65a1210829d6c491725b",
-    "salt": "329d4ea963f57448d6342864273565e1",
-    "createdAt": "2026-02-17T12:47:47.066Z"
+    "passwordHash": "1c06f5d5ace6ba968b9208b72b9a5f9c28d5c455c761d7d702cd6ba1f5d630f4181f36818e589e6ba520c06fb3aea04c3e96c687f55253ff4f94247075698a37",
+    "salt": "2c586e49a7f663daaafefe0deaa30f16",
+    "createdAt": "2026-03-03T11:13:49.903Z"
   }
 ]

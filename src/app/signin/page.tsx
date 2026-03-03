@@ -34,14 +34,9 @@ export default function SignIn() {
         const res = await axios.post("/api/auth/signin", {
           identifier: email,
           password,
+          rememberMe,
         });
-        // If server responded with a redirect status, perform client-side navigation
-        if (res.status === 301) {
-          window.location.replace("/profile");
-          return;
-        }
-
-        // For other success statuses, still navigate
+        
         if (res.status >= 200 && res.status < 300) {
           window.location.replace("/profile");
           return;
