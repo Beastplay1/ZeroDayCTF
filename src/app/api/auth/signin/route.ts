@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateEmail } from "@/lib/validations/validateEmail";
 import { validateUsername } from "@/lib/validations/validateUsername";
 import { verifyUser } from "@/lib/storage/userStore";
+import { createSessionToken, getSessionCookieName } from "@/lib/auth/session";
 
 export const POST = async (request: NextRequest) => {
   try {
     const body = await request.json();
-    const { identifier, password } = body; // identifier = email or username
+    const { identifier, password, rememberMe } = body;
 
     if (!identifier || !password) {
       return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
     }
 
-    // Basic validation: accept either a valid email or a valid username
     const isEmail = validateEmail(identifier).isValid;
     const isUsername = validateUsername(identifier).isValid;
     if (!isEmail && !isUsername) {
@@ -24,9 +24,20 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // On success, send a redirect response (301) to /profile
-    const redirectUrl = new URL("/profile", request.url);
-    return NextResponse.redirect(redirectUrl, 301);
+    const token = createSessionToken(user.id, user.username, Boolean(rememberMe));
+    const response = NextResponse.json({ message: "Authenticated" }, { status: 200 });
+
+    response.cookies.set({
+      name: getSessionCookieName(),
+      value: token,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24,
+    });
+
+    return response;
   } catch (e) {
     console.error("Signin error:", e);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

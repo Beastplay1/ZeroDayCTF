@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardBody, CardHeader, Chip, Button, Progress } from "@heroui/react";
 import { Orbitron, Roboto_Mono } from "next/font/google";
 
@@ -18,9 +18,26 @@ interface SolvedChallenge {
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats">("overview");
+  const [sessionUsername, setSessionUsername] = useState("anonymous");
+
+  useEffect(() => {
+    const loadSession = async () => {
+      try {
+        const res = await fetch("/api/auth/session", { cache: "no-store" });
+        const data = await res.json();
+        if (data?.authenticated && data?.user?.username) {
+          setSessionUsername(data.user.username);
+        }
+      } catch {
+        setSessionUsername("anonymous");
+      }
+    };
+
+    loadSession();
+  }, []);
 
   const userData = {
-    username: "h4x0r_elite",
+    username: sessionUsername,
     rank: 1,
     totalPoints: 12450,
     totalSolves: 87,

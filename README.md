@@ -12,9 +12,11 @@ ZeroDayCTF is a small Next.js-based Capture The Flag (CTF) project scaffold desi
 
 - Next.js app using the app router and Tailwind CSS for styling.
 - Signup and signin UI with client-side validation and server-side validation hooks.
+- Session management with signed, HTTP-only cookies after successful login.
+- Navbar automatically shows `Profile` only when a user session exists.
+- `/profile` now loads and displays the currently signed-in nickname.
+- User persistence supports MongoDB Atlas Data API with automatic migration from legacy `data/users.json`.
 - `validateUsername` contains normalization, control-character stripping, percent-decoded payload detection, and heuristics for XSS/SQL patterns. Malicious inputs return HTTP 403 (development-only fake WAF behavior).
-- A fake WAF/testing switch in the signup UI (dev) to force 403 responses for testing flows.
-- Static challenge and leaderboard UI to extend with dynamic data and persistence.
 
 ## Getting started (development)
 
@@ -26,6 +28,40 @@ npm run dev
 ```
 
 2. Open your browser at http://localhost:3000
+
+## MongoDB setup (free tier)
+
+This project currently uses **MongoDB Atlas Data API** (not a direct `mongodb+srv://` driver connection), so having only a cluster connection string is not enough.
+
+1. In Atlas, create a **Shared M0 (Free)** cluster (avoid M10+/Dedicated tiers).
+2. Open **Data API** in Atlas and enable it for your project.
+3. Create a Data API key.
+4. Add the environment variables below.
+
+> If Atlas asks for payment, verify you selected **Shared + M0 Free tier** and no paid add-ons.
+
+## Environment variables
+
+Create `.env.local` (optional for local file storage mode):
+
+```bash
+# Required in production: rotate this secret.
+SESSION_SECRET="replace-with-a-long-random-secret"
+
+# Optional: if set, MongoDB Atlas Data API is used as the primary user store.
+MONGODB_DATA_API_URL="https://data.mongodb-api.com/app/<app-id>/endpoint/data/v1"
+MONGODB_DATA_API_KEY="<atlas-data-api-key>"
+MONGODB_DATA_SOURCE="Cluster0"
+MONGODB_DB="zerodayctf"
+```
+
+If `MONGODB_DATA_API_URL` and `MONGODB_DATA_API_KEY` are set, the app migrates users from `data/users.json` into MongoDB on first auth/user-store access.
+
+## Security notes
+
+- Do **not** commit `.env.local` to git.
+- If you shared your DB username/password publicly, rotate credentials immediately in Atlas.
+- Keep Atlas IP allowlist as narrow as possible for development.
 
 ## Testing validation and fake WAF
 
@@ -54,13 +90,11 @@ curl -i -X POST http://localhost:3000/api/auth/signup \
 
 ## Roadmap / next steps
 
-- Add database persistence (SQLite or similar) and real authentication/session management.
+- Add RBAC and route protection for profile/admin pages.
 - Implement admin panel for creating and managing challenges.
 - Add unit tests for validation logic and end-to-end tests for signup/signin flows.
-- Replace fake WAF with a production-grade WAF or hardened rules before deployment.
+- Add password reset and email verification workflows.
 
 ## License & notes
 
 - This project is a learning/demo scaffold. Use and modify freely for education or prototyping.
-
-If you want, I can add a small `403` page, unit tests for `validateUsername`, or a database-backed user store next.
