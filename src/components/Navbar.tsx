@@ -176,7 +176,9 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                     href="/signin"
                     variant="bordered"
                     className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors ${
-                      theme === "dark" ? "text-white bg-transparent" : "text-gray-900 bg-transparent"
+                      theme === "dark"
+                        ? "text-white bg-transparent"
+                        : "text-gray-900 bg-transparent"
                     } hover:bg-zerogreen/10`}
                   >
                     Sign In
@@ -187,7 +189,9 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                   onClick={handleSignOut}
                   variant="bordered"
                   className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors ${
-                    theme === "dark" ? "text-white bg-transparent" : "text-gray-900 bg-transparent"
+                    theme === "dark"
+                      ? "text-white bg-transparent"
+                      : "text-gray-900 bg-transparent"
                   } hover:bg-zerogreen/10`}
                 >
                   Sign Out
@@ -295,39 +299,60 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               >
                 About Us
               </Link>
-              <Link
-                href="/profile"
-                onClick={() => setIsOpen(false)}
-                className={`hidden font-[Koulen] text-lg px-3 py-2 border ${
-                  theme === "dark"
-                    ? "border-gray-700 text-white"
-                    : "border-gray-300 text-gray-900"
-                } hover:text-zerogreen transition-colors text-center`}
-              >
-                Profile
-              </Link>
-              <Button
-                as={Link}
-                href="/signup"
-                onClick={() => setIsOpen(false)}
-                variant="solid"
-                className="signup bg-[#09CC26] border-2 border-[#09CC26] rounded-sm text-lg px-3 py-2 transition-colors font-[Koulen] text-white w-full"
-              >
-                Sign Up
-              </Button>
-              <Button
-                as={Link}
-                href="/signin"
-                onClick={() => setIsOpen(false)}
-                variant="bordered"
-                className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full ${
-                  theme === "dark"
-                    ? "text-white bg-transparent"
-                    : "text-gray-900 bg-transparent"
-                }`}
-              >
-                Sign In
-              </Button>
+              {isLoggedIn && (
+                <Link
+                  href="/profile"
+                  onClick={() => setIsOpen(false)}
+                  className={`font-[Koulen] text-lg px-3 py-2 border ${
+                    theme === "dark"
+                      ? "border-gray-700 text-white"
+                      : "border-gray-300 text-gray-900"
+                  } hover:text-zerogreen transition-colors text-center`}
+                >
+                  Profile
+                </Link>
+              )}
+              {!isLoggedIn ? (
+                <>
+                  <Button
+                    as={Link}
+                    href="/signup"
+                    onClick={() => setIsOpen(false)}
+                    variant="solid"
+                    className="signup bg-[#09CC26] border-2 border-[#09CC26] rounded-sm text-lg px-3 py-2 transition-colors font-[Koulen] text-white w-full"
+                  >
+                    Sign Up
+                  </Button>
+                  <Button
+                    as={Link}
+                    href="/signin"
+                    onClick={() => setIsOpen(false)}
+                    variant="bordered"
+                    className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full ${
+                      theme === "dark"
+                        ? "text-white bg-transparent"
+                        : "text-gray-900 bg-transparent"
+                    }`}
+                  >
+                    Sign In
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setIsOpen(false);
+                    handleSignOut();
+                  }}
+                  variant="bordered"
+                  className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full ${
+                    theme === "dark"
+                      ? "text-white bg-transparent"
+                      : "text-gray-900 bg-transparent"
+                  }`}
+                >
+                  Sign Out
+                </Button>
+              )}
             </div>
           </div>
         </div>

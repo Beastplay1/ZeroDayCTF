@@ -1,6 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Chip, Button, Progress } from "@heroui/react";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Button,
+  Progress,
+} from "@heroui/react";
 import { Orbitron, Roboto_Mono } from "next/font/google";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
@@ -17,26 +24,32 @@ interface SolvedChallenge {
 }
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats">("overview");
-  const [sessionUsername, setSessionUsername] = useState("anonymous");
+  const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats">(
+    "overview",
+  );
+  const [sessionUsername, setSessionUsername] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadSession = async() => {
+    const loadSession = async () => {
       try {
-        const res = await fetch('/api/auth/session', { cache: 'no-store'});
+        const res = await fetch("/api/auth/session", { cache: "no-store" });
         const data = await res.json();
-
-        if(data?.authenticated && data?.user?.username){
+        if (data?.authenticated && data?.user?.username) {
           setSessionUsername(data.user.username);
+        } else {
+          setSessionUsername("anonymous");
         }
       } catch {
-        setSessionUsername('anonymous')
+        setSessionUsername("anonymous");
       }
-    }
-  })
+      setLoading(false);
+    };
+    loadSession();
+  }, []);
 
   const userData = {
-    username: sessionUsername,
+    username: sessionUsername || "",
     rank: 1,
     totalPoints: 12450,
     totalSolves: 87,
@@ -46,39 +59,105 @@ export default function Profile() {
     joinedDate: "Jan 15, 2024",
     bio: "Elite hacker specializing in web exploitation and cryptography. CTF enthusiast since 2020.",
   };
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
+        <div className="text-center text-zerogreen text-xl animate-pulse">
+          Loading profile...
+        </div>
+      </div>
+    );
+  }
 
   const categoryStats = [
     { category: "Web", solved: 24, total: 50, color: "bg-blue-500" },
     { category: "Crypto", solved: 18, total: 40, color: "bg-purple-500" },
     { category: "Pwn", solved: 15, total: 35, color: "bg-red-500" },
-    { category: "Reverse Engineering", solved: 12, total: 30, color: "bg-orange-500" },
+    {
+      category: "Reverse Engineering",
+      solved: 12,
+      total: 30,
+      color: "bg-orange-500",
+    },
     { category: "Forensics", solved: 10, total: 25, color: "bg-cyan-500" },
     { category: "Mobile", solved: 5, total: 20, color: "bg-green-500" },
     { category: "Hardware", solved: 3, total: 15, color: "bg-yellow-500" },
   ];
 
   const recentSolves: SolvedChallenge[] = [
-    { id: 1, name: "SQL Injection Master", category: "Web", difficulty: "Medium", points: 300, solvedAt: "2 hours ago", wasFirstBlood: true },
-    { id: 2, name: "RSA Decrypt", category: "Crypto", difficulty: "Hard", points: 500, solvedAt: "5 hours ago", wasFirstBlood: false },
-    { id: 3, name: "Buffer Overflow Basic", category: "Pwn", difficulty: "Easy", points: 200, solvedAt: "1 day ago", wasFirstBlood: true },
-    { id: 4, name: "Reverse Me", category: "Reverse Engineering", difficulty: "Medium", points: 350, solvedAt: "2 days ago", wasFirstBlood: false },
-    { id: 5, name: "XSS Paradise", category: "Web", difficulty: "Hard", points: 450, solvedAt: "3 days ago", wasFirstBlood: true },
+    {
+      id: 1,
+      name: "SQL Injection Master",
+      category: "Web",
+      difficulty: "Medium",
+      points: 300,
+      solvedAt: "2 hours ago",
+      wasFirstBlood: true,
+    },
+    {
+      id: 2,
+      name: "RSA Decrypt",
+      category: "Crypto",
+      difficulty: "Hard",
+      points: 500,
+      solvedAt: "5 hours ago",
+      wasFirstBlood: false,
+    },
+    {
+      id: 3,
+      name: "Buffer Overflow Basic",
+      category: "Pwn",
+      difficulty: "Easy",
+      points: 200,
+      solvedAt: "1 day ago",
+      wasFirstBlood: true,
+    },
+    {
+      id: 4,
+      name: "Reverse Me",
+      category: "Reverse Engineering",
+      difficulty: "Medium",
+      points: 350,
+      solvedAt: "2 days ago",
+      wasFirstBlood: false,
+    },
+    {
+      id: 5,
+      name: "XSS Paradise",
+      category: "Web",
+      difficulty: "Hard",
+      points: 450,
+      solvedAt: "3 days ago",
+      wasFirstBlood: true,
+    },
   ];
 
   const achievements = [
     { icon: "🥇", title: "Rank #1", description: "Top of the leaderboard" },
-    { icon: "🔥", title: "45 Day Streak", description: "Longest active streak" },
+    {
+      icon: "🔥",
+      title: "45 Day Streak",
+      description: "Longest active streak",
+    },
     { icon: "🩸", title: "23 First Bloods", description: "Speed demon" },
     { icon: "⚡", title: "87 Challenges", description: "Challenge conqueror" },
-    { icon: "🎯", title: "Web Master", description: "Solved 24 web challenges" },
-    { icon: "🔐", title: "Crypto Expert", description: "Solved 18 crypto challenges" },
+    {
+      icon: "🎯",
+      title: "Web Master",
+      description: "Solved 24 web challenges",
+    },
+    {
+      icon: "🔐",
+      title: "Crypto Expert",
+      description: "Solved 18 crypto challenges",
+    },
   ];
 
   const difficultyColors = {
     Easy: "success",
     Medium: "warning",
     Hard: "danger",
-    Insane: "secondary"
+    Insane: "secondary",
   };
 
   return (
@@ -92,7 +171,9 @@ export default function Profile() {
               </div>
               <div className="flex-grow text-center md:text-left">
                 <div className="flex items-center gap-3 justify-center md:justify-start mb-2">
-                  <h1 className={`text-4xl font-bold text-white ${robotoMono.className}`}>
+                  <h1
+                    className={`text-4xl font-bold text-white ${robotoMono.className}`}
+                  >
                     {userData.username}
                   </h1>
                   <span className="text-3xl">{userData.country}</span>
@@ -120,7 +201,9 @@ export default function Profile() {
                 <Button className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90">
                   Edit Profile
                 </Button>
-                <p className="text-gray-500 text-sm mt-2">Joined {userData.joinedDate}</p>
+                <p className="text-gray-500 text-sm mt-2">
+                  Joined {userData.joinedDate}
+                </p>
               </div>
             </div>
           </CardBody>
@@ -162,7 +245,9 @@ export default function Profile() {
         {activeTab === "overview" && (
           <div className="space-y-6">
             <div>
-              <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
+              <h2
+                className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
+              >
                 <span className="text-zerogreen">◆</span> Achievements
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -173,8 +258,12 @@ export default function Profile() {
                   >
                     <CardBody className="text-center p-4">
                       <div className="text-4xl mb-2">{achievement.icon}</div>
-                      <h3 className="text-white font-bold text-sm mb-1">{achievement.title}</h3>
-                      <p className="text-gray-500 text-xs">{achievement.description}</p>
+                      <h3 className="text-white font-bold text-sm mb-1">
+                        {achievement.title}
+                      </h3>
+                      <p className="text-gray-500 text-xs">
+                        {achievement.description}
+                      </p>
                     </CardBody>
                   </Card>
                 ))}
@@ -182,7 +271,9 @@ export default function Profile() {
             </div>
 
             <div>
-              <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
+              <h2
+                className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
+              >
                 <span className="text-zerogreen">◆</span> Recent Solves
               </h2>
               <div className="space-y-3">
@@ -195,21 +286,36 @@ export default function Profile() {
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                         <div className="flex-grow">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className={`text-lg font-bold text-white ${orbitron.className}`}>
+                            <h3
+                              className={`text-lg font-bold text-white ${orbitron.className}`}
+                            >
                               {challenge.name}
                             </h3>
                             {challenge.wasFirstBlood && (
-                              <Chip size="sm" className="bg-red-500/20 text-red-400 font-bold">
+                              <Chip
+                                size="sm"
+                                className="bg-red-500/20 text-red-400 font-bold"
+                              >
                                 🩸 First Blood
                               </Chip>
                             )}
                           </div>
                           <div className="flex gap-2 flex-wrap">
-                            <Chip size="sm" variant="flat">{challenge.category}</Chip>
-                            <Chip size="sm" color={difficultyColors[challenge.difficulty] as any}>
+                            <Chip size="sm" variant="flat">
+                              {challenge.category}
+                            </Chip>
+                            <Chip
+                              size="sm"
+                              color={
+                                difficultyColors[challenge.difficulty] as any
+                              }
+                            >
                               {challenge.difficulty}
                             </Chip>
-                            <Chip size="sm" className="bg-zerogreen/20 text-zerogreen font-bold">
+                            <Chip
+                              size="sm"
+                              className="bg-zerogreen/20 text-zerogreen font-bold"
+                            >
                               +{challenge.points} pts
                             </Chip>
                           </div>
@@ -228,8 +334,11 @@ export default function Profile() {
 
         {activeTab === "solved" && (
           <div>
-            <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
-              <span className="text-zerogreen">◆</span> All Solved Challenges ({userData.totalSolves})
+            <h2
+              className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
+            >
+              <span className="text-zerogreen">◆</span> All Solved Challenges (
+              {userData.totalSolves})
             </h2>
             <div className="space-y-3">
               {recentSolves.map((challenge) => (
@@ -241,21 +350,36 @@ export default function Profile() {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                       <div className="flex-grow">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className={`text-lg font-bold text-white ${orbitron.className}`}>
+                          <h3
+                            className={`text-lg font-bold text-white ${orbitron.className}`}
+                          >
                             {challenge.name}
                           </h3>
                           {challenge.wasFirstBlood && (
-                            <Chip size="sm" className="bg-red-500/20 text-red-400 font-bold">
+                            <Chip
+                              size="sm"
+                              className="bg-red-500/20 text-red-400 font-bold"
+                            >
                               🩸 First Blood
                             </Chip>
                           )}
                         </div>
                         <div className="flex gap-2 flex-wrap">
-                          <Chip size="sm" variant="flat">{challenge.category}</Chip>
-                          <Chip size="sm" color={difficultyColors[challenge.difficulty] as any}>
+                          <Chip size="sm" variant="flat">
+                            {challenge.category}
+                          </Chip>
+                          <Chip
+                            size="sm"
+                            color={
+                              difficultyColors[challenge.difficulty] as any
+                            }
+                          >
                             {challenge.difficulty}
                           </Chip>
-                          <Chip size="sm" className="bg-zerogreen/20 text-zerogreen font-bold">
+                          <Chip
+                            size="sm"
+                            className="bg-zerogreen/20 text-zerogreen font-bold"
+                          >
                             +{challenge.points} pts
                           </Chip>
                         </div>
@@ -274,7 +398,9 @@ export default function Profile() {
         {activeTab === "stats" && (
           <div className="space-y-6">
             <div>
-              <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
+              <h2
+                className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
+              >
                 <span className="text-zerogreen">◆</span> Category Progress
               </h2>
               <div className="space-y-4">
@@ -285,7 +411,9 @@ export default function Profile() {
                   >
                     <CardBody className="p-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-white font-bold">{stat.category}</span>
+                        <span className="text-white font-bold">
+                          {stat.category}
+                        </span>
                         <span className="text-gray-400">
                           {stat.solved}/{stat.total} solved
                         </span>
@@ -306,7 +434,9 @@ export default function Profile() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-[#0f0f0f] border border-zerogreen/30">
                 <CardHeader className="pb-0">
-                  <h3 className={`text-xl font-bold text-white ${orbitron.className}`}>
+                  <h3
+                    className={`text-xl font-bold text-white ${orbitron.className}`}
+                  >
                     Performance Stats
                   </h3>
                 </CardHeader>
@@ -334,7 +464,9 @@ export default function Profile() {
 
               <Card className="bg-[#0f0f0f] border border-zerogreen/30">
                 <CardHeader className="pb-0">
-                  <h3 className={`text-xl font-bold text-white ${orbitron.className}`}>
+                  <h3
+                    className={`text-xl font-bold text-white ${orbitron.className}`}
+                  >
                     Ranking History
                   </h3>
                 </CardHeader>
