@@ -23,9 +23,24 @@ export type StoredUser = {
   passwordHash: string;
   salt: string;
   createdAt: string;
+  usernum: number; // Unique number for username#number
 };
 
 let mongoMigrationDone = false;
+
+/**
+ * Formats username#number for display.
+ * Pads number to 4 digits if < 10000, else displays as-is.
+ * Example: test#0001, test#10000
+ */
+export function formatUsernameNumber(
+  username: string,
+  usernum: number,
+): string {
+  const formattedNumber =
+    usernum < 10000 ? usernum.toString().padStart(4, "0") : usernum.toString();
+  return `${username}#${formattedNumber}`;
+}
 
 const getFilePath = () =>
   path.join(path.resolve(process.cwd(), "data"), "users.json");
@@ -92,6 +107,7 @@ async function createStoredUser(
     passwordHash: hash,
     salt,
     createdAt: new Date().toISOString(),
+    usernum: usersCount + 1, // Assign unique number for username#number
   } as StoredUser;
 }
 
@@ -102,11 +118,6 @@ export async function saveUser({
 }: NewUser): Promise<StoredUser> {
   if (isMongoDataApiConfigured() || isMongoNativeConfigured()) {
     await migrateFileUsersToMongoIfNeeded();
-
-    const existingUsername = await mongoFindOne<StoredUser>("users", {
-      username,
-    });
-    if (existingUsername) throwDuplicateError("username");
 
     const existingEmail = await mongoFindOne<StoredUser>("users", { email });
     if (existingEmail) throwDuplicateError("email");
@@ -129,8 +140,7 @@ export async function saveUser({
   }
 
   const users = await readFileUsers();
-  if (users.find((u) => u.username === username))
-    throwDuplicateError("username");
+  // Username uniqueness is no longer enforced
   if (users.find((u) => u.email === email)) throwDuplicateError("email");
 
   const newUser = await createStoredUser(

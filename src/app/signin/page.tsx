@@ -25,8 +25,8 @@ export default function SignIn() {
     e.preventDefault();
     setTimeout(async () => {
       // basic client-side validation
-      if (!validateEmail(email).isValid && !validateUsername(email).isValid) {
-        alert("Please enter a valid email or username.");
+      if (!validateEmail(email).isValid) {
+        alert("Please enter a valid email.");
         return;
       }
 
@@ -79,7 +79,7 @@ export default function SignIn() {
               <div>
                 <Input
                   type="email"
-                  label="Email / Username"
+                  label="Email"
                   placeholder="hacker@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
