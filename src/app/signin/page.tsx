@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
+import { signIn } from "next-auth/react";
 import { validateEmail } from "@/lib/validations/validateEmail";
-import { validateUsername } from "@/lib/validations/validateUsername";
 import {
   Card,
   CardBody,
@@ -36,7 +36,7 @@ export default function SignIn() {
           password,
           rememberMe,
         });
-        
+
         if (res.status >= 200 && res.status < 300) {
           window.location.replace("/profile");
           return;
@@ -156,10 +156,12 @@ export default function SignIn() {
                   className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                   variant="bordered"
                   startContent={<span>🔐</span>}
+                  disabled
                 >
                   Continue with GitHub
                 </Button>
                 <Button
+                  onClick={() => signIn("google", { callbackUrl: "/profile" })}
                   className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                   variant="bordered"
                   startContent={<span>🌐</span>}

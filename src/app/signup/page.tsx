@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { signIn } from "next-auth/react";
 import {
   Card,
   CardBody,
@@ -19,7 +20,7 @@ import { useRouter } from "next/navigation";
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function SignUp() {
-    const router = useRouter();
+  const router = useRouter();
 
   //FUTURE IDEA!! Encrypt creds in db with AES-256 i mean why not :D
 
@@ -61,7 +62,6 @@ export default function SignUp() {
     if (!user.agreeToTerms) {
       setErrorMessage("Please agree to the terms and conditions.");
     }
-
 
     try {
       const res = await axios.post("/api/auth/signup", user);
@@ -274,10 +274,12 @@ export default function SignUp() {
                   className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                   variant="bordered"
                   startContent={<span>🔐</span>}
+                  disabled
                 >
                   Continue with GitHub
                 </Button>
                 <Button
+                  onClick={() => signIn("google", { callbackUrl: "/profile" })}
                   className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                   variant="bordered"
                   startContent={<span>🌐</span>}
