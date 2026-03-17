@@ -1,6 +1,11 @@
 import { type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { mongoFindOne, mongoUpdateOne, mongoInsertOne } from "@/lib/db/mongodb";
+import {
+  mongoFindOne,
+  mongoFindMany,
+  mongoUpdateOne,
+  mongoInsertOne,
+} from "@/lib/db/mongodb";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -22,22 +27,48 @@ export const authOptions: NextAuthOptions = {
 
       try {
         // Check if user exists in database
-        const existingUser = await mongoFindOne("users", {
+        let existingUser = await mongoFindOne("users", {
           email: user.email,
         });
 
+        // Generate username from email or name
+        let username = existingUser?.username;
+        if (!username) {
+          if (user.name) {
+            username = user.name.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase();
+          } else if (user.email) {
+            username = user.email
+              .split("@")[0]
+              .replace(/[^a-zA-Z0-9_]/g, "")
+              .toLowerCase();
+          } else {
+            username = "user" + Math.floor(Math.random() * 100000);
+          }
+        }
+
         if (!existingUser) {
+          // Get next numeric id
+          const latestUsers = await mongoFindMany<{ id?: number }>(
+            "users",
+            {},
+            { id: -1 },
+            1,
+          );
+          const nextId = (latestUsers[0]?.id || 0) + 1;
+
           // Create new user if doesn't exist
           const newUser = {
+            id: nextId,
             email: user.email,
             name: user.name,
             image: user.image,
             provider: account?.provider,
             createdAt: new Date(),
+            username,
           };
           await mongoInsertOne("users", newUser);
         } else {
-          // Update user info if they already exist
+          // Update user info if they already exist, and set username if missing
           await mongoUpdateOne(
             "users",
             { email: user.email },
@@ -46,6 +77,7 @@ export const authOptions: NextAuthOptions = {
                 name: user.name,
                 image: user.image,
                 lastLogin: new Date(),
+                username,
               },
             },
           );
@@ -82,12 +114,13 @@ export const authOptions: NextAuthOptions = {
     },
 
     async redirect({ url, baseUrl }) {
-      // Redirect to profile after signin with OAuth
+      // After OAuth, redirect to custom session route
+      if (url === "/profile") {
+        return `${baseUrl}/api/auth/oauth-session`;
+      }
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allow redirect to same domain
       else if (new URL(url).origin === new URL(baseUrl).origin) return url;
-      // Redirect to profile as default
-      return `${baseUrl}/profile`;
+      return `${baseUrl}/api/auth/oauth-session`;
     },
   },
   secret: process.env.AUTH_SECRET,
