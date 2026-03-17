@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateUsername } from "@/lib/validations/validateUsername";
 import { validateEmail } from "@/lib/validations/validateEmail";
 import { validatePassword } from "@/lib/validations/validatePassword";
+import { saveUser } from "@/lib/storage/userStore";
+import { createSessionToken, getSessionCookieName } from "@/lib/auth/session";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -31,7 +33,28 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    // Ensure user accepted terms
+    if (!password) {
+      return NextResponse.json(
+        { error: "Password is required" },
+        { status: 400 },
+      );
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      return NextResponse.json(
+        { error: passwordValidation.error || "Invalid password" },
+        { status: 400 },
+      );
+    }
+
+    if (password !== confirmPassword) {
+      return NextResponse.json(
+        { error: "Passwords do not match" },
+        { status: 400 },
+      );
+    }
+
     if (!agreeToTerms) {
       return NextResponse.json(
         { error: "You must agree to the terms and conditions" },
@@ -39,25 +62,39 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    // Check password presence and strength
-    if (!password) {
-      return NextResponse.json({ error: "Password is required" }, { status: 400 });
-    }
+    // Persist user
+    try {
+      const stored = await saveUser({ username, email, password });
+      console.log("Saved user:", { id: stored.id, username: stored.username });
 
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.isValid) {
-      return NextResponse.json({ error: passwordValidation.error || "Invalid password" }, { status: 400 });
-    }
+      // Create session token and set cookie so user is logged in after signup
+      const token = createSessionToken(stored.id, stored.username, false);
+      const response = NextResponse.redirect(
+        new URL("/profile", request.url),
+        301,
+      );
 
-    if (password !== confirmPassword) {
-      return NextResponse.json({ error: "Passwords do not match" }, { status: 400 });
-    }
+      response.cookies.set({
+        name: getSessionCookieName(),
+        value: token,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "development",
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      });
 
-    console.log("Signup request received:", { username, password });
-    return NextResponse.json(
-      { message: "User signed up successfully" },
-      { status: 201 },
-    );
+      return response;
+    } catch (e: any) {
+      if (e.code === "DUPLICATE_USERNAME" || e.code === "DUPLICATE_EMAIL") {
+        return NextResponse.json({ error: e.message }, { status: 409 });
+      }
+      console.error("Error saving user:", e);
+      return NextResponse.json(
+        { error: "Failed to save user" },
+        { status: 500 },
+      );
+    }
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(
