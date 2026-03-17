@@ -1,16 +1,6 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
-import { validateEmail } from "@/lib/validations/validateEmail";
-import { validateUsername } from "@/lib/validations/validateUsername";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-  Button,
-  Checkbox,
-} from "@heroui/react";
+import { Card, CardBody, CardHeader, Input, Button, Checkbox } from "@heroui/react";
 import { Orbitron } from "next/font/google";
 import Link from "next/link";
 
@@ -23,39 +13,14 @@ export default function SignIn() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setTimeout(async () => {
-      // basic client-side validation
-      if (!validateEmail(email).isValid) {
-        alert("Please enter a valid email.");
-        return;
-      }
-
-      try {
-        const res = await axios.post("/api/auth/signin", {
-          identifier: email,
-          password,
-          rememberMe,
-        });
-        
-        if (res.status >= 200 && res.status < 300) {
-          window.location.replace("/profile");
-          return;
-        }
-      } catch (err: any) {
-        const msg = err.response?.data?.error || "Authentication failed";
-        alert(msg);
-      }
-    }, 0);
   };
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1
-            className={`text-4xl font-bold text-white mb-2 ${orbitron.className}`}
-          >
-            <span className="text-zerogreen">{">"}</span> Access Terminal
+          <h1 className={`text-4xl font-bold text-white mb-2 ${orbitron.className}`}>
+            <span className="text-zerogreen">{'>'}</span> Access Terminal
           </h1>
           <p className="text-gray-400">Enter your credentials to continue</p>
         </div>
@@ -65,11 +30,7 @@ export default function SignIn() {
             <div className="w-full">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-zerogreen animate-pulse">█</span>
-                <span
-                  className={`text-zerogreen font-bold ${orbitron.className}`}
-                >
-                  AUTHENTICATION REQUIRED
-                </span>
+                <span className={`text-zerogreen font-bold ${orbitron.className}`}>AUTHENTICATION REQUIRED</span>
               </div>
               <div className="h-px bg-gradient-to-r from-zerogreen via-zerogreen/50 to-transparent mb-4"></div>
             </div>
@@ -79,18 +40,17 @@ export default function SignIn() {
               <div>
                 <Input
                   type="email"
-                  label="Email"
+                  label="Email / Username"
                   placeholder="hacker@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   classNames={{
                     input: "bg-transparent text-white",
-                    inputWrapper:
-                      "bg-[#0f0f0f] border border-gray-700 hover:border-zerogreen focus-within:border-zerogreen",
-                    label: "text-gray-400",
+                    inputWrapper: "bg-[#0f0f0f] border border-gray-700 hover:border-zerogreen focus-within:border-zerogreen",
+                    label: "text-gray-400"
                   }}
                   startContent={
-                    <span className="text-zerogreen text-sm">{">"}</span>
+                    <span className="text-zerogreen text-sm">{'>'}</span>
                   }
                 />
               </div>
@@ -104,12 +64,11 @@ export default function SignIn() {
                   onChange={(e) => setPassword(e.target.value)}
                   classNames={{
                     input: "bg-transparent text-white",
-                    inputWrapper:
-                      "bg-[#0f0f0f] border border-gray-700 hover:border-zerogreen focus-within:border-zerogreen",
-                    label: "text-gray-400",
+                    inputWrapper: "bg-[#0f0f0f] border border-gray-700 hover:border-zerogreen focus-within:border-zerogreen",
+                    label: "text-gray-400"
                   }}
                   startContent={
-                    <span className="text-zerogreen text-sm">{">"}</span>
+                    <span className="text-zerogreen text-sm">{'>'}</span>
                   }
                 />
               </div>
@@ -119,17 +78,13 @@ export default function SignIn() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                   classNames={{
-                    wrapper:
-                      "border-zerogreen data-[selected=true]:bg-zerogreen",
-                    label: "text-gray-400 text-sm",
+                    wrapper: "border-zerogreen data-[selected=true]:bg-zerogreen",
+                    label: "text-gray-400 text-sm"
                   }}
                 >
                   Remember me
                 </Checkbox>
-                <Link
-                  href="#"
-                  className="text-zerogreen hover:text-zerogreen/80 text-sm transition-colors"
-                >
+                <Link href="#" className="text-zerogreen hover:text-zerogreen/80 text-sm transition-colors">
                   Forgot password?
                 </Link>
               </div>
@@ -170,10 +125,7 @@ export default function SignIn() {
 
               <div className="text-center mt-6">
                 <span className="text-gray-400">New to ZeroDayCTF? </span>
-                <Link
-                  href="/signup"
-                  className="text-zerogreen hover:text-zerogreen/80 font-bold transition-colors"
-                >
+                <Link href="/signup" className="text-zerogreen hover:text-zerogreen/80 font-bold transition-colors">
                   Create account
                 </Link>
               </div>
@@ -181,9 +133,7 @@ export default function SignIn() {
           </CardBody>
         </Card>
 
-        <div
-          className={`text-center mt-6 text-gray-600 text-xs ${orbitron.className}`}
-        >
+        <div className={`text-center mt-6 text-gray-600 text-xs ${orbitron.className}`}>
           <p>[ SECURE CONNECTION ESTABLISHED ]</p>
           <p className="mt-1 flex items-center justify-center gap-2">
             <span className="w-2 h-2 bg-zerogreen rounded-full animate-pulse"></span>
