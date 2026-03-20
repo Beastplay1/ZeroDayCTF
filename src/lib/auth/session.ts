@@ -11,6 +11,9 @@ export type SessionPayload = {
 };
 
 function getSessionSecret(): string {
+  if (!process.env.SESSION_SECRET && process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET environment variable is required in production");
+  }
   return process.env.SESSION_SECRET || "dev-session-secret-change-me";
 }
 

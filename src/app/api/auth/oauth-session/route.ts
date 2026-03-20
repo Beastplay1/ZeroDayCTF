@@ -26,14 +26,14 @@ export const GET = async (request: NextRequest) => {
 
   // Create custom session token
   const token = createSessionToken(user.id, user.username, false);
-  const response = NextResponse.redirect(new URL("/profile", request.url), 301);
+  const response = NextResponse.redirect(new URL("/profile", request.url), 302);
 
   response.cookies.set({
     name: getSessionCookieName(),
     value: token,
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "development",
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 60 * 60 * 24,
   });

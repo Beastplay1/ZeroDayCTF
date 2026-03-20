@@ -9,6 +9,9 @@ export const POST = async () => {
   response.cookies.set({
     name: getSessionCookieName(),
     value: "",
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     expires: new Date(0),
   });

@@ -48,7 +48,7 @@ export const POST = async (request: NextRequest) => {
       value: token,
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24,
     });

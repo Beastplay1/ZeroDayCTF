@@ -65,13 +65,12 @@ export const POST = async (request: NextRequest) => {
     // Persist user
     try {
       const stored = await saveUser({ username, email, password });
-      console.log("Saved user:", { id: stored.id, username: stored.username });
 
       // Create session token and set cookie so user is logged in after signup
       const token = createSessionToken(stored.id, stored.username, false);
       const response = NextResponse.redirect(
         new URL("/profile", request.url),
-        301,
+        302,
       );
 
       response.cookies.set({
@@ -79,7 +78,7 @@ export const POST = async (request: NextRequest) => {
         value: token,
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "development",
+        secure: process.env.NODE_ENV === "production",
         path: "/",
         maxAge: 60 * 60 * 24,
       });

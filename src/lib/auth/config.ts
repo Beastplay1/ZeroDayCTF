@@ -32,7 +32,11 @@ export const authOptions: NextAuthOptions = {
 
       try {
         // Check if user exists in database
-        let existingUser = await mongoFindOne("users", {
+        let existingUser = await mongoFindOne<{
+          username?: string;
+          id?: number;
+          email?: string;
+        }>("users", {
           email: user.email,
         });
 
