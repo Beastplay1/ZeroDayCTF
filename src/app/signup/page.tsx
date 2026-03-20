@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { signIn } from "next-auth/react";
 import {
   Card,
   CardBody,
@@ -14,13 +15,13 @@ import Link from "next/link";
 import { validateUsername } from "@/lib/validations/validateUsername";
 import { validateEmail } from "@/lib/validations/validateEmail";
 import { validatePassword } from "@/lib/validations/validatePassword";
+import { useRouter } from "next/navigation";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function SignUp() {
-  //3. validating passwords
-  //4. save to test db for now in future in normal db
-  //5. checking creds with existing usernames and mails
+  const router = useRouter();
+
   //FUTURE IDEA!! Encrypt creds in db with AES-256 i mean why not :D
 
   const [user, setUser] = useState({
@@ -64,7 +65,8 @@ export default function SignUp() {
 
     try {
       const res = await axios.post("/api/auth/signup", user);
-      console.log(res);
+      window.location.replace("/profile");
+      // console.log(res);
     } catch (err: any) {
       console.error(err);
       if (err.response?.data?.error) {
@@ -269,6 +271,7 @@ export default function SignUp() {
 
               <div className="space-y-3">
                 <Button
+                  onClick={() => signIn("github", { callbackUrl: "/profile" })}
                   className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                   variant="bordered"
                   startContent={<span>🔐</span>}
@@ -276,6 +279,7 @@ export default function SignUp() {
                   Continue with GitHub
                 </Button>
                 <Button
+                  onClick={() => signIn("google", { callbackUrl: "/profile" })}
                   className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                   variant="bordered"
                   startContent={<span>🌐</span>}
