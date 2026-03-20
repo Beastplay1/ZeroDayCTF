@@ -271,10 +271,10 @@ export default function SignUp() {
 
               <div className="space-y-3">
                 <Button
+                  onClick={() => signIn("github", { callbackUrl: "/profile" })}
                   className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                   variant="bordered"
                   startContent={<span>🔐</span>}
-                  disabled
                 >
                   Continue with GitHub
                 </Button>
