@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import type { UserRole } from "@/lib/storage/userStore";
 
 const SESSION_COOKIE = "zeroday_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
@@ -7,6 +8,7 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24;
 export type SessionPayload = {
   userId: number;
   username: string;
+  role: UserRole;
   exp: number;
 };
 
@@ -21,11 +23,12 @@ function sign(payloadB64: string): string {
   return crypto.createHmac("sha256", getSessionSecret()).update(payloadB64).digest("hex");
 }
 
-export function createSessionToken(userId: number, username: string, rememberMe?: boolean): string {
+export function createSessionToken(userId: number, username: string, rememberMe?: boolean, role: UserRole = "user"): string {
   const expiresIn = rememberMe ? 60 * 60 * 24 * 30 : SESSION_TTL_SECONDS;
   const payload: SessionPayload = {
     userId,
     username,
+    role,
     exp: Math.floor(Date.now() / 1000) + expiresIn,
   };
 

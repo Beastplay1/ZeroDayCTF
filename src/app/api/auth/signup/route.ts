@@ -67,7 +67,12 @@ export const POST = async (request: NextRequest) => {
       const stored = await saveUser({ username, email, password });
 
       // Create session token and set cookie so user is logged in after signup
-      const token = createSessionToken(stored.id, stored.username, false);
+      const token = createSessionToken(
+        stored.id,
+        stored.username,
+        false,
+        stored.role,
+      );
       const response = NextResponse.redirect(
         new URL("/profile", request.url),
         302,

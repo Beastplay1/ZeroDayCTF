@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+export default function ClientLayout({
+  children,
+  isAdmin = false,
+}: {
+  children: React.ReactNode;
+  isAdmin?: boolean;
+}) {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [mounted, setMounted] = useState(false);
 
@@ -23,18 +29,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     }
   }, [theme, mounted]);
 
-
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
-    <div className={`${theme === "dark" ? "dark bg-[#0a0a0a] text-white" : "bg-white text-gray-900"} min-h-screen flex flex-col transition-colors duration-300`}>
-      <Navbar theme={theme} toggleTheme={toggleTheme} />
-      <main className="flex-grow container mx-auto px-4 py-8 mt-20">
+    <div
+      className={`${theme === "dark" ? "dark bg-[#0a0a0a] text-white" : "bg-white text-gray-900"} min-h-screen flex flex-col transition-colors duration-300`}
+    >
+      {!isAdmin && <Navbar theme={theme} toggleTheme={toggleTheme} />}
+      <main
+        className={`flex-grow ${!isAdmin ? "container mx-auto px-4 py-8 mt-20" : ""}`}
+      >
         {children}
       </main>
-      <Footer />
+      {!isAdmin && <Footer />}
     </div>
   );
 }

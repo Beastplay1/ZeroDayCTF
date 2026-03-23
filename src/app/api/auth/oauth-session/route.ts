@@ -13,7 +13,11 @@ export const GET = async (request: NextRequest) => {
   }
 
   // Find user in DB by email
-  const user = await mongoFindOne<{ id: number; username: string }>("users", {
+  const user = await mongoFindOne<{
+    id: number;
+    username: string;
+    role?: string;
+  }>("users", {
     email: session.user.email,
   });
   if (!user || !user.id) {
@@ -25,7 +29,8 @@ export const GET = async (request: NextRequest) => {
   }
 
   // Create custom session token
-  const token = createSessionToken(user.id, user.username, false);
+  const role = user.role === "admin" ? "admin" : "user";
+  const token = createSessionToken(user.id, user.username, false, role);
   const response = NextResponse.redirect(new URL("/profile", request.url), 302);
 
   response.cookies.set({

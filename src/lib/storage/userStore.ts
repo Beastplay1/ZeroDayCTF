@@ -16,6 +16,8 @@ export type NewUser = {
   password: string;
 };
 
+export type UserRole = "admin" | "user";
+
 export type StoredUser = {
   id: number;
   username: string;
@@ -24,6 +26,7 @@ export type StoredUser = {
   salt: string;
   createdAt: string;
   usernum: number; // Unique number for username#number
+  role: UserRole;
 };
 
 let mongoMigrationDone = false;
@@ -107,7 +110,8 @@ async function createStoredUser(
     passwordHash: hash,
     salt,
     createdAt: new Date().toISOString(),
-    usernum: usersCount + 1, // Assign unique number for username#number
+    usernum: usersCount + 1,
+    role: "user",
   } as StoredUser;
 }
 

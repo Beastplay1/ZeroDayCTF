@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Koulen } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
 import { Providers } from "./providers";
@@ -26,16 +27,20 @@ export const metadata: Metadata = {
     "ZeroDayCTF — a cybersecurity competition platform where hackers learn, compete, and evolve.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const isAdmin = headersList.get("x-is-admin") === "1";
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${koulen.variable} antialiased overflow-x-hidden`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${koulen.variable} antialiased overflow-x-hidden`}
+      >
         <Providers>
-          <ClientLayout>{children}</ClientLayout>
+          <ClientLayout isAdmin={isAdmin}>{children}</ClientLayout>
         </Providers>
       </body>
     </html>

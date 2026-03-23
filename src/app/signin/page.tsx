@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import axios from "axios";
-import { signIn } from "next-auth/react";
+import { signIn, SessionProvider } from "next-auth/react";
 import { validateEmail } from "@/lib/validations/validateEmail";
 import {
   Card,
@@ -49,7 +49,8 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
+    <SessionProvider>
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1
@@ -194,5 +195,6 @@ export default function SignIn() {
         </div>
       </div>
     </div>
+    </SessionProvider>
   );
 }

@@ -37,6 +37,7 @@ export const POST = async (request: NextRequest) => {
       user.id,
       user.username,
       Boolean(rememberMe),
+      user.role ?? "user",
     );
     const response = NextResponse.json(
       { message: "Authenticated" },

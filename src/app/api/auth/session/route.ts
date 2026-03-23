@@ -13,5 +13,5 @@ export const GET = async () => {
         return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
-    return NextResponse.json({ authenticated: true, user: { id: user.id, username: user.username } }, { status: 200 });
+    return NextResponse.json({ authenticated: true, user: { id: user.id, username: user.username, role: user.role ?? "user" } }, { status: 200 });
 }

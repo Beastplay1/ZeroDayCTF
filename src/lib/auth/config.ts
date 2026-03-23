@@ -74,6 +74,7 @@ export const authOptions: NextAuthOptions = {
             provider: account?.provider,
             createdAt: new Date(),
             username,
+            role: "user",
           };
           await mongoInsertOne("users", newUser);
         } else {
