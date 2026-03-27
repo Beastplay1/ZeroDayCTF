@@ -16,112 +16,112 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-            <div className="flex justify-center items-center ">
-              <span
-                className="welcome-text text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold"
-                style={{
-                  WebkitTextStroke: "4px transparent",
-                  WebkitTextFillColor: "#eaeaeaff",
-                  backgroundImage: "linear-gradient(315deg, #03a9f4, #ff0058)",
-                  backgroundSize: "200% auto",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  paintOrder: "stroke fill",
-                  textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
-                }}
-              >
-                Welcome to
-              </span>
-            </div>
-            <div
-              className="max-sm:scale-70 max-sm:flex max-sm:flex-col max-sm:items-center max-sm:gap-6 
+      <div className="flex justify-center items-center ">
+        <span
+          className="welcome-text text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold"
+          style={{
+            WebkitTextStroke: "4px transparent",
+            WebkitTextFillColor: "#eaeaeaff",
+            backgroundImage: "linear-gradient(315deg, #03a9f4, #ff0058)",
+            backgroundSize: "200% auto",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            paintOrder: "stroke fill",
+            textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+          }}
+        >
+          Welcome to
+        </span>
+      </div>
+      <div
+        className="max-sm:scale-70 max-sm:flex max-sm:flex-col max-sm:items-center max-sm:gap-6 
        container relative sm:mt-20 xl:ml-[100px] 2xl:ml-[200px]
           sm:flex sm:flex-col sm:items-center sm:gap-8
           xl:flex-none xl:block"
-            >
-              <div className="matrix">
-                <div className="text-container">
-                  <span className="select-none text-4xl text-[#919098] font-bold">
-                    {" "}
-                    Learn.{" "}
-                  </span>
-                  <span className="select-none text-4xl text-red-400 animate-pulse font-bold">
-                    Hack.
-                  </span>
-                  <br />
-                  <Typewriter
-                    text="3XPL0IT."
-                    className={`select-none text-2xl text-zerogreen font-bold ${orbitron.className}`}
-                    typingSpeed={150}
-                    deletingSpeed={150}
-                    pauseDuration={2000}
-                    loop={true}
-                    showCursor={true}
-                    cursorClassName="border-r-2 border-zerogreen animate-pulse ml-0.5"
-                  />
-                </div>
-              </div>
-              <div className="matrix-container sm:hidden xl:block">
-                <div>
-                  <MatrixRainSingle
-                    width={20}
-                    height={230}
-                    color="#0F0"
-                    fontSize={15}
-                    speed={100}
-                    fadeEffect={0.05}
-                    className="matrix-rain-single"
-                  />
-                </div>
-                <div className="matrix-triangle">
-                  <MatrixRainTriangle
-                    width={240}
-                    height={230}
-                    color="#0F0"
-                    fontSize={15}
-                    speed={100}
-                    fadeEffect={0.05}
-                    columns={12}
-                    className="matrix-rain-triangle"
-                  />
-                </div>
-              </div>
-              <div
-                className="max-sm:scale-70 max-sm:flex max-sm:flex-row max-sm:items-center max-sm:justify-center max-sm:gap-4 max-sm:order-[-1]
+      >
+        <div className="matrix">
+          <div className="text-container">
+            <span className="select-none text-4xl text-[#919098] font-bold">
+              {" "}
+              Learn.{" "}
+            </span>
+            <span className="select-none text-4xl text-red-400 animate-pulse font-bold">
+              Hack.
+            </span>
+            <br />
+            <Typewriter
+              text="3XPL0IT."
+              className={`select-none text-2xl text-zerogreen font-bold ${orbitron.className}`}
+              typingSpeed={150}
+              deletingSpeed={150}
+              pauseDuration={2000}
+              loop={true}
+              showCursor={true}
+              cursorClassName="border-r-2 border-zerogreen animate-pulse ml-0.5"
+            />
+          </div>
+        </div>
+        <div className="matrix-container sm:hidden xl:block">
+          <div>
+            <MatrixRainSingle
+              width={20}
+              height={230}
+              color="#0F0"
+              fontSize={15}
+              speed={100}
+              fadeEffect={0.05}
+              className="matrix-rain-single"
+            />
+          </div>
+          <div className="matrix-triangle">
+            <MatrixRainTriangle
+              width={240}
+              height={230}
+              color="#0F0"
+              fontSize={15}
+              speed={100}
+              fadeEffect={0.05}
+              columns={12}
+              className="matrix-rain-triangle"
+            />
+          </div>
+        </div>
+        <div
+          className="max-sm:scale-70 max-sm:flex max-sm:flex-row max-sm:items-center max-sm:justify-center max-sm:gap-4 max-sm:order-[-1]
           sm:flex sm:flex-row sm:items-center sm:justify-center sm:gap-6 
           xl:block xl:static sm:order-[-1]
         "
-              >
-                <div className="naming  xl:order-none xl:absolute xl:left-[330px] xl:top-0 ">
-                  <span
-                    className={`glitch-container text-white text-[360px] font-bold leading-none ml-6 select-none ${roboto.className}`}
-                  >
-                    0<span>0</span>
-                    <span>0</span>
-                  </span>
-                  <span
-                    className={`
+        >
+          <div className="naming  xl:order-none xl:absolute xl:left-[330px] xl:top-0 ">
+            <span
+              className={`glitch-container text-white text-[360px] font-bold leading-none ml-6 select-none ${roboto.className}`}
+            >
+              0<span>0</span>
+              <span>0</span>
+            </span>
+            <span
+              className={`
           absolute xl:top-[40px]
           text-white text-[120px] font-bold select-none leading-none ${bungee.className}`}
-                  >
-                    day
-                  </span>
-                  <span
-                    className={`xl:absolute xl:top-[170px] text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-[length:200%_auto] animate-gradient text-[180px] font-bold select-none leading-none ${bungee.className}`}
-                  >
-                    CTF
-                  </span>
-                </div>
-                <div className="flex justify-center xl:absolute xl:top-0 xl:ml-[930px]">
-                  <Image
-                    src={flag}
-                    alt="flag"
-                    width={230}
-                    style={{ maxWidth: "230px" }}
-                  />
-                </div>
-              </div>
-            </div>
+            >
+              day
+            </span>
+            <span
+              className={`xl:absolute xl:top-[170px] text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-[length:200%_auto] animate-gradient text-[180px] font-bold select-none leading-none ${bungee.className}`}
+            >
+              CTF
+            </span>
+          </div>
+          <div className="flex justify-center xl:absolute xl:top-0 xl:ml-[930px]">
+            <Image
+              src={flag}
+              alt="flag"
+              width={230}
+              style={{ maxWidth: "230px" }}
+            />
+          </div>
+        </div>
+      </div>
 
       {/* About Section */}
       <div className="mt-16 flex flex-col justify-center items-center px-4">
@@ -135,9 +135,7 @@ export default function Home() {
           {/* Background blur effect */}
           <div className="absolute inset-0 bg-black/20 backdrop-blur-sm -z-10"></div>
 
-          <h2
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 relative text-transparent bg-clip-text bg-gradient-to-l from-gray-500 to-white z-10 leading-tight"
-          >
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 relative text-transparent bg-clip-text bg-gradient-to-l from-gray-500 to-white z-10 leading-tight">
             From Challenge to Mastery
           </h2>
 
@@ -161,11 +159,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Active Missions Section */}
+      {/* Active Challenges Section */}
       <div className="mt-16 flex flex-col justify-center items-center px-4">
-        <div className="relative mb-8 md:mb-12">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-white text-center">
-            Active Missions
+        <div className="relative mb-8 md:mb-12 overflow-visible">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-white text-center pb-2">
+            Active Challenges
           </h2>
         </div>
 
@@ -178,7 +176,7 @@ export default function Home() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
               <h3 className="text-cyan-400 text-lg sm:text-xl font-mono">
-                7-DAY MISSIONS
+                7-DAY CHALLENGES
               </h3>
             </div>
             <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
@@ -191,7 +189,7 @@ export default function Home() {
               ))}
             </div>
             <p className="text-gray-400 font-mono text-xs sm:text-sm">
-              Real CTF challenges. Random selection. 7 days to solve.
+              Real CTF challenges. New selection every 7 days.
             </p>
           </div>
 
@@ -202,13 +200,15 @@ export default function Home() {
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-2 bg-purple-500 rounded-full animate-ping"></div>
-              <h3 className="text-purple-400 text-lg sm:text-xl font-mono">24H MISSION</h3>
+              <h3 className="text-purple-400 text-lg sm:text-xl font-mono">
+                24H CHALLENGE
+              </h3>
             </div>
             <div className="text-3xl sm:text-4xl font-mono text-purple-500 mb-4">
               23:59:59
             </div>
             <p className="text-gray-400 font-mono text-xs sm:text-sm">
-              Daily unique challenge. Gone in 24h.
+              Daily bonus challenge. Earn extra points. Gone in 24h.
             </p>
           </div>
         </div>
