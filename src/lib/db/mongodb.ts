@@ -152,3 +152,27 @@ export async function mongoUpdateOne(
     upsert,
   });
 }
+
+export async function mongoDeleteOne(
+  collection: string,
+  filter: Record<string, unknown>,
+) {
+  if (isMongoNativeConfigured()) {
+    const db = await getNativeDb();
+    const res = await db.collection(collection).deleteOne(filter as any);
+    return { deletedCount: res.deletedCount };
+  }
+  // Data API doesn't support deleteOne — fallback not implemented
+  throw new Error("mongoDeleteOne requires native MongoDB connection");
+}
+
+export async function mongoCount(
+  collection: string,
+  filter: Record<string, unknown>,
+): Promise<number> {
+  if (isMongoNativeConfigured()) {
+    const db = await getNativeDb();
+    return db.collection(collection).countDocuments(filter as any);
+  }
+  throw new Error("mongoCount requires native MongoDB connection");
+}

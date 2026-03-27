@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardBody, CardHeader, Chip, Button } from "@heroui/react";
 import { Orbitron } from "next/font/google";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 interface Challenge {
-  id: number;
+  mongoId: string;
   name: string;
   category: string;
   difficulty: "Easy" | "Medium" | "Hard" | "Insane";
@@ -15,33 +15,56 @@ interface Challenge {
   firstBlood?: string;
   description: string;
   file?: string;
+  type: "weekly" | "daily";
 }
 
-const sevenDayChallenges: Challenge[] = [
-  {
-    id: 1,
-    name: "Classically",
-    category: "Crypto",
-    difficulty: "Easy",
-    points: 50,
-    solves: 0,
-    description: "Do you think you can solve this classically?",
-    file: "classically.zip",
-  },
-];
-
+const sevenDayChallenges: Challenge[] = [];
 const uniqueChallenges: Challenge[] = [];
 
 export default function Challenges() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("All");
+  const [weeklyChallenges, setWeeklyChallenges] =
+    useState<Challenge[]>(sevenDayChallenges);
+  const [dailyChallenges, setDailyChallenges] =
+    useState<Challenge[]>(uniqueChallenges);
+  const [loadingChallenges, setLoadingChallenges] = useState(true);
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
     null,
   );
   const [flagInput, setFlagInput] = useState("");
   const [submitStatus, setSubmitStatus] = useState<
-    "idle" | "correct" | "wrong"
+    | "idle"
+    | "correct"
+    | "wrong"
+    | "already_solved"
+    | "loading"
+    | "unauthenticated"
+    | "invalid_format"
   >("idle");
+
+  useEffect(() => {
+    fetch("/api/challenges")
+      .then((r) => r.json())
+      .then((data) => {
+        const all: Challenge[] = (data.challenges ?? []).map((c: any) => ({
+          mongoId: c._id,
+          name: c.name,
+          category: c.category,
+          difficulty: c.difficulty,
+          points: c.points,
+          solves: c.solves,
+          firstBlood: c.firstBlood,
+          description: c.description,
+          file: c.file,
+          type: c.type,
+        }));
+        setWeeklyChallenges(all.filter((c) => c.type === "weekly"));
+        setDailyChallenges(all.filter((c) => c.type === "daily"));
+      })
+      .catch(() => {})
+      .finally(() => setLoadingChallenges(false));
+  }, []);
 
   const categories = [
     "All",
@@ -96,10 +119,40 @@ export default function Challenges() {
     setSubmitStatus("idle");
   };
 
-  const handleFlagSubmit = () => {
-    // Placeholder — will wire to API later
-    if (flagInput.trim() === "") return;
-    setSubmitStatus("wrong");
+  const handleFlagSubmit = async () => {
+    const trimmed = flagInput.trim();
+    if (!trimmed || !selectedChallenge?.mongoId) return;
+
+    if (!/^zerodayctf\{.+\}$/.test(trimmed)) {
+      setSubmitStatus("invalid_format");
+      return;
+    }
+
+    setSubmitStatus("loading");
+    try {
+      const res = await fetch(
+        `/api/challenges/${selectedChallenge.mongoId}/submit`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ flag: trimmed }),
+        },
+      );
+      const data = await res.json();
+      if (res.status === 401) {
+        setSubmitStatus("unauthenticated");
+        return;
+      }
+      setSubmitStatus(
+        data.result === "correct"
+          ? "correct"
+          : data.result === "already_solved"
+            ? "already_solved"
+            : "wrong",
+      );
+    } catch {
+      setSubmitStatus("wrong");
+    }
   };
 
   const ChallengeCard = ({ challenge }: { challenge: Challenge }) => (
@@ -220,15 +273,23 @@ export default function Challenges() {
             </span>
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filterChallenges(sevenDayChallenges).map((c) => (
-              <ChallengeCard key={c.id} challenge={c} />
-            ))}
+            {loadingChallenges
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-48 bg-[#0f0f0f] border border-zerogreen/10 animate-pulse rounded-sm"
+                  />
+                ))
+              : filterChallenges(weeklyChallenges).map((c) => (
+                  <ChallengeCard key={c.mongoId} challenge={c} />
+                ))}
           </div>
-          {filterChallenges(sevenDayChallenges).length === 0 && (
-            <div className="text-center text-gray-500 py-12">
-              No challenges found for the selected filters
-            </div>
-          )}
+          {!loadingChallenges &&
+            filterChallenges(weeklyChallenges).length === 0 && (
+              <div className="text-center text-gray-500 py-12">
+                No challenges found for the selected filters
+              </div>
+            )}
         </div>
 
         {/* 24-Hour Bonus Challenges */}
@@ -250,15 +311,18 @@ export default function Challenges() {
             </span>
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filterChallenges(uniqueChallenges).map((c) => (
-              <ChallengeCard key={c.id} challenge={c} />
-            ))}
+            {loadingChallenges
+              ? null
+              : filterChallenges(dailyChallenges).map((c) => (
+                  <ChallengeCard key={c.mongoId} challenge={c} />
+                ))}
           </div>
-          {filterChallenges(uniqueChallenges).length === 0 && (
-            <div className="text-center text-gray-500 py-12">
-              No active bonus challenges right now
-            </div>
-          )}
+          {!loadingChallenges &&
+            filterChallenges(dailyChallenges).length === 0 && (
+              <div className="text-center text-gray-500 py-12">
+                No active bonus challenges right now
+              </div>
+            )}
         </div>
       </div>
 
@@ -350,10 +414,15 @@ export default function Challenges() {
                   value={flagInput}
                   onChange={(e) => {
                     setFlagInput(e.target.value);
-                    setSubmitStatus("idle");
+                    if (
+                      submitStatus !== "correct" &&
+                      submitStatus !== "already_solved"
+                    ) {
+                      setSubmitStatus("idle");
+                    }
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleFlagSubmit()}
-                  placeholder="zeroday{...}"
+                  placeholder="zerodayctf{...}"
                   className="w-full bg-black border border-gray-700 focus:border-zerogreen outline-none px-4 py-2 text-white font-mono text-sm placeholder:text-gray-600 transition-colors"
                 />
                 {submitStatus === "correct" && (
@@ -366,11 +435,34 @@ export default function Challenges() {
                     ✗ Wrong flag. Try again.
                   </p>
                 )}
+                {submitStatus === "already_solved" && (
+                  <p className="text-yellow-400 font-mono text-xs">
+                    ⚡ Already solved.
+                  </p>
+                )}
+                {submitStatus === "invalid_format" && (
+                  <p className="text-orange-400 font-mono text-xs">
+                    ✗ Invalid format. Expected: zerodayctf&#123;...&#125;
+                  </p>
+                )}
+                {submitStatus === "unauthenticated" && (
+                  <p className="text-yellow-400 font-mono text-xs">
+                    ⚠ You must be{" "}
+                    <a
+                      href="/signin"
+                      className="underline hover:text-yellow-300"
+                    >
+                      signed in
+                    </a>{" "}
+                    to submit this challenge.
+                  </p>
+                )}
                 <button
                   onClick={handleFlagSubmit}
-                  className="w-full py-2 bg-zerogreen/10 border border-zerogreen text-zerogreen font-bold font-mono text-sm hover:bg-zerogreen hover:text-black transition-all duration-200"
+                  disabled={submitStatus === "loading"}
+                  className="w-full py-2 bg-zerogreen/10 border border-zerogreen text-zerogreen font-bold font-mono text-sm hover:bg-zerogreen hover:text-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  SUBMIT FLAG
+                  {submitStatus === "loading" ? "CHECKING..." : "SUBMIT FLAG"}
                 </button>
               </div>
             </div>

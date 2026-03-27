@@ -5,6 +5,11 @@ import {
   getAdminSessionCookieName,
 } from "@/lib/auth/adminSession";
 import { Orbitron } from "next/font/google";
+import {
+  countChallenges,
+  countSolvesToday,
+} from "@/lib/storage/challengeStore";
+import { mongoCount } from "@/lib/db/mongodb";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
@@ -16,6 +21,12 @@ export default async function AdminPage() {
   if (!session) {
     redirect("/login");
   }
+
+  const [userCount, challengeCount, solvesToday] = await Promise.all([
+    mongoCount("users", {}).catch(() => 0),
+    countChallenges().catch(() => 0),
+    countSolvesToday().catch(() => 0),
+  ]);
 
   return (
     <div className="min-h-screen bg-black text-green-400 p-8">
@@ -35,19 +46,21 @@ export default async function AdminPage() {
             <p className="text-green-600 text-xs font-mono uppercase tracking-widest mb-1">
               Users
             </p>
-            <p className="text-2xl font-bold text-green-300">—</p>
+            <p className="text-2xl font-bold text-green-300">{userCount}</p>
           </div>
           <div className="border border-green-800 rounded-lg p-5 bg-green-950/20">
             <p className="text-green-600 text-xs font-mono uppercase tracking-widest mb-1">
               Challenges
             </p>
-            <p className="text-2xl font-bold text-green-300">—</p>
+            <p className="text-2xl font-bold text-green-300">
+              {challengeCount}
+            </p>
           </div>
           <div className="border border-green-800 rounded-lg p-5 bg-green-950/20">
             <p className="text-green-600 text-xs font-mono uppercase tracking-widest mb-1">
               Solves Today
             </p>
-            <p className="text-2xl font-bold text-green-300">—</p>
+            <p className="text-2xl font-bold text-green-300">{solvesToday}</p>
           </div>
         </div>
 
@@ -58,12 +71,12 @@ export default async function AdminPage() {
             Quick Actions
           </h2>
           <div className="flex flex-wrap gap-3">
-            <button
-              disabled
-              className="px-4 py-2 border border-green-800 rounded font-mono text-sm text-green-600 opacity-50 cursor-not-allowed"
+            <a
+              href="/challenges"
+              className="px-4 py-2 border border-green-700 rounded font-mono text-sm text-green-400 hover:bg-green-700 hover:text-black transition-all duration-200"
             >
-              + Add Challenge
-            </button>
+              Manage Challenges
+            </a>
             <button
               disabled
               className="px-4 py-2 border border-green-800 rounded font-mono text-sm text-green-600 opacity-50 cursor-not-allowed"
@@ -77,9 +90,6 @@ export default async function AdminPage() {
               View Logs
             </button>
           </div>
-          <p className="mt-4 text-green-700 font-mono text-xs">
-            Full functionality coming soon.
-          </p>
         </div>
       </div>
     </div>
