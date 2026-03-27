@@ -334,9 +334,13 @@ export default function Challenges() {
 
               {/* Download button */}
               {selectedChallenge.file && (
-                <button className="w-full py-2 border border-zerogreen/40 text-zerogreen/70 font-mono text-sm hover:border-zerogreen hover:text-zerogreen transition-all duration-200">
+                <a
+                  href={`/api/challenges/download?path=${encodeURIComponent(`${selectedChallenge.category}/${selectedChallenge.name}/${selectedChallenge.file}`)}`}
+                  download={selectedChallenge.file}
+                  className="block w-full py-2 border border-zerogreen/40 text-zerogreen/70 font-mono text-sm hover:border-zerogreen hover:text-zerogreen transition-all duration-200 text-center"
+                >
                   ↓ {selectedChallenge.file}
-                </button>
+                </a>
               )}
 
               {/* Flag input */}
