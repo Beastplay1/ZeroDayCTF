@@ -176,3 +176,17 @@ export async function mongoCount(
   }
   throw new Error("mongoCount requires native MongoDB connection");
 }
+
+export async function mongoAggregate<T>(
+  collection: string,
+  pipeline: Record<string, unknown>[],
+): Promise<T[]> {
+  if (isMongoNativeConfigured()) {
+    const db = await getNativeDb();
+    return (await db
+      .collection(collection)
+      .aggregate(pipeline)
+      .toArray()) as T[];
+  }
+  throw new Error("mongoAggregate requires native MongoDB connection");
+}
