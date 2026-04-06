@@ -79,11 +79,11 @@ export default function Challenges() {
   ];
   const difficulties = ["All", "Easy", "Medium", "Hard", "Insane"];
 
-  const difficultyColors = {
-    Easy: "success",
-    Medium: "warning",
-    Hard: "danger",
-    Insane: "secondary",
+  const difficultyChipColors: Record<string, string> = {
+    Easy: "bg-green-500/20 text-green-400 border-green-500/50",
+    Medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/50",
+    Hard: "bg-red-500/20 text-red-400 border-red-500/50",
+    Insane: "bg-purple-500/20 text-purple-400 border-purple-500/50",
   };
 
   const categoryColors: Record<string, string> = {
@@ -168,18 +168,15 @@ export default function Challenges() {
           >
             {challenge.name}
           </h3>
-          <Chip
-            size="sm"
-            color={difficultyColors[challenge.difficulty] as any}
-            variant="flat"
-            className="font-bold"
+          <span
+            className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
           >
             {challenge.difficulty}
-          </Chip>
+          </span>
         </div>
         <div className="flex gap-2 flex-wrap">
           <span
-            className={`text-xs px-2 py-1 rounded border ${categoryColors[challenge.category]}`}
+            className={`text-xs px-2 py-1 rounded-full border ${categoryColors[challenge.category]} font-bold`}
           >
             {challenge.category}
           </span>
@@ -201,13 +198,9 @@ export default function Challenges() {
             </div>
           )}
         </div>
-        <Button
-          className="mt-3 w-full bg-zerogreen/10 border border-zerogreen hover:bg-zerogreen hover:text-black transition-all duration-300 text-zerogreen font-bold"
-          variant="bordered"
-          onPress={() => openChallenge(challenge)}
-        >
+        <div className="mt-3 w-full bg-zerogreen/10 border border-zerogreen text-zerogreen font-bold text-center py-2 text-sm rounded-xl group-hover:bg-zerogreen group-hover:text-black transition-all duration-300">
           View Challenge
-        </Button>
+        </div>
       </CardBody>
     </Card>
   );
@@ -346,20 +339,15 @@ export default function Challenges() {
                 </h2>
                 <div className="flex gap-2 flex-wrap">
                   <span
-                    className={`text-xs px-2 py-1 rounded border ${categoryColors[selectedChallenge.category]}`}
+                    className={`text-xs px-2 py-1 rounded-full border ${categoryColors[selectedChallenge.category]} font-bold`}
                   >
                     {selectedChallenge.category}
                   </span>
-                  <Chip
-                    size="sm"
-                    color={
-                      difficultyColors[selectedChallenge.difficulty] as any
-                    }
-                    variant="flat"
-                    className="font-bold"
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[selectedChallenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
                   >
                     {selectedChallenge.difficulty}
-                  </Chip>
+                  </span>
                   <span className="text-xs px-2 py-1 rounded bg-zerogreen/20 text-zerogreen border border-zerogreen/50 font-bold">
                     {selectedChallenge.points} pts
                   </span>

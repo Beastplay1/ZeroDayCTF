@@ -14,7 +14,7 @@ const orbitron = Orbitron({ subsets: ["latin"] });
 const robotoMono = Roboto_Mono({ subsets: ["latin"] });
 
 interface SolvedChallenge {
-  id: number;
+  challengeId: string;
   name: string;
   category: string;
   difficulty: "Easy" | "Medium" | "Hard" | "Insane";
@@ -23,12 +23,24 @@ interface SolvedChallenge {
   wasFirstBlood: boolean;
 }
 
+interface ProfileData {
+  authenticated: boolean;
+  username?: string;
+  totalPoints?: number;
+  totalSolves?: number;
+  firstBloods?: number;
+  rank?: number | null;
+  solvedChallenges?: SolvedChallenge[];
+  categoryBreakdown?: Record<string, number>;
+}
+
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats">(
     "overview",
   );
   const [sessionUsername, setSessionUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -48,16 +60,26 @@ export default function Profile() {
     loadSession();
   }, []);
 
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const res = await fetch("/api/profile", { cache: "no-store" });
+        const data = await res.json();
+        setProfileData(data);
+      } catch {
+        setProfileData({ authenticated: false });
+      }
+    };
+    loadProfile();
+  }, []);
+
+  const isAnonymous = sessionUsername === "anonymous";
   const userData = {
     username: sessionUsername || "",
-    rank: 1,
-    totalPoints: 12450,
-    totalSolves: 87,
-    firstBloods: 23,
-    streak: 45,
-    country: "🇺🇸",
-    joinedDate: "Jan 15, 2024",
-    bio: "Elite hacker specializing in web exploitation and cryptography. CTF enthusiast since 2020.",
+    rank: profileData?.rank ?? null,
+    totalPoints: profileData?.totalPoints ?? 0,
+    totalSolves: profileData?.totalSolves ?? 0,
+    firstBloods: profileData?.firstBloods ?? 0,
   };
   if (loading) {
     return (
@@ -69,89 +91,46 @@ export default function Profile() {
     );
   }
 
-  const categoryStats = [
-    { category: "Web", solved: 24, total: 50, color: "bg-blue-500" },
-    { category: "Crypto", solved: 18, total: 40, color: "bg-purple-500" },
-    { category: "Pwn", solved: 15, total: 35, color: "bg-red-500" },
-    {
-      category: "Reverse Engineering",
-      solved: 12,
-      total: 30,
-      color: "bg-orange-500",
-    },
-    { category: "Forensics", solved: 10, total: 25, color: "bg-cyan-500" },
-    { category: "Mobile", solved: 5, total: 20, color: "bg-green-500" },
-    { category: "Hardware", solved: 3, total: 15, color: "bg-yellow-500" },
-  ];
+  const solvedChallenges: SolvedChallenge[] =
+    profileData?.solvedChallenges ?? [];
+  const recentSolves = solvedChallenges.slice(0, 5);
 
-  const recentSolves: SolvedChallenge[] = [
-    {
-      id: 1,
-      name: "SQL Injection Master",
-      category: "Web",
-      difficulty: "Medium",
-      points: 300,
-      solvedAt: "2 hours ago",
-      wasFirstBlood: true,
-    },
-    {
-      id: 2,
-      name: "RSA Decrypt",
-      category: "Crypto",
-      difficulty: "Hard",
-      points: 500,
-      solvedAt: "5 hours ago",
-      wasFirstBlood: false,
-    },
-    {
-      id: 3,
-      name: "Buffer Overflow Basic",
-      category: "Pwn",
-      difficulty: "Easy",
-      points: 200,
-      solvedAt: "1 day ago",
-      wasFirstBlood: true,
-    },
-    {
-      id: 4,
-      name: "Reverse Me",
-      category: "Reverse Engineering",
-      difficulty: "Medium",
-      points: 350,
-      solvedAt: "2 days ago",
-      wasFirstBlood: false,
-    },
-    {
-      id: 5,
-      name: "XSS Paradise",
-      category: "Web",
-      difficulty: "Hard",
-      points: 450,
-      solvedAt: "3 days ago",
-      wasFirstBlood: true,
-    },
-  ];
+  const categoryColors: Record<string, string> = {
+    Web: "bg-blue-500",
+    Crypto: "bg-purple-500",
+    Pwn: "bg-red-500",
+    "Reverse Engineering": "bg-orange-500",
+    Forensics: "bg-cyan-500",
+    Mobile: "bg-green-500",
+    Hardware: "bg-yellow-500",
+  };
 
-  const achievements = [
-    { icon: "🥇", title: "Rank #1", description: "Top of the leaderboard" },
-    {
-      icon: "🔥",
-      title: "45 Day Streak",
-      description: "Longest active streak",
-    },
-    { icon: "🩸", title: "23 First Bloods", description: "Speed demon" },
-    { icon: "⚡", title: "87 Challenges", description: "Challenge conqueror" },
-    {
-      icon: "🎯",
-      title: "Web Master",
-      description: "Solved 24 web challenges",
-    },
-    {
-      icon: "🔐",
-      title: "Crypto Expert",
-      description: "Solved 18 crypto challenges",
-    },
-  ];
+  const categoryStats = Object.entries(
+    profileData?.categoryBreakdown ?? {},
+  ).map(([category, solved]) => ({
+    category,
+    solved,
+    color: categoryColors[category] ?? "bg-gray-500",
+  }));
+
+  const categoryChipColors: Record<string, string> = {
+    Web: "bg-blue-500/20 text-blue-400 border-blue-500/50",
+    Crypto: "bg-purple-500/20 text-purple-400 border-purple-500/50",
+    Pwn: "bg-red-500/20 text-red-400 border-red-500/50",
+    "Reverse Engineering":
+      "bg-orange-500/20 text-orange-400 border-orange-500/50",
+    Forensics: "bg-cyan-500/20 text-cyan-400 border-cyan-500/50",
+    Binary: "bg-pink-500/20 text-pink-400 border-pink-500/50",
+    OSINT: "bg-indigo-500/20 text-indigo-400 border-indigo-500/50",
+    Misc: "bg-gray-500/20 text-gray-400 border-gray-500/50",
+  };
+
+  const difficultyChipColors: Record<string, string> = {
+    Easy: "bg-green-500/20 text-green-400 border-green-500/50",
+    Medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/50",
+    Hard: "bg-red-500/20 text-red-400 border-red-500/50",
+    Insane: "bg-purple-500/20 text-purple-400 border-purple-500/50",
+  };
 
   const difficultyColors = {
     Easy: "success",
@@ -167,43 +146,46 @@ export default function Profile() {
           <CardBody className="p-8">
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-zerogreen to-purple-500 flex items-center justify-center text-6xl font-bold text-black">
-                {userData.username[0].toUpperCase()}
+                {userData.username[0]?.toUpperCase() ?? "?"}
               </div>
               <div className="flex-grow text-center md:text-left">
-                <div className="flex items-center gap-3 justify-center md:justify-start mb-2">
+                <div className="flex items-center gap-3 justify-center md:justify-start mb-4">
                   <h1
                     className={`text-4xl font-bold text-white ${robotoMono.className}`}
                   >
                     {userData.username}
                   </h1>
-                  <span className="text-3xl">{userData.country}</span>
                 </div>
-                <p className="text-gray-400 mb-4">{userData.bio}</p>
-                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                  <Chip className="bg-yellow-500/20 text-yellow-400 font-bold">
-                    🏆 Rank #{userData.rank}
-                  </Chip>
-                  <Chip className="bg-zerogreen/20 text-zerogreen font-bold">
-                    {userData.totalPoints.toLocaleString()} Points
-                  </Chip>
-                  <Chip className="bg-blue-500/20 text-blue-400 font-bold">
-                    {userData.totalSolves} Solves
-                  </Chip>
-                  <Chip className="bg-red-500/20 text-red-400 font-bold">
-                    🩸 {userData.firstBloods} First Bloods
-                  </Chip>
-                  <Chip className="bg-orange-500/20 text-orange-400 font-bold">
-                    🔥 {userData.streak} Day Streak
-                  </Chip>
-                </div>
-              </div>
-              <div className="text-center">
-                <Button className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90">
-                  Edit Profile
-                </Button>
-                <p className="text-gray-500 text-sm mt-2">
-                  Joined {userData.joinedDate}
-                </p>
+                {isAnonymous ? (
+                  <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                    <Chip className="bg-blue-500/20 text-blue-400 font-bold">
+                      {userData.totalSolves} Solves
+                    </Chip>
+                    <Chip className="bg-gray-500/20 text-gray-400 border border-dashed border-gray-600">
+                      🔒 Rank — sign up to unlock
+                    </Chip>
+                    <Chip className="bg-gray-500/20 text-gray-400 border border-dashed border-gray-600">
+                      🔒 Points — sign up to unlock
+                    </Chip>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                    {userData.rank !== null && (
+                      <Chip className="bg-yellow-500/20 text-yellow-400 font-bold">
+                        🏆 Rank #{userData.rank}
+                      </Chip>
+                    )}
+                    <Chip className="bg-zerogreen/20 text-zerogreen font-bold">
+                      {userData.totalPoints.toLocaleString()} Points
+                    </Chip>
+                    <Chip className="bg-blue-500/20 text-blue-400 font-bold">
+                      {userData.totalSolves} Solves
+                    </Chip>
+                    <Chip className="bg-red-500/20 text-red-400 font-bold">
+                      🩸 {userData.firstBloods} First Bloods
+                    </Chip>
+                  </div>
+                )}
               </div>
             </div>
           </CardBody>
@@ -250,24 +232,36 @@ export default function Profile() {
               >
                 <span className="text-zerogreen">◆</span> Achievements
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {achievements.map((achievement, index) => (
-                  <Card
-                    key={index}
-                    className="bg-[#0f0f0f] border border-zerogreen/30 hover:border-zerogreen hover:shadow-lg hover:shadow-zerogreen/20 transition-all duration-300"
-                  >
-                    <CardBody className="text-center p-4">
-                      <div className="text-4xl mb-2">{achievement.icon}</div>
-                      <h3 className="text-white font-bold text-sm mb-1">
-                        {achievement.title}
-                      </h3>
-                      <p className="text-gray-500 text-xs">
-                        {achievement.description}
-                      </p>
-                    </CardBody>
-                  </Card>
-                ))}
-              </div>
+              {isAnonymous ? (
+                <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
+                  <CardBody className="text-center p-6">
+                    <p className="text-gray-400 mb-3">
+                      Achievements are only available to registered users.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Button
+                        as="a"
+                        href="/signup"
+                        className="bg-zerogreen text-black font-bold"
+                        size="sm"
+                      >
+                        Sign Up
+                      </Button>
+                      <Button
+                        as="a"
+                        href="/signin"
+                        variant="bordered"
+                        className="border-zerogreen text-zerogreen"
+                        size="sm"
+                      >
+                        Sign In
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+              ) : (
+                <p className="text-gray-500">Coming soon.</p>
+              )}
             </div>
 
             <div>
@@ -276,10 +270,13 @@ export default function Profile() {
               >
                 <span className="text-zerogreen">◆</span> Recent Solves
               </h2>
+              {recentSolves.length === 0 && (
+                <p className="text-gray-500">No solves yet.</p>
+              )}
               <div className="space-y-3">
                 {recentSolves.map((challenge) => (
                   <Card
-                    key={challenge.id}
+                    key={challenge.challengeId}
                     className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300"
                   >
                     <CardBody className="p-4">
@@ -301,23 +298,19 @@ export default function Profile() {
                             )}
                           </div>
                           <div className="flex gap-2 flex-wrap">
-                            <Chip size="sm" variant="flat">
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full border ${categoryChipColors[challenge.category] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
+                            >
                               {challenge.category}
-                            </Chip>
-                            <Chip
-                              size="sm"
-                              color={
-                                difficultyColors[challenge.difficulty] as any
-                              }
+                            </span>
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
                             >
                               {challenge.difficulty}
-                            </Chip>
-                            <Chip
-                              size="sm"
-                              className="bg-zerogreen/20 text-zerogreen font-bold"
-                            >
+                            </span>
+                            <span className="text-xs px-2 py-1 rounded-full border bg-zerogreen/20 text-zerogreen border-zerogreen/50 font-bold">
                               +{challenge.points} pts
-                            </Chip>
+                            </span>
                           </div>
                         </div>
                         <div className="text-gray-500 text-sm text-right">
@@ -340,10 +333,13 @@ export default function Profile() {
               <span className="text-zerogreen">◆</span> All Solved Challenges (
               {userData.totalSolves})
             </h2>
+            {solvedChallenges.length === 0 && (
+              <p className="text-gray-500">No solves yet.</p>
+            )}
             <div className="space-y-3">
-              {recentSolves.map((challenge) => (
+              {solvedChallenges.map((challenge) => (
                 <Card
-                  key={challenge.id}
+                  key={challenge.challengeId}
                   className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300"
                 >
                   <CardBody className="p-4">
@@ -365,23 +361,19 @@ export default function Profile() {
                           )}
                         </div>
                         <div className="flex gap-2 flex-wrap">
-                          <Chip size="sm" variant="flat">
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full border ${categoryChipColors[challenge.category] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
+                          >
                             {challenge.category}
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            color={
-                              difficultyColors[challenge.difficulty] as any
-                            }
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
                           >
                             {challenge.difficulty}
-                          </Chip>
-                          <Chip
-                            size="sm"
-                            className="bg-zerogreen/20 text-zerogreen font-bold"
-                          >
+                          </span>
+                          <span className="text-xs px-2 py-1 rounded-full border bg-zerogreen/20 text-zerogreen border-zerogreen/50 font-bold">
                             +{challenge.points} pts
-                          </Chip>
+                          </span>
                         </div>
                       </div>
                       <div className="text-gray-500 text-sm text-right">
@@ -404,94 +396,70 @@ export default function Profile() {
                 <span className="text-zerogreen">◆</span> Category Progress
               </h2>
               <div className="space-y-4">
-                {categoryStats.map((stat, index) => (
-                  <Card
-                    key={index}
-                    className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300"
-                  >
-                    <CardBody className="p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-white font-bold">
-                          {stat.category}
-                        </span>
-                        <span className="text-gray-400">
-                          {stat.solved}/{stat.total} solved
-                        </span>
-                      </div>
-                      <Progress
-                        value={(stat.solved / stat.total) * 100}
-                        className="h-2"
-                        classNames={{
-                          indicator: stat.color,
-                        }}
-                      />
-                    </CardBody>
-                  </Card>
-                ))}
+                {categoryStats.length === 0 && (
+                  <p className="text-gray-500">No solves yet.</p>
+                )}
+                {categoryStats.map((stat, index) => {
+                  const maxSolved = Math.max(
+                    ...categoryStats.map((s) => s.solved),
+                    1,
+                  );
+                  return (
+                    <Card
+                      key={index}
+                      className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300"
+                    >
+                      <CardBody className="p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-white font-bold">
+                            {stat.category}
+                          </span>
+                          <span className="text-gray-400">
+                            {stat.solved} solved
+                          </span>
+                        </div>
+                        <Progress
+                          value={(stat.solved / maxSolved) * 100}
+                          className="h-2"
+                          classNames={{
+                            indicator: stat.color,
+                          }}
+                        />
+                      </CardBody>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-[#0f0f0f] border border-zerogreen/30">
-                <CardHeader className="pb-0">
-                  <h3
-                    className={`text-xl font-bold text-white ${orbitron.className}`}
-                  >
-                    Performance Stats
-                  </h3>
-                </CardHeader>
-                <CardBody>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Average Solve Time</span>
-                      <span className="text-white font-bold">2.5 hours</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Success Rate</span>
-                      <span className="text-white font-bold">87%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Daily Average</span>
-                      <span className="text-white font-bold">3 challenges</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Best Category</span>
-                      <span className="text-white font-bold">Web</span>
-                    </div>
+            {isAnonymous && (
+              <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
+                <CardBody className="text-center p-6">
+                  <p className="text-gray-400 mb-3">
+                    Detailed stats are only available to registered users.
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button
+                      as="a"
+                      href="/signup"
+                      className="bg-zerogreen text-black font-bold"
+                      size="sm"
+                    >
+                      Sign Up
+                    </Button>
+                    <Button
+                      as="a"
+                      href="/signin"
+                      variant="bordered"
+                      className="border-zerogreen text-zerogreen"
+                      size="sm"
+                    >
+                      Sign In
+                    </Button>
                   </div>
                 </CardBody>
               </Card>
-
-              <Card className="bg-[#0f0f0f] border border-zerogreen/30">
-                <CardHeader className="pb-0">
-                  <h3
-                    className={`text-xl font-bold text-white ${orbitron.className}`}
-                  >
-                    Ranking History
-                  </h3>
-                </CardHeader>
-                <CardBody>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Current Rank</span>
-                      <span className="text-yellow-400 font-bold">#1</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Highest Rank</span>
-                      <span className="text-white font-bold">#1</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Weekly Rank</span>
-                      <span className="text-white font-bold">#2</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Monthly Rank</span>
-                      <span className="text-white font-bold">#1</span>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
-            </div>
+            )}
           </div>
         )}
       </div>
