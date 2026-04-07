@@ -153,6 +153,18 @@ export async function mongoUpdateOne(
   });
 }
 
+export async function mongoDeleteMany(
+  collection: string,
+  filter: Record<string, unknown>,
+) {
+  if (isMongoNativeConfigured()) {
+    const db = await getNativeDb();
+    const res = await db.collection(collection).deleteMany(filter as any);
+    return { deletedCount: res.deletedCount };
+  }
+  throw new Error("mongoDeleteMany requires native MongoDB connection");
+}
+
 export async function mongoDeleteOne(
   collection: string,
   filter: Record<string, unknown>,

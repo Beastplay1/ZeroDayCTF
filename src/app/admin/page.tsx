@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {
   parseAdminSessionToken,
@@ -18,10 +17,6 @@ export default async function AdminPage() {
   const token = cookieStore.get(getAdminSessionCookieName())?.value;
   const session = await parseAdminSessionToken(token);
 
-  if (!session) {
-    redirect("/login");
-  }
-
   const [userCount, challengeCount, solvesToday] = await Promise.all([
     mongoCount("users", {}).catch(() => 0),
     countChallenges().catch(() => 0),
@@ -38,7 +33,7 @@ export default async function AdminPage() {
         </h1>
         <p className="text-green-600 mb-8 font-mono text-sm">
           Logged in as{" "}
-          <span className="text-green-300">{session.username}</span>
+          <span className="text-green-300">{session?.username ?? "admin"}</span>
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
@@ -77,12 +72,12 @@ export default async function AdminPage() {
             >
               Manage Challenges
             </a>
-            <button
-              disabled
-              className="px-4 py-2 border border-green-800 rounded font-mono text-sm text-green-600 opacity-50 cursor-not-allowed"
+            <a
+              href="/users"
+              className="px-4 py-2 border border-green-700 rounded font-mono text-sm text-green-400 hover:bg-green-700 hover:text-black transition-all duration-200"
             >
               Manage Users
-            </button>
+            </a>
             <button
               disabled
               className="px-4 py-2 border border-green-800 rounded font-mono text-sm text-green-600 opacity-50 cursor-not-allowed"
