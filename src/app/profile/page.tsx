@@ -32,6 +32,7 @@ interface ProfileData {
   rank?: number | null;
   solvedChallenges?: SolvedChallenge[];
   categoryBreakdown?: Record<string, number>;
+  joinedDate?: string | null;
 }
 
 export default function Profile() {
@@ -80,6 +81,13 @@ export default function Profile() {
     totalPoints: profileData?.totalPoints ?? 0,
     totalSolves: profileData?.totalSolves ?? 0,
     firstBloods: profileData?.firstBloods ?? 0,
+    joinedDate: profileData?.joinedDate
+      ? new Date(profileData.joinedDate).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : null,
   };
   if (loading) {
     return (
@@ -139,6 +147,16 @@ export default function Profile() {
     Insane: "secondary",
   };
 
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
   return (
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -185,6 +203,18 @@ export default function Profile() {
                       🩸 {userData.firstBloods} First Bloods
                     </Chip>
                   </div>
+                )}
+              </div>
+              <div className="text-center">
+                {!isAnonymous && (
+                  <Button className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90">
+                    Edit Profile
+                  </Button>
+                )}
+                {userData.joinedDate && (
+                  <p className="text-gray-500 text-sm mt-2">
+                    Joined {userData.joinedDate}
+                  </p>
                 )}
               </div>
             </div>
@@ -314,7 +344,7 @@ export default function Profile() {
                           </div>
                         </div>
                         <div className="text-gray-500 text-sm text-right">
-                          {challenge.solvedAt}
+                          {formatDate(challenge.solvedAt)}
                         </div>
                       </div>
                     </CardBody>
@@ -377,7 +407,7 @@ export default function Profile() {
                         </div>
                       </div>
                       <div className="text-gray-500 text-sm text-right">
-                        {challenge.solvedAt}
+                        {formatDate(challenge.solvedAt)}
                       </div>
                     </div>
                   </CardBody>

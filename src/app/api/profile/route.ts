@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
-import { mongoAggregate } from "@/lib/db/mongodb";
+import { mongoAggregate, mongoFindOne } from "@/lib/db/mongodb";
 
 export async function GET() {
   const session = await getSessionFromCookies();
@@ -108,6 +108,10 @@ export async function GET() {
   const rankIndex = rankList.findIndex((r) => r._id === session.userId);
   const rank = rankIndex >= 0 ? rankIndex + 1 : null;
 
+  const userDoc = await mongoFindOne<{ createdAt?: string }>("users", {
+    id: session.userId,
+  });
+
   return NextResponse.json({
     authenticated: true,
     username: session.username,
@@ -117,5 +121,6 @@ export async function GET() {
     rank,
     solvedChallenges,
     categoryBreakdown,
+    joinedDate: userDoc?.createdAt ?? null,
   });
 }
