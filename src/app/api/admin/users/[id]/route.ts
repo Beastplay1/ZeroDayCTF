@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
 import {
   mongoFindOne,
   mongoFindMany,
@@ -14,6 +15,9 @@ interface UserDoc {
 
 interface SolveDoc {
   challengeId: string;
+  userId: number;
+  username: string;
+  solvedAt: string;
 }
 
 export async function DELETE(
@@ -35,20 +39,40 @@ export async function DELETE(
   // 1. Найти все solve'ы пользователя (нужны challengeId для декремента)
   const solves = await mongoFindMany<SolveDoc>("solves", { userId });
 
-  // 2. Для каждого challenge — декрементировать solves и сбросить firstBlood если нужно
+  // 2. Для каждого challenge — декрементировать solves и переназначить firstBlood если нужно
   await Promise.all(
     solves.map(async (solve) => {
-      // Декрементируем счётчик solves
+      let oid: ObjectId;
+      try {
+        oid = new ObjectId(solve.challengeId);
+      } catch {
+        return;
+      }
+
+      // Декрементируем счётчик solves (не ниже 0)
       await mongoUpdateOne(
         "challenges",
-        { _id: { $oid: solve.challengeId } },
+        { _id: oid as unknown as Record<string, unknown>, solves: { $gt: 0 } },
         { $inc: { solves: -1 } },
       );
-      // Если firstBlood — этот пользователь, сбрасываем
+
+      // Если firstBlood — удаляемый пользователь, ищем следующего по дате
+      const allSolvesForChallenge = await mongoFindMany<SolveDoc>(
+        "solves",
+        { challengeId: solve.challengeId, userId: { $ne: userId } },
+        { solvedAt: 1 },
+        1,
+      );
+
+      const newFirstBlood = allSolvesForChallenge[0]?.username ?? null;
+
       await mongoUpdateOne(
         "challenges",
-        { _id: { $oid: solve.challengeId }, firstBlood: user.username },
-        { $set: { firstBlood: null } },
+        {
+          _id: oid as unknown as Record<string, unknown>,
+          firstBlood: user.username,
+        },
+        { $set: { firstBlood: newFirstBlood } },
       );
     }),
   );

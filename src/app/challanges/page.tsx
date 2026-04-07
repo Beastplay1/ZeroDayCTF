@@ -169,14 +169,14 @@ export default function Challenges() {
             {challenge.name}
           </h3>
           <span
-            className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
+            className={`text-xs px-2 py-1 rounded border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
           >
             {challenge.difficulty}
           </span>
         </div>
         <div className="flex gap-2 flex-wrap">
           <span
-            className={`text-xs px-2 py-1 rounded-full border ${categoryColors[challenge.category]} font-bold`}
+            className={`text-xs px-2 py-1 rounded border ${categoryColors[challenge.category]} font-bold`}
           >
             {challenge.category}
           </span>
@@ -339,12 +339,12 @@ export default function Challenges() {
                 </h2>
                 <div className="flex gap-2 flex-wrap">
                   <span
-                    className={`text-xs px-2 py-1 rounded-full border ${categoryColors[selectedChallenge.category]} font-bold`}
+                    className={`text-xs px-2 py-1 rounded border ${categoryColors[selectedChallenge.category]} font-bold`}
                   >
                     {selectedChallenge.category}
                   </span>
                   <span
-                    className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[selectedChallenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
+                    className={`text-xs px-2 py-1 rounded border ${difficultyChipColors[selectedChallenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
                   >
                     {selectedChallenge.difficulty}
                   </span>
