@@ -4,12 +4,7 @@ import { Button } from "@heroui/react";
 import { useState, useEffect } from "react";
 import "@/styles/navbar.css";
 
-interface NavbarProps {
-  theme: "dark" | "light";
-  toggleTheme: () => void;
-}
-
-export default function Navbar({ theme, toggleTheme }: NavbarProps) {
+export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -26,7 +21,6 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         setIsLoggedIn(false);
       }
     };
-
     loadSession();
   }, []);
 
@@ -38,55 +32,11 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
   return (
     <>
-      <nav
-        className={`fixed top-0 left-0 w-full backdrop-blur-sm z-50 ${
-          theme === "dark" ? "bg-black/30" : "bg-white/30"
-        } border-b ${theme === "dark" ? "border-gray-800" : "border-gray-200"}`}
-      >
+      <nav className="fixed top-0 left-0 w-full backdrop-blur-sm z-50 bg-black/30 border-b border-gray-800">
         <div className="container mx-auto px-4">
           {/* Desktop Navigation */}
           <div className="hidden lg:flex justify-between items-center py-4">
             <div className="flex items-center space-x-6">
-              {/* <Link
-                href="/"
-                className={`font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                Home
-              </Link>
-              <Link
-                href="/challanges"
-                className={`font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                Challenges
-              </Link>
-              <Link
-                href="/leaderboard"
-                className={`font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                Leaderboard
-              </Link>
-              <Link
-                href="/about"
-                className={`font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                About Us
-              </Link>
-              <Link
-                href="/profile"
-                className={`hidden font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
-              >
-                Profile
-              </Link> */}
               {[
                 ["/", "Home"],
                 ["/challanges", "Challenges"],
@@ -96,9 +46,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                 <Link
                   key={href}
                   href={href}
-                  className={`font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  }`}
+                  className="font-[Koulen] text-xl px-3 py-1 text-white hover:text-zerogreen transition-colors"
                 >
                   {label}
                 </Link>
@@ -106,61 +54,20 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               {isLoggedIn && (
                 <Link
                   href="/profile"
-                  className={`font-[Koulen] text-xl px-3 py-1 hover:text-zerogreen transition-colors ${
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  }`}
+                  className="font-[Koulen] text-xl px-3 py-1 text-white hover:text-zerogreen transition-colors"
                 >
                   Profile
                 </Link>
               )}
             </div>
             <div className="flex items-center space-x-3">
-              <Button
-                size="sm"
-                isIconOnly
-                onClick={toggleTheme}
-                className={`${
-                  theme === "dark" ? "bg-gray-800" : "bg-gray-200"
-                } rounded-full`}
-                title="Toggle Theme"
-              >
-                {theme === "dark" ? "☀️" : "🌙"}
-              </Button>
-
               <div className="relative">
-                <select
-                  className={`${
-                    theme === "dark"
-                      ? "bg-gray-800 text-white"
-                      : "bg-gray-200 text-gray-900"
-                  } px-3 py-2 rounded-md text-sm font-bold cursor-pointer border-2 border-zerogreen/30 hover:border-zerogreen transition-colors`}
-                >
+                <select className="bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-bold cursor-pointer border-2 border-zerogreen/30 hover:border-zerogreen transition-colors">
                   <option value="EN">EN 🇺🇸</option>
                   <option value="RU">RU 🇷🇺</option>
                   <option value="AM">AM 🇦🇲</option>
                 </select>
               </div>
-
-              {/* <Button
-                as={Link}
-                href="/signup"
-                variant="solid"
-                className="signup bg-[#09CC26] border-2 border-[#09CC26] rounded-sm text-lg px-4 py-2 transition-colors font-[Koulen] text-white hover:bg-[#07a020]"
-              >
-                Sign Up
-              </Button>
-              <Button
-                as={Link}
-                href="/signin"
-                variant="bordered"
-                className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors ${
-                  theme === "dark"
-                    ? "text-white bg-transparent"
-                    : "text-gray-900 bg-transparent"
-                } hover:bg-zerogreen/10`}
-              >
-                Sign In
-              </Button> */}
               {!isLoggedIn ? (
                 <>
                   <Button
@@ -175,11 +82,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                     as={Link}
                     href="/signin"
                     variant="bordered"
-                    className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors ${
-                      theme === "dark"
-                        ? "text-white bg-transparent"
-                        : "text-gray-900 bg-transparent"
-                    } hover:bg-zerogreen/10`}
+                    className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors text-white bg-transparent hover:bg-zerogreen/10"
                   >
                     Sign In
                   </Button>
@@ -188,11 +91,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                 <Button
                   onClick={handleSignOut}
                   variant="bordered"
-                  className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors ${
-                    theme === "dark"
-                      ? "text-white bg-transparent"
-                      : "text-gray-900 bg-transparent"
-                  } hover:bg-zerogreen/10`}
+                  className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors text-white bg-transparent hover:bg-zerogreen/10"
                 >
                   Sign Out
                 </Button>
@@ -202,38 +101,13 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
           {/* Mobile Navigation */}
           <div className="lg:hidden flex justify-between items-center py-4">
-            <div
-              className={`font-[Koulen] text-2xl ${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              }`}
-            >
-              ZeroDayCTF
-            </div>
-
+            <div className="font-[Koulen] text-2xl text-white">ZeroDayCTF</div>
             <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                isIconOnly
-                onClick={toggleTheme}
-                className={`${
-                  theme === "dark" ? "bg-gray-800" : "bg-gray-200"
-                } rounded-full`}
-              >
-                {theme === "dark" ? "☀️" : "🌙"}
-              </Button>
-
-              <select
-                className={`${
-                  theme === "dark"
-                    ? "bg-gray-800 text-white"
-                    : "bg-gray-200 text-gray-900"
-                } px-2 py-1 rounded text-xs font-bold cursor-pointer border border-zerogreen/30`}
-              >
+              <select className="bg-gray-800 text-white px-2 py-1 rounded text-xs font-bold cursor-pointer border border-zerogreen/30">
                 <option value="EN">EN</option>
                 <option value="RU">RU</option>
                 <option value="AM">AM</option>
               </select>
-
               <label className="burger" htmlFor="burger">
                 <input
                   type="checkbox"
@@ -255,59 +129,26 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             }`}
           >
             <div className="flex flex-col space-y-3 pb-4">
-              <Link
-                href="/"
-                onClick={() => setIsOpen(false)}
-                className={`font-[Koulen] text-lg px-3 py-2 border ${
-                  theme === "dark"
-                    ? "border-gray-700 text-white"
-                    : "border-gray-300 text-gray-900"
-                } hover:text-zerogreen transition-colors text-center`}
-              >
-                Home
-              </Link>
-              <Link
-                href="/challanges"
-                onClick={() => setIsOpen(false)}
-                className={`font-[Koulen] text-lg px-3 py-2 border ${
-                  theme === "dark"
-                    ? "border-gray-700 text-white"
-                    : "border-gray-300 text-gray-900"
-                } hover:text-zerogreen transition-colors text-center`}
-              >
-                Challenges
-              </Link>
-              <Link
-                href="/leaderboard"
-                onClick={() => setIsOpen(false)}
-                className={`font-[Koulen] text-lg px-3 py-2 border ${
-                  theme === "dark"
-                    ? "border-gray-700 text-white"
-                    : "border-gray-300 text-gray-900"
-                } hover:text-zerogreen transition-colors text-center`}
-              >
-                Leaderboard
-              </Link>
-              <Link
-                href="/about"
-                onClick={() => setIsOpen(false)}
-                className={`font-[Koulen] text-lg px-3 py-2 border ${
-                  theme === "dark"
-                    ? "border-gray-700 text-white"
-                    : "border-gray-300 text-gray-900"
-                } hover:text-zerogreen transition-colors text-center`}
-              >
-                About Us
-              </Link>
+              {[
+                ["/", "Home"],
+                ["/challanges", "Challenges"],
+                ["/leaderboard", "Leaderboard"],
+                ["/about", "About Us"],
+              ].map(([href, label]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setIsOpen(false)}
+                  className="font-[Koulen] text-lg px-3 py-2 border border-gray-700 text-white hover:text-zerogreen transition-colors text-center"
+                >
+                  {label}
+                </Link>
+              ))}
               {isLoggedIn && (
                 <Link
                   href="/profile"
                   onClick={() => setIsOpen(false)}
-                  className={`font-[Koulen] text-lg px-3 py-2 border ${
-                    theme === "dark"
-                      ? "border-gray-700 text-white"
-                      : "border-gray-300 text-gray-900"
-                  } hover:text-zerogreen transition-colors text-center`}
+                  className="font-[Koulen] text-lg px-3 py-2 border border-gray-700 text-white hover:text-zerogreen transition-colors text-center"
                 >
                   Profile
                 </Link>
@@ -328,11 +169,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                     href="/signin"
                     onClick={() => setIsOpen(false)}
                     variant="bordered"
-                    className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full ${
-                      theme === "dark"
-                        ? "text-white bg-transparent"
-                        : "text-gray-900 bg-transparent"
-                    }`}
+                    className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full text-white bg-transparent"
                   >
                     Sign In
                   </Button>
@@ -344,11 +181,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                     handleSignOut();
                   }}
                   variant="bordered"
-                  className={`signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full ${
-                    theme === "dark"
-                      ? "text-white bg-transparent"
-                      : "text-gray-900 bg-transparent"
-                  }`}
+                  className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full text-white bg-transparent"
                 >
                   Sign Out
                 </Button>
@@ -360,3 +193,5 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
     </>
   );
 }
+
+export default Navbar;
