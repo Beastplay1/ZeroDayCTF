@@ -1,14 +1,29 @@
 "use client";
 import { useState } from "react";
 import { Orbitron } from "next/font/google";
+import { useRouter } from "next/navigation";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function AdminLoginPage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const waitForAdminSession = async () => {
+    for (let i = 0; i < 3; i++) {
+      const check = await fetch("/api/admin/users", {
+        method: "GET",
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+      if (check.ok) return true;
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+    return false;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +35,7 @@ export default function AdminLoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
+        credentials: "same-origin",
       });
 
       const data = await res.json();
@@ -29,7 +45,14 @@ export default function AdminLoginPage() {
         return;
       }
 
-      window.location.href = "/";
+      const sessionReady = await waitForAdminSession();
+      if (!sessionReady) {
+        setError("Session init delay. Press Login once more.");
+        return;
+      }
+
+      router.replace("/");
+      router.refresh();
     } catch {
       setError("Network error. Try again.");
     } finally {
