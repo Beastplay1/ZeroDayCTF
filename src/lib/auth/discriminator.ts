@@ -13,7 +13,9 @@ export function formatUsernameTag(username: string, usernum: number): string {
 }
 
 function generateRandomUsernum(): number {
-  return Math.floor(Math.random() * (MAX_USERNUM - MIN_USERNUM + 1)) + MIN_USERNUM;
+  return (
+    Math.floor(Math.random() * (MAX_USERNUM - MIN_USERNUM + 1)) + MIN_USERNUM
+  );
 }
 
 export async function generateDiscriminator(username: string): Promise<number> {

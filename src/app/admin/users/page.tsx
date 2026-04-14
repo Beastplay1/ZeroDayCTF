@@ -7,6 +7,7 @@ const orbitron = Orbitron({ subsets: ["latin"] });
 interface UserRow {
   id: number;
   username: string;
+  usernum?: number;
   email: string;
   role: string;
   createdAt: string;
@@ -33,7 +34,7 @@ export default function AdminUsersPage() {
   async function deleteUser(user: UserRow) {
     if (
       !confirm(
-        `Удалить пользователя "${user.username}"?\nБудут удалены все его solves и сброшены firstBlood.`,
+        `Delete user "${user.username}"?\nAll their solves will be deleted and firstBlood will be reset.`,
       )
     )
       return;
@@ -86,6 +87,9 @@ export default function AdminUsersPage() {
                     ID
                   </th>
                   <th className="text-left px-4 py-3 text-green-600 uppercase tracking-widest text-xs">
+                    UUID
+                  </th>
+                  <th className="text-left px-4 py-3 text-green-600 uppercase tracking-widest text-xs">
                     Username
                   </th>
                   <th className="text-left px-4 py-3 text-green-600 uppercase tracking-widest text-xs">
@@ -107,7 +111,7 @@ export default function AdminUsersPage() {
                 {users.length === 0 && (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       className="px-4 py-6 text-center text-green-700"
                     >
                       No users found
@@ -120,6 +124,9 @@ export default function AdminUsersPage() {
                     className="border-b border-green-900/50 hover:bg-green-950/20 transition-colors"
                   >
                     <td className="px-4 py-3 text-green-600">{user.id}</td>
+                    <td className="px-4 py-3 text-green-300">
+                      {typeof user.usernum === "number" ? user.usernum : "-"}
+                    </td>
                     <td className="px-4 py-3 text-green-300 font-semibold">
                       {user.username}
                     </td>
