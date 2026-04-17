@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mongoAggregate, mongoFindMany } from "@/lib/db/mongodb";
-import { ObjectId } from "mongodb";
+import { formatUsernameNumber } from "@/lib/storage/userStore";
 
 interface SolveWithChallenge {
-  _id: { userId: number; username: string };
+  _id: { userId: number; username: string; usernum?: number };
   points: number;
   solves: number;
 }
@@ -58,7 +58,11 @@ export async function GET(req: NextRequest) {
       { $unwind: "$challenge" },
       {
         $group: {
-          _id: { userId: "$userId", username: "$username" },
+          _id: {
+            userId: "$userId",
+            username: { $arrayElemAt: ["$user.username", 0] },
+            usernum: { $arrayElemAt: ["$user.usernum", 0] },
+          },
           points: { $sum: "$challenge.points" },
           solves: { $sum: 1 },
         },
@@ -83,13 +87,21 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const leaderboard = results.map((entry, i) => ({
-      rank: i + 1,
-      username: entry._id.username,
-      points: entry.points,
-      solves: entry.solves,
-      firstBloods: firstBloodMap[entry._id.username] ?? 0,
-    }));
+    const leaderboard = results.map((entry, i) => {
+      const displayUsername =
+        typeof entry._id.usernum === "number"
+          ? formatUsernameNumber(entry._id.username, entry._id.usernum)
+          : entry._id.username;
+
+      return {
+        rank: i + 1,
+        username: displayUsername,
+        points: entry.points,
+        solves: entry.solves,
+        firstBloods:
+          firstBloodMap[displayUsername] ?? firstBloodMap[entry._id.username] ?? 0,
+      };
+    });
 
     return NextResponse.json({ leaderboard });
   } catch (e) {

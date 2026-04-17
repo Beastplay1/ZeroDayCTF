@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateEmail } from "@/lib/validations/validateEmail";
-import { validateUsername } from "@/lib/validations/validateUsername";
 import { verifyUser } from "@/lib/storage/userStore";
 import { createSessionToken, getSessionCookieName } from "@/lib/auth/session";
 
 export const POST = async (request: NextRequest) => {
   try {
     const body = await request.json();
-    const { identifier, password, rememberMe } = body; // identifier = email or username
+    const { identifier, password, rememberMe } = body; // identifier = email only
 
     if (!identifier || !password) {
       return NextResponse.json(
@@ -17,10 +16,9 @@ export const POST = async (request: NextRequest) => {
     }
 
     const isEmail = validateEmail(identifier).isValid;
-    const isUsername = validateUsername(identifier).isValid;
-    if (!isEmail && !isUsername) {
+    if (!isEmail) {
       return NextResponse.json(
-        { error: "Invalid email or username" },
+        { error: "Invalid email format" },
         { status: 400 },
       );
     }

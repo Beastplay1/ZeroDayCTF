@@ -40,8 +40,20 @@ export default function Profile() {
     "overview",
   );
   const [sessionUsername, setSessionUsername] = useState<string | null>(null);
+  const [showUsernum, setShowUsernum] = useState(true);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("profile_show_usernum");
+    if (saved === "0") {
+      setShowUsernum(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("profile_show_usernum", showUsernum ? "1" : "0");
+  }, [showUsernum]);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -75,8 +87,13 @@ export default function Profile() {
   }, []);
 
   const isAnonymous = sessionUsername === "anonymous";
+  const rawUsername = profileData?.username || sessionUsername || "";
+  const usernameWithoutTag = rawUsername.includes("#")
+    ? rawUsername.split("#")[0]
+    : rawUsername;
+  const displayUsername = showUsernum ? rawUsername : usernameWithoutTag;
   const userData = {
-    username: sessionUsername || "",
+    username: displayUsername,
     rank: profileData?.rank ?? null,
     totalPoints: profileData?.totalPoints ?? 0,
     totalSolves: profileData?.totalSolves ?? 0,
@@ -173,6 +190,16 @@ export default function Profile() {
                   >
                     {userData.username}
                   </h1>
+                  {!isAnonymous && rawUsername.includes("#") && (
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      className="border-gray-600 text-gray-300"
+                      onClick={() => setShowUsernum((prev) => !prev)}
+                    >
+                      {showUsernum ? "Hide tag" : "Show tag"}
+                    </Button>
+                  )}
                 </div>
                 {isAnonymous ? (
                   <div className="flex flex-wrap gap-3 justify-center md:justify-start">

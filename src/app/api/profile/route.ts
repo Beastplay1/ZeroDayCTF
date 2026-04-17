@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { mongoAggregate, mongoFindOne } from "@/lib/db/mongodb";
+import { formatUsernameNumber } from "@/lib/storage/userStore";
 
 export async function GET() {
   const session = await getSessionFromCookies();
@@ -111,10 +112,17 @@ export async function GET() {
   const userDoc = await mongoFindOne<{ createdAt?: string }>("users", {
     id: session.userId,
   });
+  const profileUsername =
+    typeof (userDoc as { usernum?: number } | null)?.usernum === "number"
+      ? formatUsernameNumber(
+          session.username,
+          (userDoc as { usernum: number }).usernum,
+        )
+      : session.username;
 
   return NextResponse.json({
     authenticated: true,
-    username: session.username,
+    username: profileUsername,
     totalPoints,
     totalSolves: solvedChallenges.length,
     firstBloods,

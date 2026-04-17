@@ -10,6 +10,7 @@ const mongodbUri = process.env.MONGODB_URI;
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
+let indexesEnsured = false;
 
 function getHeaders(): HeadersInit {
   return {
@@ -34,7 +35,30 @@ async function getNativeDb(): Promise<Db> {
     await cachedClient.connect();
   }
   cachedDb = cachedClient.db(databaseName);
+  await ensureIndexes(cachedDb);
   return cachedDb;
+}
+
+async function ensureIndexes(db: Db): Promise<void> {
+  if (indexesEnsured) return;
+
+  try {
+    const users = db.collection("users");
+    await users.createIndex({ email: 1 }, { unique: true, name: "users_email_uq" });
+    await users.createIndex(
+      { username: 1, usernum: 1 },
+      {
+        unique: true,
+        name: "users_username_usernum_uq",
+        partialFilterExpression: {
+          usernum: { $exists: true },
+        },
+      },
+    );
+    indexesEnsured = true;
+  } catch (error) {
+    console.warn("Failed to ensure Mongo indexes:", error);
+  }
 }
 
 async function callMongoApi<T>(
