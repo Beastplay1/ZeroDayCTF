@@ -1,36 +1,34 @@
+import crypto from "crypto";
 import { mongoFindOne } from "@/lib/db/mongodb";
 
-const MIN_USERNUM = 1;
-const MAX_USERNUM = 9999;
-const MAX_ATTEMPTS = 30;
+const TAG_LEN = 4;
+const MAX_ATTEMPTS = 48;
 
-export function formatUsernum(usernum: number): string {
-  return usernum.toString().padStart(4, "0");
-}
-
-export function formatUsernameTag(username: string, usernum: number): string {
-  return `${username}#${formatUsernum(usernum)}`;
-}
-
-function generateRandomUsernum(): number {
-  return (
-    Math.floor(Math.random() * (MAX_USERNUM - MIN_USERNUM + 1)) + MIN_USERNUM
-  );
-}
-
-export async function generateDiscriminator(username: string): Promise<number> {
+/**
+ * Глобально уникальный короткий тег (hex): `username#a3f2`.
+ * Берём 4 подряд символа из SHA-256 случайных байт, со случайным смещением внутри хэша.
+ */
+export async function generateUserTag(): Promise<string> {
   for (let i = 0; i < MAX_ATTEMPTS; i++) {
-    const usernum = generateRandomUsernum();
+    const digest = crypto
+      .createHash("sha256")
+      .update(crypto.randomBytes(32))
+      .digest("hex");
+    const maxStart = digest.length - TAG_LEN;
+    const start = Math.floor(Math.random() * (maxStart + 1));
+    const tag = digest.slice(start, start + TAG_LEN).toLowerCase();
 
-    // Проверяем уникальность только для конкретного username
-    const existing = await mongoFindOne("users", { username, usernum });
-
-    if (!existing) {
-      return usernum;
+    const byTag = await mongoFindOne("users", { userTag: tag });
+    if (!byTag) {
+      return tag;
     }
   }
 
   throw new Error(
-    "Failed to generate a unique #number. Please retry registration.",
+    "Failed to generate a unique tag. Please retry registration.",
   );
+}
+
+export function formatUsernameTag(username: string, tag: string): string {
+  return `${username}#${tag}`;
 }

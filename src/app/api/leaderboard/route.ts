@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mongoAggregate, mongoFindMany } from "@/lib/db/mongodb";
-import { formatUsernameNumber } from "@/lib/storage/userStore";
+import { formatUserDisplayHandle } from "@/lib/storage/userStore";
 
 interface SolveWithChallenge {
-  _id: { userId: number; username: string; usernum?: number };
+  _id: {
+    userId: number;
+    username: string;
+    userTag?: string;
+  };
   points: number;
   solves: number;
 }
@@ -61,7 +65,7 @@ export async function GET(req: NextRequest) {
           _id: {
             userId: "$userId",
             username: { $arrayElemAt: ["$user.username", 0] },
-            usernum: { $arrayElemAt: ["$user.usernum", 0] },
+            userTag: { $arrayElemAt: ["$user.userTag", 0] },
           },
           points: { $sum: "$challenge.points" },
           solves: { $sum: 1 },
@@ -88,10 +92,10 @@ export async function GET(req: NextRequest) {
     }
 
     const leaderboard = results.map((entry, i) => {
-      const displayUsername =
-        typeof entry._id.usernum === "number"
-          ? formatUsernameNumber(entry._id.username, entry._id.usernum)
-          : entry._id.username;
+      const displayUsername = formatUserDisplayHandle({
+        username: entry._id.username,
+        userTag: entry._id.userTag,
+      });
 
       return {
         rank: i + 1,

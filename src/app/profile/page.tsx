@@ -40,20 +40,20 @@ export default function Profile() {
     "overview",
   );
   const [sessionUsername, setSessionUsername] = useState<string | null>(null);
-  const [showUsernum, setShowUsernum] = useState(true);
+  const [showTag, setShowTag] = useState(true);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("profile_show_usernum");
+    const saved = window.localStorage.getItem("profile_show_tag");
     if (saved === "0") {
-      setShowUsernum(false);
+      setShowTag(false);
     }
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem("profile_show_usernum", showUsernum ? "1" : "0");
-  }, [showUsernum]);
+    window.localStorage.setItem("profile_show_tag", showTag ? "1" : "0");
+  }, [showTag]);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -91,7 +91,7 @@ export default function Profile() {
   const usernameWithoutTag = rawUsername.includes("#")
     ? rawUsername.split("#")[0]
     : rawUsername;
-  const displayUsername = showUsernum ? rawUsername : usernameWithoutTag;
+  const displayUsername = showTag ? rawUsername : usernameWithoutTag;
   const userData = {
     username: displayUsername,
     rank: profileData?.rank ?? null,
@@ -195,9 +195,9 @@ export default function Profile() {
                       size="sm"
                       variant="bordered"
                       className="border-gray-600 text-gray-300"
-                      onClick={() => setShowUsernum((prev) => !prev)}
+                      onClick={() => setShowTag((prev) => !prev)}
                     >
-                      {showUsernum ? "Hide tag" : "Show tag"}
+                      {showTag ? "Hide tag" : "Show tag"}
                     </Button>
                   )}
                 </div>

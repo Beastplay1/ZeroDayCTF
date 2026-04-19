@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
-import { formatUsernameNumber, getUserById } from "@/lib/storage/userStore";
+import { formatUserDisplayHandle, getUserById } from "@/lib/storage/userStore";
 
 export const GET = async () => {
   const session = await getSessionFromCookies();
@@ -13,10 +13,7 @@ export const GET = async () => {
     return NextResponse.json({ authenticated: false }, { status: 200 });
   }
 
-  const username =
-    typeof user.usernum === "number"
-      ? formatUsernameNumber(user.username, user.usernum)
-      : user.username;
+  const username = formatUserDisplayHandle(user);
 
   return NextResponse.json(
     {

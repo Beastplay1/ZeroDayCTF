@@ -45,13 +45,24 @@ async function ensureIndexes(db: Db): Promise<void> {
   try {
     const users = db.collection("users");
     await users.createIndex({ email: 1 }, { unique: true, name: "users_email_uq" });
+    try {
+      await users.dropIndex("users_username_usernum_uq");
+    } catch {
+      // index may not exist (fresh DB or already dropped)
+    }
+    try {
+      await users.dropIndex("users_usernum_uq");
+    } catch {
+      // legacy numeric-tag index
+    }
     await users.createIndex(
-      { username: 1, usernum: 1 },
+      { userTag: 1 },
       {
         unique: true,
-        name: "users_username_usernum_uq",
+        name: "users_userTag_uq",
+        // Нельзя использовать $ne: "" — в partial index Mongo это даёт unsupported $not.
         partialFilterExpression: {
-          usernum: { $exists: true },
+          userTag: { $exists: true, $type: "string" },
         },
       },
     );

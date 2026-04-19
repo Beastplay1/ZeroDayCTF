@@ -7,7 +7,7 @@ import {
   mongoUpdateOne,
   mongoInsertOne,
 } from "@/lib/db/mongodb";
-import { generateDiscriminator } from "@/lib/auth/discriminator";
+import { generateUserTag } from "@/lib/auth/discriminator";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
           username?: string;
           id?: number;
           email?: string;
-          usernum?: number;
+          userTag?: string;
         }>("users", {
           email: user.email,
         });
@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
             provider: account?.provider,
             createdAt: new Date(),
             username,
-            usernum: await generateDiscriminator(username),
+            userTag: await generateUserTag(),
             role: "user",
           };
           await mongoInsertOne("users", newUser);
@@ -87,8 +87,8 @@ export const authOptions: NextAuthOptions = {
             lastLogin: new Date(),
             username,
           };
-          if (!existingUser.usernum) {
-            setData.usernum = await generateDiscriminator(username);
+          if (!existingUser.userTag) {
+            setData.userTag = await generateUserTag();
           }
 
           // Update user info if they already exist, and set username if missing

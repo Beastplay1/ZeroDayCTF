@@ -15,12 +15,9 @@ import Link from "next/link";
 import { validateUsername } from "@/lib/validations/validateUsername";
 import { validateEmail } from "@/lib/validations/validateEmail";
 import { validatePassword } from "@/lib/validations/validatePassword";
-import { useRouter } from "next/navigation";
-
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function SignUp() {
-  const router = useRouter();
 
   //FUTURE IDEA!! Encrypt creds in db with AES-256 i mean why not :D
 
@@ -64,9 +61,8 @@ export default function SignUp() {
     }
 
     try {
-      const res = await axios.post("/api/auth/signup", user);
+      await axios.post("/api/auth/signup", user);
       window.location.replace("/profile");
-      // console.log(res);
     } catch (err: any) {
       console.error(err);
       if (err.response?.data?.error) {

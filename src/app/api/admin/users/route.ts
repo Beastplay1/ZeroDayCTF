@@ -4,7 +4,7 @@ import { mongoAggregate } from "@/lib/db/mongodb";
 interface UserWithSolves {
   id: number;
   username: string;
-  usernum?: number;
+  userTag?: string;
   email: string;
   role: string;
   createdAt: string;
@@ -27,7 +27,7 @@ export async function GET() {
           _id: 0,
           id: 1,
           username: 1,
-          usernum: 1,
+          userTag: 1,
           email: 1,
           role: 1,
           createdAt: 1,

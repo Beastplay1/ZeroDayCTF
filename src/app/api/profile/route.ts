@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { mongoAggregate, mongoFindOne } from "@/lib/db/mongodb";
-import { formatUsernameNumber } from "@/lib/storage/userStore";
+import { formatUserDisplayHandle } from "@/lib/storage/userStore";
 
 export async function GET() {
   const session = await getSessionFromCookies();
@@ -109,16 +109,19 @@ export async function GET() {
   const rankIndex = rankList.findIndex((r) => r._id === session.userId);
   const rank = rankIndex >= 0 ? rankIndex + 1 : null;
 
-  const userDoc = await mongoFindOne<{ createdAt?: string }>("users", {
+  const userDoc = await mongoFindOne<{
+    createdAt?: string;
+    username?: string;
+    userTag?: string;
+  }>("users", {
     id: session.userId,
   });
-  const profileUsername =
-    typeof (userDoc as { usernum?: number } | null)?.usernum === "number"
-      ? formatUsernameNumber(
-          session.username,
-          (userDoc as { usernum: number }).usernum,
-        )
-      : session.username;
+  const profileUsername = userDoc?.username
+    ? formatUserDisplayHandle({
+        username: userDoc.username,
+        userTag: userDoc.userTag,
+      })
+    : session.username;
 
   return NextResponse.json({
     authenticated: true,

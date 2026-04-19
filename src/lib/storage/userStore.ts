@@ -9,7 +9,7 @@ import {
   mongoInsertOne,
   mongoUpdateOne,
 } from "@/lib/db/mongodb";
-import { generateDiscriminator } from "@/lib/auth/discriminator";
+import { generateUserTag } from "@/lib/auth/discriminator";
 
 export type NewUser = {
   username: string;
@@ -26,39 +26,22 @@ export type StoredUser = {
   passwordHash: string;
   salt: string;
   createdAt: string;
-  usernum: number; // Unique number for username#number
+  /** Короткий публичный суффикс после # (hex), глобально уникален. */
+  userTag: string;
   role: UserRole;
 };
 
-function parseUsernameTag(identifier: string): {
-  username: string;
-  usernum: number;
-} | null {
-  const trimmed = identifier.trim();
-  const match = /^(.+?)#(\d+)$/.exec(trimmed);
-  if (!match) return null;
-
-  const username = match[1].trim();
-  const usernum = Number.parseInt(match[2], 10);
-  if (!username || Number.isNaN(usernum) || usernum <= 0) return null;
-
-  return { username, usernum };
-}
-
 let mongoMigrationDone = false;
 
-/**
- * Formats username#number for display.
- * Pads number to 4 digits if < 10000, else displays as-is.
- * Example: test#0001, test#10000
- */
-export function formatUsernameNumber(
-  username: string,
-  usernum: number,
-): string {
-  const formattedNumber =
-    usernum < 10000 ? usernum.toString().padStart(4, "0") : usernum.toString();
-  return `${username}#${formattedNumber}`;
+/** Публичный ник: `username#tag` или без тега, если ещё не задан. */
+export function formatUserDisplayHandle(user: {
+  username: string;
+  userTag?: string;
+}): string {
+  if (user.userTag) {
+    return `${user.username}#${user.userTag}`;
+  }
+  return user.username;
 }
 
 const getFilePath = () =>
@@ -118,7 +101,7 @@ async function createStoredUser(
 ) {
   const salt = crypto.randomBytes(16).toString("hex");
   const hash = crypto.scryptSync(password, salt, 64).toString("hex");
-  const usernum = await generateDiscriminator(username);
+  const userTag = await generateUserTag();
 
   return {
     id: usersCount + 1,
@@ -127,7 +110,7 @@ async function createStoredUser(
     passwordHash: hash,
     salt,
     createdAt: new Date().toISOString(),
-    usernum,
+    userTag,
     role: "user",
   } as StoredUser;
 }
@@ -180,21 +163,11 @@ export async function verifyUser(
   identifier: string,
   password: string,
 ): Promise<StoredUser | null> {
-  const parsedTag = parseUsernameTag(identifier);
-
   if (isMongoDataApiConfigured() || isMongoNativeConfigured()) {
     await migrateFileUsersToMongoIfNeeded();
-    const byEmail = await mongoFindOne<StoredUser>("users", {
+    const found = await mongoFindOne<StoredUser>("users", {
       email: identifier,
     });
-    const byUsernameTag = parsedTag
-      ? await mongoFindOne<StoredUser>("users", {
-          username: parsedTag.username,
-          usernum: parsedTag.usernum,
-        })
-      : null;
-    const found =
-      byEmail || byUsernameTag || (await mongoFindOne<StoredUser>("users", { username: identifier }));
 
     if (!found) return null;
 
@@ -203,13 +176,7 @@ export async function verifyUser(
   }
 
   const users = await readFileUsers();
-  const found = users.find((u) => {
-    if (u.email === identifier) return true;
-    if (parsedTag) {
-      return u.username === parsedTag.username && u.usernum === parsedTag.usernum;
-    }
-    return u.username === identifier;
-  });
+  const found = users.find((u) => u.email === identifier);
   if (!found) return null;
 
   const hash = crypto.scryptSync(password, found.salt, 64).toString("hex");

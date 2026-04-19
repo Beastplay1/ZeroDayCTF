@@ -7,7 +7,7 @@ const orbitron = Orbitron({ subsets: ["latin"] });
 interface UserRow {
   id: number;
   username: string;
-  usernum?: number;
+  userTag?: string;
   email: string;
   role: string;
   createdAt: string;
@@ -125,7 +125,7 @@ export default function AdminUsersPage() {
                   >
                     <td className="px-4 py-3 text-green-600">{user.id}</td>
                     <td className="px-4 py-3 text-green-300">
-                      {typeof user.usernum === "number" ? user.usernum : "-"}
+                      {user.userTag ?? "-"}
                     </td>
                     <td className="px-4 py-3 text-green-300 font-semibold">
                       {user.username}
