@@ -31,7 +31,13 @@ export async function POST(
 
   // Daily challenges require authentication
   if (challenge.type === "daily" && !session) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json(
+      {
+        result: "guest_restricted",
+        error: "Not authenticated",
+      },
+      { status: 401 },
+    );
   }
 
   // Constant-time comparison to prevent timing attacks

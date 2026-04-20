@@ -203,8 +203,8 @@ export default function Profile() {
                 </div>
                 {isAnonymous ? (
                   <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                    <Chip className="bg-blue-500/20 text-blue-400 font-bold">
-                      {userData.totalSolves} Solves
+                    <Chip className="bg-gray-500/20 text-gray-400 border border-dashed border-gray-600">
+                      🔒 Solves — sign up to unlock
                     </Chip>
                     <Chip className="bg-gray-500/20 text-gray-400 border border-dashed border-gray-600">
                       🔒 Rank — sign up to unlock
@@ -327,57 +327,88 @@ export default function Profile() {
               >
                 <span className="text-zerogreen">◆</span> Recent Solves
               </h2>
-              {recentSolves.length === 0 && (
-                <p className="text-gray-500">No solves yet.</p>
+              {isAnonymous ? (
+                <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
+                  <CardBody className="text-center p-6">
+                    <p className="text-gray-400 mb-3">
+                      Recent solves are only available to registered users.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Button
+                        as="a"
+                        href="/signup"
+                        className="bg-zerogreen text-black font-bold"
+                        size="sm"
+                      >
+                        Sign Up
+                      </Button>
+                      <Button
+                        as="a"
+                        href="/signin"
+                        variant="bordered"
+                        className="border-zerogreen text-zerogreen"
+                        size="sm"
+                      >
+                        Sign In
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+              ) : (
+                <>
+                  {recentSolves.length === 0 && (
+                    <p className="text-gray-500">No solves yet.</p>
+                  )}
+                  <div className="space-y-3">
+                    {recentSolves.map((challenge) => (
+                      <Card
+                        key={challenge.challengeId}
+                        className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300"
+                      >
+                        <CardBody className="p-4">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div className="flex-grow">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3
+                                  className={`text-lg font-bold text-white ${orbitron.className}`}
+                                >
+                                  {challenge.name}
+                                </h3>
+                                {challenge.wasFirstBlood && (
+                                  <Chip
+                                    size="sm"
+                                    className="bg-red-500/20 text-red-400 font-bold"
+                                  >
+                                    🩸 First Blood
+                                  </Chip>
+                                )}
+                              </div>
+                              <div className="flex gap-2 flex-wrap">
+                                <span
+                                  className={`text-xs px-2 py-1 rounded-full border ${categoryChipColors[challenge.category] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
+                                >
+                                  {challenge.category}
+                                </span>
+                                <span
+                                  className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
+                                >
+                                  {challenge.difficulty}
+                                </span>
+                                <span className="text-xs px-2 py-1 rounded-full border bg-zerogreen/20 text-zerogreen border-zerogreen/50 font-bold">
+                                  +{challenge.points} pts
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-gray-500 text-sm text-right">
+                              {formatDate(challenge.solvedAt)}
+                            </div>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    ))}
+                  </div>
+                </>
               )}
-              <div className="space-y-3">
-                {recentSolves.map((challenge) => (
-                  <Card
-                    key={challenge.challengeId}
-                    className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300"
-                  >
-                    <CardBody className="p-4">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                        <div className="flex-grow">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3
-                              className={`text-lg font-bold text-white ${orbitron.className}`}
-                            >
-                              {challenge.name}
-                            </h3>
-                            {challenge.wasFirstBlood && (
-                              <Chip
-                                size="sm"
-                                className="bg-red-500/20 text-red-400 font-bold"
-                              >
-                                🩸 First Blood
-                              </Chip>
-                            )}
-                          </div>
-                          <div className="flex gap-2 flex-wrap">
-                            <span
-                              className={`text-xs px-2 py-1 rounded-full border ${categoryChipColors[challenge.category] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
-                            >
-                              {challenge.category}
-                            </span>
-                            <span
-                              className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
-                            >
-                              {challenge.difficulty}
-                            </span>
-                            <span className="text-xs px-2 py-1 rounded-full border bg-zerogreen/20 text-zerogreen border-zerogreen/50 font-bold">
-                              +{challenge.points} pts
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-gray-500 text-sm text-right">
-                          {formatDate(challenge.solvedAt)}
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-                ))}
-              </div>
             </div>
           </div>
         )}
@@ -390,57 +421,88 @@ export default function Profile() {
               <span className="text-zerogreen">◆</span> All Solved Challenges (
               {userData.totalSolves})
             </h2>
-            {solvedChallenges.length === 0 && (
-              <p className="text-gray-500">No solves yet.</p>
+            {isAnonymous ? (
+              <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
+                <CardBody className="text-center p-6">
+                  <p className="text-gray-400 mb-3">
+                    Solved challenges are only available to registered users.
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <Button
+                      as="a"
+                      href="/signup"
+                      className="bg-zerogreen text-black font-bold"
+                      size="sm"
+                    >
+                      Sign Up
+                    </Button>
+                    <Button
+                      as="a"
+                      href="/signin"
+                      variant="bordered"
+                      className="border-zerogreen text-zerogreen"
+                      size="sm"
+                    >
+                      Sign In
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+            ) : (
+              <>
+                {solvedChallenges.length === 0 && (
+                  <p className="text-gray-500">No solves yet.</p>
+                )}
+                <div className="space-y-3">
+                  {solvedChallenges.map((challenge) => (
+                    <Card
+                      key={challenge.challengeId}
+                      className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300"
+                    >
+                      <CardBody className="p-4">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                          <div className="flex-grow">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3
+                                className={`text-lg font-bold text-white ${orbitron.className}`}
+                              >
+                                {challenge.name}
+                              </h3>
+                              {challenge.wasFirstBlood && (
+                                <Chip
+                                  size="sm"
+                                  className="bg-red-500/20 text-red-400 font-bold"
+                                >
+                                  🩸 First Blood
+                                </Chip>
+                              )}
+                            </div>
+                            <div className="flex gap-2 flex-wrap">
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full border ${categoryChipColors[challenge.category] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
+                              >
+                                {challenge.category}
+                              </span>
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
+                              >
+                                {challenge.difficulty}
+                              </span>
+                              <span className="text-xs px-2 py-1 rounded-full border bg-zerogreen/20 text-zerogreen border-zerogreen/50 font-bold">
+                                +{challenge.points} pts
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-gray-500 text-sm text-right">
+                            {formatDate(challenge.solvedAt)}
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </div>
+              </>
             )}
-            <div className="space-y-3">
-              {solvedChallenges.map((challenge) => (
-                <Card
-                  key={challenge.challengeId}
-                  className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300"
-                >
-                  <CardBody className="p-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                      <div className="flex-grow">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3
-                            className={`text-lg font-bold text-white ${orbitron.className}`}
-                          >
-                            {challenge.name}
-                          </h3>
-                          {challenge.wasFirstBlood && (
-                            <Chip
-                              size="sm"
-                              className="bg-red-500/20 text-red-400 font-bold"
-                            >
-                              🩸 First Blood
-                            </Chip>
-                          )}
-                        </div>
-                        <div className="flex gap-2 flex-wrap">
-                          <span
-                            className={`text-xs px-2 py-1 rounded-full border ${categoryChipColors[challenge.category] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
-                          >
-                            {challenge.category}
-                          </span>
-                          <span
-                            className={`text-xs px-2 py-1 rounded-full border ${difficultyChipColors[challenge.difficulty] ?? "bg-gray-500/20 text-gray-400 border-gray-500/50"} font-bold`}
-                          >
-                            {challenge.difficulty}
-                          </span>
-                          <span className="text-xs px-2 py-1 rounded-full border bg-zerogreen/20 text-zerogreen border-zerogreen/50 font-bold">
-                            +{challenge.points} pts
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-gray-500 text-sm text-right">
-                        {formatDate(challenge.solvedAt)}
-                      </div>
-                    </div>
-                  </CardBody>
-                </Card>
-              ))}
-            </div>
           </div>
         )}
 

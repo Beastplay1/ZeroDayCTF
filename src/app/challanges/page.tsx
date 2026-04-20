@@ -40,8 +40,14 @@ export default function Challenges() {
     | "already_solved"
     | "loading"
     | "unauthenticated"
+    | "guest_restricted"
     | "invalid_format"
   >("idle");
+
+  useEffect(() => {
+    // Initialize guest session for anonymous users (safe no-op for logged-in users).
+    fetch("/api/guest/ensure", { method: "POST" }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch("/api/challenges")
@@ -140,7 +146,11 @@ export default function Challenges() {
       );
       const data = await res.json();
       if (res.status === 401) {
-        setSubmitStatus("unauthenticated");
+        setSubmitStatus(
+          data?.result === "guest_restricted"
+            ? "guest_restricted"
+            : "unauthenticated",
+        );
         return;
       }
       setSubmitStatus(
@@ -443,6 +453,18 @@ export default function Challenges() {
                       signed in
                     </a>{" "}
                     to submit this challenge.
+                  </p>
+                )}
+                {submitStatus === "guest_restricted" && (
+                  <p className="text-yellow-400 font-mono text-xs">
+                    ⚠ Guest accounts can submit only 7-day challenges.{" "}
+                    <a
+                      href="/signup"
+                      className="underline hover:text-yellow-300"
+                    >
+                      Sign up
+                    </a>{" "}
+                    to submit daily challenges.
                   </p>
                 )}
                 <button
