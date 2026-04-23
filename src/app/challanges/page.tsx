@@ -43,6 +43,7 @@ export default function Challenges() {
     | "guest_restricted"
     | "invalid_format"
   >("idle");
+  const [showGuestCTA, setShowGuestCTA] = useState(false);
 
   useEffect(() => {
     // Initialize guest session for anonymous users (safe no-op for logged-in users).
@@ -153,13 +154,19 @@ export default function Challenges() {
         );
         return;
       }
-      setSubmitStatus(
-        data.result === "correct"
-          ? "correct"
-          : data.result === "already_solved"
-            ? "already_solved"
-            : "wrong",
-      );
+      if (data.result === "correct") {
+        setSubmitStatus("correct");
+        if (data.anonymous) {
+          setTimeout(() => {
+            setShowGuestCTA(true);
+            closeModal();
+          }, 600);
+        }
+      } else {
+        setSubmitStatus(
+          data.result === "already_solved" ? "already_solved" : "wrong",
+        );
+      }
     } catch {
       setSubmitStatus("wrong");
     }
@@ -477,6 +484,50 @@ export default function Challenges() {
                   className="w-full py-2 bg-zerogreen/10 border border-zerogreen text-zerogreen font-bold font-mono text-sm hover:bg-zerogreen hover:text-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitStatus === "loading" ? "CHECKING..." : "SUBMIT FLAG"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Guest CTA Modal */}
+      {showGuestCTA && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          onClick={() => setShowGuestCTA(false)}
+        >
+          <div
+            className="relative w-full max-w-md bg-[#0a0a0a] border-2 border-zerogreen shadow-[0_0_50px_rgba(0,255,0,0.15)] rounded-lg text-center overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top decorative bar */}
+            <div className="h-1 w-full bg-gradient-to-r from-transparent via-zerogreen to-transparent"></div>
+            
+            <div className="p-8">
+              <div className="text-5xl mb-4 animate-bounce">🎉</div>
+              <h2
+                className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
+              >
+                Challenge Solved!
+              </h2>
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                You just solved this challenge as a <span className="text-zerogreen font-bold">guest</span>! 
+                Your progress is saved for 24 hours. Create an account to permanently save your solves, get on the leaderboard, and unlock daily challenges.
+              </p>
+              
+              <div className="flex flex-col gap-3">
+                <a
+                  href="/signup"
+                  className="w-full py-3 bg-zerogreen text-black font-bold font-mono text-sm hover:bg-green-400 transition-colors rounded-sm shadow-[0_0_15px_rgba(0,255,0,0.3)]"
+                >
+                  SIGN UP NOW
+                </a>
+                <button
+                  onClick={() => setShowGuestCTA(false)}
+                  className="w-full py-2 text-gray-500 hover:text-white font-mono text-xs transition-colors"
+                >
+                  Continue as Guest
                 </button>
               </div>
             </div>
