@@ -63,9 +63,9 @@ export function Navbar() {
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <select className="bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-bold cursor-pointer border-2 border-zerogreen/30 hover:border-zerogreen transition-colors">
-                  <option value="EN">EN 🇺🇸</option>
-                  <option value="RU">RU 🇷🇺</option>
-                  <option value="AM">AM 🇦🇲</option>
+                  <option value="EN">EN</option>
+                  <option value="RU">RU</option>
+                  <option value="AM">AM</option>
                 </select>
               </div>
               {!isLoggedIn ? (
