@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { getChallengeById, recordSolve } from "@/lib/storage/challengeStore";
 import { mongoFindOne, mongoInsertOne } from "@/lib/db/mongodb";
+import {
+  parseGuestSessionToken,
+  getGuestCookieName,
+} from "@/lib/auth/guestSession";
 
 interface SolveRecord {
   challengeId: string;
@@ -45,8 +49,29 @@ export async function POST(
     return NextResponse.json({ result: "wrong" }, { status: 200 });
   }
 
-  // Anonymous users on weekly challenges: just confirm correct, no recording
+  // Anonymous users on weekly challenges: record in guest_solves
   if (!session) {
+    const guestCookie = req.cookies.get(getGuestCookieName())?.value;
+    const guestSession = guestCookie
+      ? await parseGuestSessionToken(guestCookie)
+      : null;
+
+    if (guestSession) {
+      const existingGuestSolve = await mongoFindOne("guest_solves", {
+        challengeId: id,
+        guestId: guestSession.guestId,
+      });
+
+      if (!existingGuestSolve) {
+        await mongoInsertOne("guest_solves", {
+          guestId: guestSession.guestId,
+          challengeId: id,
+          solvedAt: new Date().toISOString(),
+          createdAt: new Date(), // for TTL index
+        });
+      }
+    }
+
     return NextResponse.json(
       { result: "correct", anonymous: true },
       { status: 200 },

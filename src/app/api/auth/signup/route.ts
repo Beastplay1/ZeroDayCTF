@@ -4,6 +4,8 @@ import { validateEmail } from "@/lib/validations/validateEmail";
 import { validatePassword } from "@/lib/validations/validatePassword";
 import { saveUser } from "@/lib/storage/userStore";
 import { createSessionToken, getSessionCookieName } from "@/lib/auth/session";
+import { parseGuestSessionToken, getGuestCookieName } from "@/lib/auth/guestSession";
+import { migrateGuestSolves } from "@/lib/storage/migrateGuestSolves";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -66,6 +68,12 @@ export const POST = async (request: NextRequest) => {
     try {
       const stored = await saveUser({ username, email, password });
 
+      const guestCookie = request.cookies.get(getGuestCookieName())?.value;
+      const guestSession = guestCookie ? await parseGuestSessionToken(guestCookie) : null;
+      if (guestSession) {
+        await migrateGuestSolves(guestSession.guestId, stored.id, stored.username);
+      }
+
       // Create session token and set cookie so user is logged in after signup
       const token = createSessionToken(
         stored.id,
@@ -77,6 +85,12 @@ export const POST = async (request: NextRequest) => {
         new URL("/profile", request.url),
         302,
       );
+
+      response.cookies.set({
+        name: getGuestCookieName(),
+        value: "",
+        maxAge: 0,
+      });
 
       response.cookies.set({
         name: getSessionCookieName(),

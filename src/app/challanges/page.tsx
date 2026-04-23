@@ -167,7 +167,7 @@ export default function Challenges() {
 
   const ChallengeCard = ({ challenge }: { challenge: Challenge }) => (
     <Card
-      className="bg-[#0f0f0f] border border-zerogreen/30 hover:border-zerogreen hover:shadow-lg hover:shadow-zerogreen/20 transition-all duration-300 group cursor-pointer"
+      className="bg-[#0f0f0f] border border-zerogreen/30 hover:border-zerogreen hover:shadow-lg hover:shadow-zerogreen/20 transition-all duration-300 group cursor-pointer h-full"
       isPressable
       onPress={() => openChallenge(challenge)}
     >
@@ -195,8 +195,10 @@ export default function Challenges() {
           </span>
         </div>
       </CardHeader>
-      <CardBody className="pt-0">
-        <p className="text-gray-400 text-sm mb-3">{challenge.description}</p>
+      <CardBody className="pt-0 flex flex-col h-full">
+        <p className="text-gray-400 text-sm mb-3 overflow-hidden max-h-[40px] [mask-image:linear-gradient(to_bottom,white_20px,transparent_40px)] [-webkit-mask-image:linear-gradient(to_bottom,white_20px,transparent_40px)]">
+          {challenge.description}
+        </p>
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-500">
             <span className="text-cyan-400 font-bold">{challenge.solves}</span>{" "}
@@ -208,8 +210,10 @@ export default function Challenges() {
             </div>
           )}
         </div>
-        <div className="mt-3 w-full bg-zerogreen/10 border border-zerogreen text-zerogreen font-bold text-center py-2 text-sm rounded-xl group-hover:bg-zerogreen group-hover:text-black transition-all duration-300">
-          View Challenge
+        <div className="mt-auto pt-4 w-full">
+          <div className="w-full bg-zerogreen/10 border border-zerogreen text-zerogreen font-bold text-center py-2 text-sm rounded-xl group-hover:bg-zerogreen group-hover:text-black transition-all duration-300">
+            View Challenge
+          </div>
         </div>
       </CardBody>
     </Card>

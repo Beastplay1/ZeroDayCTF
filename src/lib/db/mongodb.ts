@@ -66,6 +66,12 @@ async function ensureIndexes(db: Db): Promise<void> {
         },
       },
     );
+
+    const guestSolves = db.collection("guest_solves");
+    await guestSolves.createIndex(
+      { createdAt: 1 },
+      { expireAfterSeconds: 86400, name: "guest_solves_ttl" }
+    );
     indexesEnsured = true;
   } catch (error) {
     console.warn("Failed to ensure Mongo indexes:", error);

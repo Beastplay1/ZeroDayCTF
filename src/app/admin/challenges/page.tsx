@@ -283,7 +283,7 @@ export default function AdminChallengesPage() {
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     required
                     className="input-admin"
-                    placeholder="Classically"
+                    placeholder="Challenge Name"
                   />
                 </Field>
 
@@ -371,7 +371,7 @@ export default function AdminChallengesPage() {
                     value={form.file}
                     onChange={(e) => setForm({ ...form, file: e.target.value })}
                     className="input-admin"
-                    placeholder="classically.zip"
+                    placeholder="file.zip"
                   />
                 </Field>
 
