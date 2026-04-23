@@ -33,6 +33,10 @@ export async function POST(
     return NextResponse.json({ error: "Challenge not found" }, { status: 404 });
   }
 
+  if (challenge.expiresAt && new Date() > new Date(challenge.expiresAt)) {
+    return NextResponse.json({ result: "expired" }, { status: 200 });
+  }
+
   // Daily challenges require authentication
   if (challenge.type === "daily" && !session) {
     return NextResponse.json(
@@ -89,12 +93,20 @@ export async function POST(
 
   // Record the solve
   const isFirstBlood = challenge.solves === 0;
+  
+  // Calculate bonus points based on solves BEFORE this submission
+  let bonusPoints = 0;
+  if (challenge.solves === 0) bonusPoints = 500;
+  else if (challenge.solves === 1) bonusPoints = 250;
+  else if (challenge.solves === 2) bonusPoints = 50;
+
   await Promise.all([
-    mongoInsertOne<SolveRecord>("solves", {
+    mongoInsertOne("solves", {
       challengeId: id,
       userId: session.userId,
       username: session.username,
       solvedAt: new Date().toISOString(),
+      bonusPoints,
     }),
     recordSolve(id, session.username, isFirstBlood),
   ]);

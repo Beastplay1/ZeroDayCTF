@@ -18,6 +18,7 @@ interface ChallengeDoc {
   solves: number;
   firstBlood?: string;
   createdAt: string;
+  expiresAt?: string;
 }
 
 const EMPTY_FORM = {
@@ -43,6 +44,17 @@ const CATEGORIES = [
   "Misc",
 ];
 const DIFFICULTIES = ["Easy", "Medium", "Hard", "Insane"] as const;
+
+const categoryColors: Record<string, string> = {
+  Web: "bg-blue-500/20 text-blue-400 border-blue-500/50",
+  Crypto: "bg-purple-500/20 text-purple-400 border-purple-500/50",
+  Pwn: "bg-red-500/20 text-red-400 border-red-500/50",
+  "Reverse Engineering": "bg-yellow-500/20 text-yellow-400 border-yellow-500/50",
+  Forensics: "bg-green-500/20 text-green-400 border-green-500/50",
+  Binary: "bg-orange-500/20 text-orange-400 border-orange-500/50",
+  OSINT: "bg-indigo-500/20 text-indigo-400 border-indigo-500/50",
+  Misc: "bg-gray-500/20 text-gray-400 border-gray-500/50",
+};
 
 export default function AdminChallengesPage() {
   const [challenges, setChallenges] = useState<ChallengeDoc[]>([]);
@@ -143,6 +155,36 @@ export default function AdminChallengesPage() {
     Insane: "text-red-400",
   };
 
+  const ChallengeTimer = ({ expiresAt }: { expiresAt?: string }) => {
+    const [timeLeft, setTimeLeft] = useState<string>("");
+
+    useEffect(() => {
+      if (!expiresAt) return;
+      const interval = setInterval(() => {
+        const diff = new Date(expiresAt).getTime() - new Date().getTime();
+        if (diff <= 0) {
+          setTimeLeft("Expired");
+          clearInterval(interval);
+          return;
+        }
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / 1000 / 60) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        setTimeLeft(`${d > 0 ? d + "d " : ""}${h}h ${m}m ${s}s`);
+      }, 1000);
+      return () => clearInterval(interval);
+    }, [expiresAt]);
+
+    if (!expiresAt || !timeLeft) return null;
+
+    return (
+      <span className="font-mono text-xs px-2 py-0.5 border border-yellow-700/50 bg-black/40 text-gray-300 rounded flex items-center gap-1">
+        <span className="text-yellow-500">⏱</span> {timeLeft}
+      </span>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-black text-green-400 p-8">
       <div className="max-w-6xl mx-auto">
@@ -190,7 +232,9 @@ export default function AdminChallengesPage() {
                     >
                       {c.name}
                     </span>
-                    <span className="text-green-700 font-mono text-xs">
+                    <span
+                      className={`text-xs px-2 py-1 border ${categoryColors[c.category] || categoryColors.Misc} font-bold font-mono`}
+                    >
                       {c.category}
                     </span>
                     <span
@@ -211,6 +255,7 @@ export default function AdminChallengesPage() {
                     >
                       {c.active ? "active" : "inactive"}
                     </span>
+                    <ChallengeTimer expiresAt={c.expiresAt} />
                   </div>
                   <p className="text-green-700 font-mono text-xs mt-1 truncate">
                     {c.description}

@@ -67,7 +67,11 @@ export async function GET(req: NextRequest) {
             username: { $arrayElemAt: ["$user.username", 0] },
             userTag: { $arrayElemAt: ["$user.userTag", 0] },
           },
-          points: { $sum: "$challenge.points" },
+          points: {
+            $sum: {
+              $add: ["$challenge.points", { $ifNull: ["$bonusPoints", 0] }],
+            },
+          },
           solves: { $sum: 1 },
         },
       },

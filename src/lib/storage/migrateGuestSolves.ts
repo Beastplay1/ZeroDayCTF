@@ -23,12 +23,20 @@ export async function migrateGuestSolves(guestId: string, userId: number, userna
         const challenge = await getChallengeById(solve.challengeId);
         const isFirstBlood = challenge ? challenge.solves === 0 : false;
 
+        let bonusPoints = 0;
+        if (challenge) {
+          if (challenge.solves === 0) bonusPoints = 500;
+          else if (challenge.solves === 1) bonusPoints = 250;
+          else if (challenge.solves === 2) bonusPoints = 50;
+        }
+
         await Promise.all([
           mongoInsertOne("solves", {
             challengeId: solve.challengeId,
             userId,
             username,
             solvedAt: solve.solvedAt,
+            bonusPoints,
           }),
           recordSolve(solve.challengeId, username, isFirstBlood),
         ]);

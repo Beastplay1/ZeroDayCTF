@@ -74,10 +74,21 @@ export async function getAllChallenges(): Promise<ChallengeDoc[]> {
 export async function createChallenge(
   data: Omit<ChallengeDoc, "_id" | "solves" | "createdAt">,
 ): Promise<string> {
+  const createdAt = new Date();
+  let expiresAt = data.expiresAt;
+  
+  if (!expiresAt) {
+    const exp = new Date(createdAt);
+    if (data.type === "weekly") exp.setDate(exp.getDate() + 7);
+    if (data.type === "daily") exp.setHours(exp.getHours() + 24);
+    expiresAt = exp.toISOString();
+  }
+
   const res = await mongoInsertOne("challenges", {
     ...data,
     solves: 0,
-    createdAt: new Date().toISOString(),
+    createdAt: createdAt.toISOString(),
+    expiresAt,
   });
   return res.insertedId;
 }

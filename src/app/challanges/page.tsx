@@ -16,6 +16,7 @@ interface Challenge {
   description: string;
   file?: string;
   type: "weekly" | "daily";
+  expiresAt?: string;
 }
 
 const sevenDayChallenges: Challenge[] = [];
@@ -65,9 +66,17 @@ export default function Challenges() {
           description: c.description,
           file: c.file,
           type: c.type,
+          expiresAt: c.expiresAt,
         }));
-        setWeeklyChallenges(all.filter((c) => c.type === "weekly"));
-        setDailyChallenges(all.filter((c) => c.type === "daily"));
+        
+        // Filter out expired challenges globally
+        const activeAll = all.filter((c) => {
+          if (!c.expiresAt) return true;
+          return new Date() <= new Date(c.expiresAt);
+        });
+
+        setWeeklyChallenges(activeAll.filter((c) => c.type === "weekly"));
+        setDailyChallenges(activeAll.filter((c) => c.type === "daily"));
       })
       .catch(() => {})
       .finally(() => setLoadingChallenges(false));
@@ -172,6 +181,36 @@ export default function Challenges() {
     }
   };
 
+  const ChallengeTimer = ({ expiresAt }: { expiresAt?: string }) => {
+    const [timeLeft, setTimeLeft] = useState<string>("");
+
+    useEffect(() => {
+      if (!expiresAt) return;
+      const interval = setInterval(() => {
+        const diff = new Date(expiresAt).getTime() - new Date().getTime();
+        if (diff <= 0) {
+          setTimeLeft("Expired");
+          clearInterval(interval);
+          return;
+        }
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / 1000 / 60) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+        setTimeLeft(`${d > 0 ? d + "d " : ""}${h}h ${m}m ${s}s`);
+      }, 1000);
+      return () => clearInterval(interval);
+    }, [expiresAt]);
+
+    if (!expiresAt || !timeLeft) return null;
+
+    return (
+      <div className="text-xs flex items-center gap-1 bg-black/40 px-2 py-1 rounded border border-gray-700/50 text-gray-300 font-mono">
+        <span className="text-yellow-500">⏱</span> {timeLeft}
+      </div>
+    );
+  };
+
   const ChallengeCard = ({ challenge }: { challenge: Challenge }) => (
     <Card
       className="bg-[#0f0f0f] border border-zerogreen/30 hover:border-zerogreen hover:shadow-lg hover:shadow-zerogreen/20 transition-all duration-300 group cursor-pointer h-full"
@@ -191,15 +230,18 @@ export default function Challenges() {
             {challenge.difficulty}
           </span>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <span
-            className={`text-xs px-2 py-1 rounded border ${categoryColors[challenge.category]} font-bold`}
-          >
-            {challenge.category}
-          </span>
-          <span className="text-xs px-2 py-1 rounded bg-zerogreen/20 text-zerogreen border border-zerogreen/50 font-bold">
-            {challenge.points} pts
-          </span>
+        <div className="flex justify-between items-center w-full mt-1">
+          <div className="flex gap-2 flex-wrap">
+            <span
+              className={`text-xs px-2 py-1 rounded border ${categoryColors[challenge.category]} font-bold`}
+            >
+              {challenge.category}
+            </span>
+            <span className="text-xs px-2 py-1 rounded bg-zerogreen/20 text-zerogreen border border-zerogreen/50 font-bold">
+              {challenge.points} pts
+            </span>
+          </div>
+          <ChallengeTimer expiresAt={challenge.expiresAt} />
         </div>
       </CardHeader>
       <CardBody className="pt-0 flex flex-col h-full">

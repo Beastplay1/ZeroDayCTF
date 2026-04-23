@@ -13,6 +13,53 @@ const bungee = Bungee({ weight: "400", subsets: ["latin"] });
 const roboto = Roboto_Mono({ subsets: ["latin"] });
 
 export default function Home() {
+  const [weeklyCount, setWeeklyCount] = useState<number>(0);
+  const [dailyExpiry, setDailyExpiry] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/challenges")
+      .then((res) => res.json())
+      .then((data) => {
+        const all = data.challenges || [];
+        const activeAll = all.filter((c: any) => {
+          if (!c.expiresAt) return true;
+          return new Date() <= new Date(c.expiresAt);
+        });
+        const weekly = activeAll.filter((c: any) => c.type === "weekly");
+        const daily = activeAll.filter((c: any) => c.type === "daily");
+        
+        setWeeklyCount(weekly.length);
+        if (daily.length > 0) {
+          // Sort daily by nearest expiry
+          daily.sort(
+            (a: any, b: any) =>
+              new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime()
+          );
+          setDailyExpiry(daily[0].expiresAt);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const HomeTimer = ({ expiresAt }: { expiresAt: string }) => {
+    const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
+    useEffect(() => {
+      const interval = setInterval(() => {
+        const diff = new Date(expiresAt).getTime() - new Date().getTime();
+        if (diff <= 0) {
+          setTimeLeft("00:00:00");
+          return;
+        }
+        const h = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, "0");
+        const m = String(Math.floor((diff / 1000 / 60) % 60)).padStart(2, "0");
+        const s = String(Math.floor((diff / 1000) % 60)).padStart(2, "0");
+        setTimeLeft(`${h}:${m}:${s}`);
+      }, 1000);
+      return () => clearInterval(interval);
+    }, [expiresAt]);
+    return <>{timeLeft}</>;
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -183,13 +230,16 @@ export default function Home() {
               {[...Array(7)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-full aspect-square bg-gray-800/50 border border-gray-700 
-            group-hover:border-cyan-500/30 transition-all duration-300"
+                  className={`w-full aspect-square border transition-all duration-300 ${
+                    i < weeklyCount
+                      ? "bg-cyan-500/20 border-cyan-500 shadow-[0_0_10px_rgba(0,255,255,0.2)]"
+                      : "bg-gray-800/50 border-gray-700 group-hover:border-cyan-500/30"
+                  }`}
                 ></div>
               ))}
             </div>
             <p className="text-gray-400 font-mono text-xs sm:text-sm">
-              Real CTF challenges. New selection every 7 days.
+              {weeklyCount} / 7 real CTF challenges active. New selection every 7 days.
             </p>
           </div>
 
@@ -205,7 +255,7 @@ export default function Home() {
               </h3>
             </div>
             <div className="text-3xl sm:text-4xl font-mono text-purple-500 mb-4">
-              23:59:59
+              {dailyExpiry ? <HomeTimer expiresAt={dailyExpiry} /> : "STANDBY"}
             </div>
             <p className="text-gray-400 font-mono text-xs sm:text-sm">
               Daily bonus challenge. Earn extra points. Gone in 24h.
@@ -213,13 +263,14 @@ export default function Home() {
           </div>
         </div>
 
-        <button
+        <a
+          href="/challanges"
           className="mt-6 md:mt-8 px-4 sm:px-6 py-3 bg-black/50 border border-cyan-500/30 text-cyan-400 
     font-mono text-sm sm:text-base hover:bg-cyan-500/10 transition-all duration-300 flex items-center gap-2"
         >
           <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
           START MISSION
-        </button>
+        </a>
       </div>
     </>
   );
