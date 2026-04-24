@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Button } from "@heroui/react";
 import { useState, useEffect } from "react";
+import { UserSearch } from "@/components/UserSearch";
 import "@/styles/navbar.css";
 
 export function Navbar() {
@@ -60,7 +61,9 @@ export function Navbar() {
                 </Link>
               )}
             </div>
+
             <div className="flex items-center space-x-3">
+              <UserSearch />
               <div className="relative">
                 <select className="bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-bold cursor-pointer border-2 border-zerogreen/30 hover:border-zerogreen transition-colors">
                   <option value="EN">EN</option>
@@ -103,6 +106,9 @@ export function Navbar() {
           <div className="lg:hidden flex justify-between items-center py-4">
             <div className="font-[Koulen] text-2xl text-white">ZeroDayCTF</div>
             <div className="flex items-center gap-2">
+              <div className="sm:block sm:px-1 sm:w-52">
+                <UserSearch />
+              </div>
               <select className="bg-gray-800 text-white px-2 py-1 rounded text-xs font-bold cursor-pointer border border-zerogreen/30">
                 <option value="EN">EN</option>
                 <option value="RU">RU</option>
