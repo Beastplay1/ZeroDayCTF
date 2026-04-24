@@ -113,6 +113,8 @@ export async function GET() {
     createdAt?: string;
     username?: string;
     userTag?: string;
+    email?: string;
+    avatarUrl?: string;
   }>("users", {
     id: session.userId,
   });
@@ -126,6 +128,8 @@ export async function GET() {
   return NextResponse.json({
     authenticated: true,
     username: profileUsername,
+    email: userDoc?.email,
+    avatarUrl: userDoc?.avatarUrl,
     totalPoints,
     totalSolves: solvedChallenges.length,
     firstBloods,

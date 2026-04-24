@@ -7,6 +7,7 @@ interface UserWithSolves {
   userTag?: string;
   email: string;
   role: string;
+  avatarUrl?: string;
   createdAt: string;
   solveCount: number;
 }
@@ -30,6 +31,7 @@ export async function GET() {
           userTag: 1,
           email: 1,
           role: 1,
+          avatarUrl: 1,
           createdAt: 1,
           solveCount: { $size: "$userSolves" },
         },

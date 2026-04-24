@@ -11,6 +11,9 @@ import {
 interface UserDoc {
   id: number;
   username: string;
+  email: string;
+  salt: string;
+  passwordHash: string;
 }
 
 interface SolveDoc {
@@ -84,4 +87,54 @@ export async function DELETE(
   await mongoDeleteOne("users", { id: userId });
 
   return NextResponse.json({ success: true, deleted: user.username });
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const userId = parseInt(id, 10);
+
+  if (isNaN(userId)) {
+    return NextResponse.json({ error: "Invalid user id" }, { status: 400 });
+  }
+
+  const body = await req.json();
+  const { username, email, role, avatarUrl, password } = body;
+
+  const user = await mongoFindOne<UserDoc>("users", { id: userId });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  const updates: Record<string, any> = {};
+
+  if (username && username.trim() !== "") updates.username = username.trim();
+  if (email && email.trim() !== "") updates.email = email.trim();
+  if (role) updates.role = role;
+  if (avatarUrl !== undefined) {
+    updates.avatarUrl = avatarUrl.trim() === "" ? undefined : avatarUrl;
+  }
+  
+  if (password && password.trim() !== "") {
+    const crypto = await import("crypto");
+    const newSalt = crypto.randomBytes(16).toString("hex");
+    const newHash = crypto.scryptSync(password, newSalt, 64).toString("hex");
+    updates.salt = newSalt;
+    updates.passwordHash = newHash;
+  }
+
+  if (Object.keys(updates).length > 0) {
+    try {
+      await mongoUpdateOne("users", { id: userId }, { $set: updates });
+    } catch (err: any) {
+      if (err.code === 11000) {
+        return NextResponse.json({ error: "Username or Email already taken" }, { status: 400 });
+      }
+      return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    }
+  }
+
+  return NextResponse.json({ success: true });
 }

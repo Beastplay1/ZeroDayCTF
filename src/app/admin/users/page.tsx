@@ -10,6 +10,7 @@ interface UserRow {
   userTag?: string;
   email: string;
   role: string;
+  avatarUrl?: string;
   createdAt: string;
   solveCount: number;
 }
@@ -20,7 +21,18 @@ export default function AdminUsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
 
-  useEffect(() => {
+  const [editingUser, setEditingUser] = useState<UserRow | null>(null);
+  const [editForm, setEditForm] = useState({
+    username: "",
+    email: "",
+    role: "",
+    avatarUrl: "",
+    password: "",
+  });
+  const [savingUser, setSavingUser] = useState(false);
+
+  const fetchUsers = () => {
+    setLoading(true);
     fetch("/api/admin/users")
       .then((r) => r.json())
       .then((data) => {
@@ -29,6 +41,10 @@ export default function AdminUsersPage() {
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchUsers();
   }, []);
 
   async function deleteUser(user: UserRow) {
@@ -52,6 +68,37 @@ export default function AdminUsersPage() {
       setDeleting(null);
     }
   }
+
+  const openEditModal = (user: UserRow) => {
+    setEditingUser(user);
+    setEditForm({
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      avatarUrl: user.avatarUrl || "",
+      password: "",
+    });
+  };
+
+  const saveEditedUser = async () => {
+    if (!editingUser) return;
+    setSavingUser(true);
+    try {
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update user");
+      setEditingUser(null);
+      fetchUsers();
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setSavingUser(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-green-400 p-8">
@@ -104,7 +151,9 @@ export default function AdminUsersPage() {
                   <th className="text-left px-4 py-3 text-green-600 uppercase tracking-widest text-xs">
                     Registered
                   </th>
-                  <th className="px-4 py-3" />
+                  <th className="px-4 py-3 text-right text-green-600 uppercase tracking-widest text-xs">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -152,7 +201,13 @@ export default function AdminUsersPage() {
                         year: "numeric",
                       })}
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right space-x-2">
+                      <button
+                        onClick={() => openEditModal(user)}
+                        className="px-3 py-1 border border-yellow-800 rounded text-xs font-mono text-yellow-500 hover:bg-yellow-900/30 transition-colors"
+                      >
+                        Edit
+                      </button>
                       <button
                         onClick={() => deleteUser(user)}
                         disabled={deleting === user.id}
@@ -167,6 +222,84 @@ export default function AdminUsersPage() {
             </table>
           </div>
         )}
+
+        {editingUser && (
+          <div
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+            onClick={() => setEditingUser(null)}
+          >
+            <div
+              className="bg-black border border-green-800 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-green-900 flex justify-between items-center">
+                <h2 className={`${orbitron.className} text-lg text-green-400`}>
+                  Edit User: {editingUser.username}
+                </h2>
+                <button
+                  onClick={() => setEditingUser(null)}
+                  className="text-green-700 hover:text-white text-2xl leading-none"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-green-700 mb-1 font-mono">Username</label>
+                  <input
+                    value={editForm.username}
+                    onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                    className="w-full bg-black border border-green-900 text-green-400 px-3 py-2 font-mono text-sm focus:border-green-500 focus:outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-green-700 mb-1 font-mono">Email</label>
+                  <input
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                    className="w-full bg-black border border-green-900 text-green-400 px-3 py-2 font-mono text-sm focus:border-green-500 focus:outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-green-700 mb-1 font-mono">Avatar URL</label>
+                  <input
+                    value={editForm.avatarUrl}
+                    placeholder="https://..."
+                    onChange={(e) => setEditForm({...editForm, avatarUrl: e.target.value})}
+                    className="w-full bg-black border border-green-900 text-green-400 px-3 py-2 font-mono text-sm focus:border-green-500 focus:outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-green-700 mb-1 font-mono">New Password</label>
+                  <input
+                    type="password"
+                    value={editForm.password}
+                    placeholder="Leave blank to keep current"
+                    onChange={(e) => setEditForm({...editForm, password: e.target.value})}
+                    className="w-full bg-black border border-green-900 text-green-400 px-3 py-2 font-mono text-sm focus:border-green-500 focus:outline-none transition-colors"
+                  />
+                </div>
+              </div>
+              <div className="p-6 border-t border-green-900 flex justify-end gap-4">
+                <button
+                  type="button"
+                  onClick={() => setEditingUser(null)}
+                  className="px-4 py-2 font-mono text-sm text-green-600 hover:text-green-400 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveEditedUser}
+                  disabled={savingUser}
+                  className="px-4 py-2 font-mono text-sm bg-green-900/30 border border-green-700 text-green-400 hover:bg-green-900/50 transition-colors disabled:opacity-50"
+                >
+                  {savingUser ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

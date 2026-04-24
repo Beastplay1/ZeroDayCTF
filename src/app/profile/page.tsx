@@ -26,6 +26,7 @@ interface SolvedChallenge {
 interface ProfileData {
   authenticated: boolean;
   username?: string;
+  avatarUrl?: string;
   totalPoints?: number;
   totalSolves?: number;
   firstBloods?: number;
@@ -180,8 +181,12 @@ export default function Profile() {
         <Card className="bg-gradient-to-r from-zerogreen/10 via-transparent to-purple-500/10 border-2 border-zerogreen/30 mb-8">
           <CardBody className="p-8">
             <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-zerogreen to-purple-500 flex items-center justify-center text-6xl font-bold text-black">
-                {userData.username[0]?.toUpperCase() ?? "?"}
+              <div className="w-32 h-32 rounded-full flex items-center justify-center text-6xl font-bold overflow-hidden border-2 border-zerogreen bg-gradient-to-br from-zerogreen to-purple-500 text-black">
+                {profileData?.avatarUrl ? (
+                  <img src={profileData.avatarUrl} alt="Avatar" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                ) : (
+                  userData.username[0]?.toUpperCase() ?? "?"
+                )}
               </div>
               <div className="flex-grow text-center md:text-left">
                 <div className="flex items-center gap-3 justify-center md:justify-start mb-4">
@@ -234,7 +239,11 @@ export default function Profile() {
               </div>
               <div className="text-center">
                 {!isAnonymous && (
-                  <Button className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90">
+                  <Button
+                    as="a"
+                    href="/profile/edit"
+                    className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90"
+                  >
                     Edit Profile
                   </Button>
                 )}

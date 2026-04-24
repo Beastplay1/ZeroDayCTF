@@ -29,6 +29,7 @@ export type StoredUser = {
   /** Короткий публичный суффикс после # (hex), глобально уникален. */
   userTag: string;
   role: UserRole;
+  avatarUrl?: string;
 };
 
 let mongoMigrationDone = false;
@@ -191,4 +192,22 @@ export async function getUserById(userId: number): Promise<StoredUser | null> {
 
   const users = await readFileUsers();
   return users.find((u) => u.id === userId) || null;
+}
+
+export async function updateUser(
+  userId: number,
+  data: Partial<StoredUser>,
+): Promise<void> {
+  if (isMongoDataApiConfigured() || isMongoNativeConfigured()) {
+    await migrateFileUsersToMongoIfNeeded();
+    await mongoUpdateOne("users", { id: userId }, { $set: data });
+    return;
+  }
+
+  const users = await readFileUsers();
+  const index = users.findIndex((u) => u.id === userId);
+  if (index !== -1) {
+    users[index] = { ...users[index], ...data };
+    await writeFileUsers(users);
+  }
 }
