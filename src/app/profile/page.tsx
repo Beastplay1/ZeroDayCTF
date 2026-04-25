@@ -9,6 +9,7 @@ import {
   Progress,
 } from "@heroui/react";
 import { Orbitron, Roboto_Mono } from "next/font/google";
+import { FriendsTab } from "@/components/FriendsTab";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 const robotoMono = Roboto_Mono({ subsets: ["latin"] });
@@ -37,7 +38,7 @@ interface ProfileData {
 }
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats">(
+  const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats" | "friends">(
     "overview",
   );
   const [sessionUsername, setSessionUsername] = useState<string | null>(null);
@@ -288,6 +289,18 @@ export default function Profile() {
           >
             Statistics
           </Button>
+          {!isAnonymous && (
+            <Button
+              className={`${
+                activeTab === "friends"
+                  ? "bg-zerogreen text-black"
+                  : "bg-[#0f0f0f] text-gray-400 border border-gray-700 hover:border-zerogreen"
+              } transition-all duration-300 font-bold`}
+              onClick={() => setActiveTab("friends")}
+            >
+              Friends
+            </Button>
+          )}
         </div>
 
         {activeTab === "overview" && (
@@ -589,6 +602,10 @@ export default function Profile() {
               </Card>
             )}
           </div>
+        )}
+
+        {activeTab === "friends" && !isAnonymous && (
+          <FriendsTab />
         )}
       </div>
     </div>

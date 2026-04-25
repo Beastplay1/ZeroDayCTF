@@ -31,6 +31,7 @@ const EMPTY_FORM = {
   file: "",
   type: "weekly" as const,
   active: true,
+  resetExpiry: false,
 };
 
 const CATEGORIES = [
@@ -96,6 +97,7 @@ export default function AdminChallengesPage() {
       file: c.file ?? "",
       type: c.type as typeof EMPTY_FORM.type,
       active: c.active,
+      resetExpiry: false,
     });
     setEditingId(c._id);
     setError("");
@@ -437,6 +439,26 @@ export default function AdminChallengesPage() {
                     Active (visible to players)
                   </label>
                 </div>
+
+                {editingId && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="resetExpiry"
+                      checked={form.resetExpiry}
+                      onChange={(e) =>
+                        setForm({ ...form, resetExpiry: e.target.checked })
+                      }
+                      className="accent-yellow-500"
+                    />
+                    <label
+                      htmlFor="resetExpiry"
+                      className="font-mono text-sm text-yellow-600"
+                    >
+                      Reset Expiration Date (extend time)
+                    </label>
+                  </div>
+                )}
 
                 <div className="flex gap-3 pt-2">
                   <button

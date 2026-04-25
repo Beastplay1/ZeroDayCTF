@@ -35,6 +35,14 @@ export async function PUT(
     if (key in body) update[key] = body[key];
   }
 
+  if (body.resetExpiry) {
+    const type = body.type || existing.type;
+    const exp = new Date();
+    if (type === "weekly") exp.setDate(exp.getDate() + 7);
+    if (type === "daily") exp.setHours(exp.getHours() + 24);
+    update.expiresAt = exp.toISOString();
+  }
+
   await updateChallenge(id, update as any);
   return NextResponse.json({ ok: true });
 }

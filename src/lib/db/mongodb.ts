@@ -206,6 +206,30 @@ export async function mongoDeleteMany(
   throw new Error("mongoDeleteMany requires native MongoDB connection");
 }
 
+export async function mongoUpdateMany(
+  collection: string,
+  filter: Record<string, unknown>,
+  update: Record<string, unknown>,
+) {
+  if (isMongoNativeConfigured()) {
+    const db = await getNativeDb();
+    const res = await db.collection(collection).updateMany(filter as any, update as any);
+    return {
+      matchedCount: res.matchedCount,
+      modifiedCount: res.modifiedCount,
+    };
+  }
+  
+  return callMongoApi<{
+    matchedCount: number;
+    modifiedCount: number;
+  }>("updateMany", {
+    collection,
+    filter,
+    update,
+  });
+}
+
 export async function mongoDeleteOne(
   collection: string,
   filter: Record<string, unknown>,

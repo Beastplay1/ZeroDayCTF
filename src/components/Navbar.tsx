@@ -3,11 +3,12 @@ import Link from "next/link";
 import { Button } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { UserSearch } from "@/components/UserSearch";
+import { NotificationsDropdown } from "@/components/NotificationsDropdown";
 import "@/styles/navbar.css";
 
-export function Navbar() {
+export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -63,6 +64,7 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center space-x-3">
+              {isLoggedIn && <NotificationsDropdown />}
               <UserSearch />
               <div className="relative">
                 <select className="bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-bold cursor-pointer border-2 border-zerogreen/30 hover:border-zerogreen transition-colors">
@@ -91,13 +93,15 @@ export function Navbar() {
                   </Button>
                 </>
               ) : (
-                <Button
-                  onClick={handleSignOut}
-                  variant="bordered"
-                  className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors text-white bg-transparent hover:bg-zerogreen/10"
-                >
-                  Sign Out
-                </Button>
+                <>
+                  <Button
+                    onClick={handleSignOut}
+                    variant="bordered"
+                    className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors text-white bg-transparent hover:bg-zerogreen/10"
+                  >
+                    Sign Out
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -106,6 +110,7 @@ export function Navbar() {
           <div className="lg:hidden flex justify-between items-center py-4">
             <div className="font-[Koulen] text-2xl text-white">ZeroDayCTF</div>
             <div className="flex items-center gap-2">
+              {isLoggedIn && <NotificationsDropdown />}
               <div className="sm:block sm:px-1 sm:w-52">
                 <UserSearch />
               </div>

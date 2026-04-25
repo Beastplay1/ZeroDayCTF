@@ -97,7 +97,7 @@ export function UserSearch() {
               {results.map((user) => (
                 <Link
                   key={user.id}
-                  href={`/profile/${user.username}`} // We don't have public profile pages yet, but we will soon
+                  href={`/profile/${encodeURIComponent(user.username + (user.userTag ? '#' + user.userTag : ''))}`}
                   className="flex items-center gap-3 p-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-0"
                   onClick={() => setIsOpen(false)}
                 >

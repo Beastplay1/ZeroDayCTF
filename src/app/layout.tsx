@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
 import { Providers } from "./providers";
+import { getSessionFromCookies } from "@/lib/auth/session";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,13 +35,15 @@ export default async function RootLayout({
 }>) {
   const headersList = await headers();
   const isAdmin = headersList.get("x-is-admin") === "1";
+  const session = await getSessionFromCookies();
+  const isLoggedIn = session !== null;
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${koulen.variable} antialiased overflow-x-hidden`}
       >
         <Providers>
-          <ClientLayout isAdmin={isAdmin}>{children}</ClientLayout>
+          <ClientLayout isAdmin={isAdmin} isLoggedIn={isLoggedIn}>{children}</ClientLayout>
         </Providers>
       </body>
     </html>
