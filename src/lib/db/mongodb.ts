@@ -1,6 +1,6 @@
 import { MongoClient, Db } from "mongodb";
 
-type MongoAction = "findOne" | "find" | "insertOne" | "updateOne";
+type MongoAction = "findOne" | "find" | "insertOne" | "updateOne" | "updateMany";
 
 const dataApiUrl = process.env.MONGODB_DATA_API_URL;
 const apiKey = process.env.MONGODB_DATA_API_KEY;
