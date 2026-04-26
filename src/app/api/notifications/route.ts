@@ -5,7 +5,7 @@ import { mongoFindMany, mongoUpdateMany } from "@/lib/db/mongodb";
 export interface NotificationDoc {
   _id?: any; // ObjectId
   userId: number; // The user receiving the notification
-  type: "friend_request" | "event" | "system" | "team_invite";
+  type: "friend_request" | "event" | "system" | "team_invite" | "team_join_request";
   title: string;
   message: string;
   isRead: boolean;

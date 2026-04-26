@@ -7,13 +7,23 @@ import { Orbitron } from "next/font/google";
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 interface SearchResult {
-  id: number;
+  id: string | number;
   username: string;
   userTag?: string;
   avatarUrl?: string;
+  type?: "user" | "team";
 }
 
-export function UserSearch() {
+interface UserSearchProps {
+  /** If provided, clicking a result calls this instead of navigating. */
+  onSelect?: (user: SearchResult) => void;
+  /** Placeholder text override */
+  placeholder?: string;
+  /** Search mode */
+  searchType?: "users" | "all";
+}
+
+export function UserSearch({ onSelect, placeholder, searchType = "all" }: UserSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,8 +45,25 @@ export function UserSearch() {
       if (query.trim().length >= 2) {
         setIsLoading(true);
         try {
-          const res = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
-          const data = await res.json();
+          let data;
+          if (searchType === "all") {
+            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const json = await res.json();
+            // Map global search results to SearchResult interface
+            data = {
+              users: (json.results || []).map((r: any) => ({
+                id: r.id,
+                type: r.type,
+                username: r.name,
+                userTag: r.tag,
+                avatarUrl: r.avatarUrl,
+              }))
+            };
+          } else {
+            const res = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`);
+            data = await res.json();
+          }
+          
           setResults(data.users || []);
           setIsOpen(true);
         } catch (e) {
@@ -52,6 +79,17 @@ export function UserSearch() {
 
     return () => clearTimeout(timer);
   }, [query]);
+
+  const handleResultClick = (user: SearchResult) => {
+    if (onSelect) {
+      onSelect(user);
+      setQuery("");
+      setResults([]);
+      setIsOpen(false);
+    } else {
+      setIsOpen(false);
+    }
+  };
 
   return (
     <div className="relative w-full lg:w-64" ref={wrapperRef}>
@@ -71,7 +109,7 @@ export function UserSearch() {
             setQuery(e.target.value);
             if (!isOpen && e.target.value.trim().length >= 2) setIsOpen(true);
           }}
-          placeholder="Search Users"
+          placeholder={placeholder || "Search Users"}
           className="w-full bg-gray-900 border border-gray-700 text-gray-300 text-sm rounded-md pl-9 pr-8 py-2 focus:outline-none focus:border-zerogreen focus:ring-1 focus:ring-zerogreen transition-colors placeholder-gray-500 font-mono"
         />
         {query && (
@@ -94,29 +132,63 @@ export function UserSearch() {
             <div className="p-4 text-center text-gray-400 font-mono text-sm">Searching...</div>
           ) : results.length > 0 ? (
             <div className="max-h-80 overflow-y-auto">
-              {results.map((user) => (
-                <Link
-                  key={user.id}
-                  href={`/profile/${encodeURIComponent(user.username + (user.userTag ? '#' + user.userTag : ''))}`}
-                  className="flex items-center gap-3 p-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-0"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-lg overflow-hidden border border-zerogreen/50 ${user.avatarUrl ? 'bg-transparent' : 'bg-gradient-to-br from-zerogreen to-purple-500 text-black'}`}>
-                    {user.avatarUrl ? (
-                      <img src={user.avatarUrl} alt={user.username} className="w-full h-full object-cover" />
-                    ) : (
-                      user.username[0].toUpperCase()
-                    )}
-                  </div>
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="text-gray-200 font-bold truncate">
-                      {user.username}
-                      {user.userTag && <span className="text-gray-500 text-sm ml-1 font-mono">#{user.userTag}</span>}
-                    </span>
-                    <span className="text-gray-500 text-xs uppercase tracking-widest font-mono">User</span>
-                  </div>
-                </Link>
-              ))}
+              {results.map((item) => {
+                const isTeam = item.type === "team";
+                const profileHref = isTeam 
+                  ? `/teams/${item.id}` 
+                  : `/profile/${encodeURIComponent(item.username + (item.userTag ? '#' + item.userTag : ''))}`;
+
+                // If onSelect is provided, render a button instead of a Link
+                if (onSelect) {
+                  return (
+                    <button
+                      key={`${item.type || 'user'}-${item.id}`}
+                      type="button"
+                      className="flex items-center gap-3 p-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-0 w-full text-left"
+                      onClick={() => handleResultClick(item)}
+                    >
+                      <div className={`w-10 h-10 ${isTeam ? 'rounded' : 'rounded-full'} flex-shrink-0 flex items-center justify-center font-bold text-lg overflow-hidden border border-zerogreen/50 ${item.avatarUrl ? 'bg-transparent' : 'bg-gradient-to-br from-zerogreen to-purple-500 text-black'}`}>
+                        {item.avatarUrl ? (
+                          <img src={item.avatarUrl} alt={item.username} className="w-full h-full object-cover" />
+                        ) : (
+                          item.username[0].toUpperCase()
+                        )}
+                      </div>
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="text-gray-200 font-bold truncate">
+                          {item.username}
+                          {item.userTag && <span className="text-gray-500 text-sm ml-1 font-mono">{isTeam ? `[${item.userTag}]` : `#${item.userTag}`}</span>}
+                        </span>
+                        <span className="text-gray-500 text-xs uppercase tracking-widest font-mono">{isTeam ? 'Team' : 'User'}</span>
+                      </div>
+                    </button>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={`${item.type || 'user'}-${item.id}`}
+                    href={profileHref}
+                    className="flex items-center gap-3 p-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-0"
+                    onClick={() => handleResultClick(item)}
+                  >
+                    <div className={`w-10 h-10 ${isTeam ? 'rounded' : 'rounded-full'} flex-shrink-0 flex items-center justify-center font-bold text-lg overflow-hidden border border-zerogreen/50 ${item.avatarUrl ? 'bg-transparent' : 'bg-gradient-to-br from-zerogreen to-purple-500 text-black'}`}>
+                      {item.avatarUrl ? (
+                        <img src={item.avatarUrl} alt={item.username} className="w-full h-full object-cover" />
+                      ) : (
+                        item.username[0].toUpperCase()
+                      )}
+                    </div>
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-gray-200 font-bold truncate">
+                        {item.username}
+                        {item.userTag && <span className="text-gray-500 text-sm ml-1 font-mono">{isTeam ? `[${item.userTag}]` : `#${item.userTag}`}</span>}
+                      </span>
+                      <span className="text-gray-500 text-xs uppercase tracking-widest font-mono">{isTeam ? 'Team' : 'User'}</span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <div className="p-4 text-center text-gray-400 font-mono text-sm">No users found</div>

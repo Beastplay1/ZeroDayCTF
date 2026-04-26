@@ -102,19 +102,21 @@ export default function AdminUsersPage() {
 
   return (
     <div className="min-h-screen bg-black text-green-400 p-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
           <a
             href="/"
-            className="text-green-700 hover:text-green-400 font-mono text-sm transition-colors"
+            className="text-green-700 font-mono text-xs hover:text-green-400 transition-colors"
           >
-            ← Back
+            ← Back to dashboard
           </a>
           <h1
             className={`${orbitron.className} text-3xl font-bold text-green-400`}
           >
             Users
           </h1>
+          </div>
         </div>
 
         {loading && (

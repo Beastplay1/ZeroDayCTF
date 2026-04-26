@@ -15,12 +15,9 @@ interface LeaderboardEntry {
 }
 
 export default function Leaderboard() {
-  const [timeframe, setTimeframe] = useState<"all-time" | "monthly" | "weekly">(
-    "all-time",
-  );
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>(
-    [],
-  );
+  const [timeframe, setTimeframe] = useState<"all-time" | "monthly" | "weekly">("all-time");
+  const [type, setType] = useState<"users" | "teams">("users");
+  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
@@ -33,12 +30,12 @@ export default function Leaderboard() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/leaderboard?timeframe=${timeframe}`)
+    fetch(`/api/leaderboard?timeframe=${timeframe}&type=${type}`)
       .then((r) => r.json())
       .then((data) => setLeaderboardData(data.leaderboard ?? []))
       .catch(() => setLeaderboardData([]))
       .finally(() => setLoading(false));
-  }, [timeframe]);
+  }, [timeframe, type]);
 
   const getRankStyle = (rank: number) => {
     if (rank === 1)
@@ -104,40 +101,68 @@ export default function Leaderboard() {
           </div>
         )}
 
-        <div className="flex justify-center gap-4 mb-8">
-          <Button
-            size="md"
-            className={`${
-              timeframe === "all-time"
-                ? "bg-zerogreen text-black"
-                : "bg-[#0f0f0f] text-gray-400 border border-gray-700 hover:border-zerogreen"
-            } transition-all duration-300 font-bold`}
-            onClick={() => setTimeframe("all-time")}
-          >
-            All Time
-          </Button>
-          <Button
-            size="md"
-            className={`${
-              timeframe === "monthly"
-                ? "bg-zerogreen text-black"
-                : "bg-[#0f0f0f] text-gray-400 border border-gray-700 hover:border-zerogreen"
-            } transition-all duration-300 font-bold`}
-            onClick={() => setTimeframe("monthly")}
-          >
-            Monthly
-          </Button>
-          <Button
-            size="md"
-            className={`${
-              timeframe === "weekly"
-                ? "bg-zerogreen text-black"
-                : "bg-[#0f0f0f] text-gray-400 border border-gray-700 hover:border-zerogreen"
-            } transition-all duration-300 font-bold`}
-            onClick={() => setTimeframe("weekly")}
-          >
-            Weekly
-          </Button>
+        <div className="flex flex-col items-center gap-4 mb-8">
+          {/* Type Toggle */}
+          <div className="relative flex bg-[#0f0f0f] border border-gray-800 rounded-lg p-1">
+            <span
+              className={`absolute top-1 bottom-1 w-1/2 rounded-md bg-zerogreen transition-transform duration-300 ${
+                type === "users" ? "translate-x-0" : "translate-x-full"
+              }`}
+            />
+            <button
+              className={`relative z-10 px-6 py-2 rounded-md font-bold duration-300 ${
+                type === "users" ? "text-black" : "text-gray-400"
+              }`}
+              onClick={() => setType("users")}
+            >
+              Users
+            </button>
+            <button
+              className={`relative z-10 px-6 py-2 rounded-md font-bold duration-300 ${
+                type === "teams" ? "text-black" : "text-gray-400"
+              }`}
+              onClick={() => setType("teams")}
+            >
+              Teams
+            </button>
+          </div>
+
+          {/* Timeframe Toggle */}
+          <div className="flex justify-center gap-4">
+            <Button
+              size="md"
+              className={`${
+                timeframe === "all-time"
+                  ? "bg-zerogreen text-black"
+                  : "bg-[#0f0f0f] text-gray-400 border border-gray-700 hover:border-zerogreen"
+              } transition-all duration-300 font-bold`}
+              onClick={() => setTimeframe("all-time")}
+            >
+              All Time
+            </Button>
+            <Button
+              size="md"
+              className={`${
+                timeframe === "monthly"
+                  ? "bg-zerogreen text-black"
+                  : "bg-[#0f0f0f] text-gray-400 border border-gray-700 hover:border-zerogreen"
+              } transition-all duration-300 font-bold`}
+              onClick={() => setTimeframe("monthly")}
+            >
+              Monthly
+            </Button>
+            <Button
+              size="md"
+              className={`${
+                timeframe === "weekly"
+                  ? "bg-zerogreen text-black"
+                  : "bg-[#0f0f0f] text-gray-400 border border-gray-700 hover:border-zerogreen"
+              } transition-all duration-300 font-bold`}
+              onClick={() => setTimeframe("weekly")}
+            >
+              Weekly
+            </Button>
+          </div>
         </div>
 
         <div className="mb-8">
@@ -155,7 +180,7 @@ export default function Leaderboard() {
                       <th
                         className={`text-left p-4 text-zerogreen font-bold ${orbitron.className}`}
                       >
-                        Player
+                        {type === "users" ? "Player" : "Team"}
                       </th>
                       <th
                         className={`text-center p-4 text-zerogreen font-bold ${orbitron.className}`}
@@ -207,11 +232,15 @@ export default function Leaderboard() {
                             </div>
                           </td>
                           <td className="p-4">
-                            <span
-                              className={`text-white font-bold ${robotoMono.className} hover:text-zerogreen transition-colors cursor-pointer`}
-                            >
-                              {entry.username}
-                            </span>
+                            {type === "teams" ? (
+                              <a href={`/teams/${entry.id}`} className={`text-white font-bold ${robotoMono.className} hover:text-zerogreen transition-colors cursor-pointer block`}>
+                                {entry.username} <span className="text-gray-500">[{entry.tag}]</span>
+                              </a>
+                            ) : (
+                              <a href={`/profile/${encodeURIComponent(entry.username)}`} className={`text-white font-bold ${robotoMono.className} hover:text-zerogreen transition-colors cursor-pointer block`}>
+                                {entry.username}
+                              </a>
+                            )}
                           </td>
                           <td className="p-4 text-center">
                             <span
@@ -259,7 +288,7 @@ export default function Leaderboard() {
                 <p
                   className={`text-white text-xl font-bold ${robotoMono.className}`}
                 >
-                  {leaderboardData[0].username}
+                  {leaderboardData[0].username} {type === "teams" && <span className="text-gray-500 text-lg">[{leaderboardData[0].tag}]</span>}
                 </p>
                 <p className="text-yellow-300 text-3xl font-bold mt-2">
                   {leaderboardData[0].points.toLocaleString()} pts
@@ -278,7 +307,7 @@ export default function Leaderboard() {
                 <p
                   className={`text-white text-xl font-bold ${robotoMono.className}`}
                 >
-                  {leaderboardData[1].username}
+                  {leaderboardData[1].username} {type === "teams" && <span className="text-gray-500 text-lg">[{leaderboardData[1].tag}]</span>}
                 </p>
                 <p className="text-gray-300 text-3xl font-bold mt-2">
                   {leaderboardData[1].points.toLocaleString()} pts
@@ -297,7 +326,7 @@ export default function Leaderboard() {
                 <p
                   className={`text-white text-xl font-bold ${robotoMono.className}`}
                 >
-                  {leaderboardData[2].username}
+                  {leaderboardData[2].username} {type === "teams" && <span className="text-gray-500 text-lg">[{leaderboardData[2].tag}]</span>}
                 </p>
                 <p className="text-orange-300 text-3xl font-bold mt-2">
                   {leaderboardData[2].points.toLocaleString()} pts

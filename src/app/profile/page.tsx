@@ -10,6 +10,7 @@ import {
 } from "@heroui/react";
 import { Orbitron, Roboto_Mono } from "next/font/google";
 import { FriendsTab } from "@/components/FriendsTab";
+import Link from "next/link";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 const robotoMono = Roboto_Mono({ subsets: ["latin"] });
@@ -38,13 +39,14 @@ interface ProfileData {
 }
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats" | "friends">(
+  const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats" | "friends" | "teams">(
     "overview",
   );
   const [sessionUsername, setSessionUsername] = useState<string | null>(null);
   const [showTag, setShowTag] = useState(true);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [teamData, setTeamData] = useState<any>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("profile_show_tag");
@@ -86,6 +88,19 @@ export default function Profile() {
       }
     };
     loadProfile();
+  }, []);
+
+  useEffect(() => {
+    const loadTeam = async () => {
+      try {
+        const res = await fetch("/api/profile/team", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.team) setTeamData(data.team);
+        }
+      } catch {}
+    };
+    loadTeam();
   }, []);
 
   const isAnonymous = sessionUsername === "anonymous";
@@ -299,6 +314,18 @@ export default function Profile() {
               onClick={() => setActiveTab("friends")}
             >
               Friends
+            </Button>
+          )}
+          {!isAnonymous && (
+            <Button
+              className={`${
+                activeTab === "teams"
+                  ? "bg-zerogreen text-black"
+                  : "bg-[#0f0f0f] text-gray-400 border border-gray-700 hover:border-zerogreen"
+              } transition-all duration-300 font-bold`}
+              onClick={() => setActiveTab("teams")}
+            >
+              Teams
             </Button>
           )}
         </div>
@@ -606,6 +633,55 @@ export default function Profile() {
 
         {activeTab === "friends" && !isAnonymous && (
           <FriendsTab />
+        )}
+
+        {activeTab === "teams" && !isAnonymous && (
+          <div className="space-y-6">
+            <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
+              <span className="text-zerogreen">◆</span> My Team
+            </h2>
+            {teamData ? (
+              <Card className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300">
+                <CardBody className="p-6">
+                  <div className="flex items-center gap-6">
+                    <div className={`w-20 h-20 rounded flex items-center justify-center text-3xl font-bold overflow-hidden border-2 border-zerogreen/50 ${teamData.avatarUrl ? "bg-transparent" : "bg-gradient-to-br from-zerogreen to-blue-500 text-black"}`}>
+                      {teamData.avatarUrl ? (
+                        <img src={teamData.avatarUrl} alt="Team" className="w-full h-full object-cover" />
+                      ) : (
+                        teamData.name[0]?.toUpperCase()
+                      )}
+                    </div>
+                    <div className="flex-grow">
+                      <Link href={`/teams/${teamData.id}`} className="text-2xl font-bold text-white hover:text-zerogreen transition-colors">
+                        {teamData.name} <span className="text-gray-500 text-lg">[{teamData.tag}]</span>
+                      </Link>
+                      <p className="text-gray-500 text-sm font-mono mt-1">Click to view team page</p>
+                    </div>
+                    <Button
+                      as={Link}
+                      href={`/teams/${teamData.id}`}
+                      className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90"
+                    >
+                      View Team
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
+            ) : (
+              <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
+                <CardBody className="text-center p-8">
+                  <p className="text-gray-400 mb-4">You are not in any team yet.</p>
+                  <Button
+                    as={Link}
+                    href="/teams"
+                    className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90"
+                  >
+                    Browse Teams
+                  </Button>
+                </CardBody>
+              </Card>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -35,20 +35,21 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
   return (
     <>
       <nav className="fixed top-0 left-0 w-full backdrop-blur-sm z-50 bg-black/30 border-b border-gray-800">
-        <div className="container mx-auto px-4">
+        <div className="w-full max-w-[1920px] mx-auto px-4 lg:px-8">
           {/* Desktop Navigation */}
           <div className="hidden lg:flex justify-between items-center py-4">
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2 2xl:space-x-6">
               {[
                 ["/", "Home"],
-                ["/challanges", "Challenges"],
+                ["/challenges", "Challenges"],
                 ["/leaderboard", "Leaderboard"],
+                ["/teams", "Teams"],
                 ["/about", "About Us"],
               ].map(([href, label]) => (
                 <Link
                   key={href}
                   href={href}
-                  className="font-[Koulen] text-xl px-3 py-1 text-white hover:text-zerogreen transition-colors"
+                  className="font-[Koulen] text-lg 2xl:text-xl px-2 xl:px-3 py-1 text-white hover:text-zerogreen transition-colors"
                 >
                   {label}
                 </Link>
@@ -56,7 +57,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
               {isLoggedIn && (
                 <Link
                   href="/profile"
-                  className="font-[Koulen] text-xl px-3 py-1 text-white hover:text-zerogreen transition-colors"
+                  className="font-[Koulen] text-lg 2xl:text-xl px-2 xl:px-3 py-1 text-white hover:text-zerogreen transition-colors"
                 >
                   Profile
                 </Link>
@@ -65,7 +66,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
 
             <div className="flex items-center space-x-3">
               {isLoggedIn && <NotificationsDropdown />}
-              <UserSearch />
+              <UserSearch placeholder="Search Users or Teams" />
               <div className="relative">
                 <select className="bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-bold cursor-pointer border-2 border-zerogreen/30 hover:border-zerogreen transition-colors">
                   <option value="EN">EN</option>
@@ -112,7 +113,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
             <div className="flex items-center gap-2">
               {isLoggedIn && <NotificationsDropdown />}
               <div className="sm:block sm:px-1 sm:w-52">
-                <UserSearch />
+                <UserSearch placeholder="Search Users or Teams" />
               </div>
               <select className="bg-gray-800 text-white px-2 py-1 rounded text-xs font-bold cursor-pointer border border-zerogreen/30">
                 <option value="EN">EN</option>
@@ -144,6 +145,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                 ["/", "Home"],
                 ["/challanges", "Challenges"],
                 ["/leaderboard", "Leaderboard"],
+                ["/teams", "Teams"],
                 ["/about", "About Us"],
               ].map(([href, label]) => (
                 <Link

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { Orbitron } from "next/font/google";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
@@ -13,28 +12,30 @@ interface Notification {
   message: string;
   isRead: boolean;
   createdAt: string;
+  data?: any;
 }
 
 export function NotificationsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch("/api/notifications");
-        if (res.ok) {
-          const data = await res.json();
-          setNotifications(data.notifications || []);
-          setUnreadCount(data.notifications.filter((n: Notification) => !n.isRead).length);
-        }
-      } catch (err) {
-        console.error(err);
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.notifications.filter((n: Notification) => !n.isRead).length);
       }
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
+  useEffect(() => {
     fetchNotifications();
 
     // Poll every 30 seconds
@@ -66,6 +67,48 @@ export function NotificationsDropdown() {
     }
   };
 
+  const handleFriendAction = async (notifId: string, action: "accept" | "reject") => {
+    setActionLoading(notifId);
+    try {
+      const res = await fetch("/api/friends/respond", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationId: notifId, action }),
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.filter((n) => n._id !== notifId));
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleTeamAction = async (notifId: string, action: "accept" | "reject") => {
+    setActionLoading(notifId);
+    try {
+      const res = await fetch("/api/teams/respond", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationId: notifId, action }),
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.filter((n) => n._id !== notifId));
+        if (action === "accept") {
+          // Reload page to reflect team membership changes
+          window.location.reload();
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const isActionable = (type: string) => type === "friend_request" || type === "team_invite" || type === "team_join_request";
+
   return (
     <div className="relative" ref={wrapperRef}>
       <button
@@ -85,7 +128,7 @@ export function NotificationsDropdown() {
           <div className="p-3 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
             <span className={`text-white font-bold tracking-widest ${orbitron.className}`}>Notifications</span>
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-6 text-center text-gray-500 font-mono text-sm">
                 No notifications yet
@@ -102,9 +145,33 @@ export function NotificationsDropdown() {
                       {new Date(notif.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-400 font-mono leading-snug">
+                  <p className="text-sm text-gray-400 font-mono leading-snug mb-2">
                     {notif.message}
                   </p>
+                  {isActionable(notif.type) && (
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        disabled={actionLoading === notif._id}
+                        onClick={() => {
+                          if (notif.type === "friend_request") handleFriendAction(notif._id, "accept");
+                          else handleTeamAction(notif._id, "accept");
+                        }}
+                        className="px-3 py-1 text-xs font-mono font-bold bg-zerogreen text-black rounded hover:bg-white transition-colors disabled:opacity-50"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        disabled={actionLoading === notif._id}
+                        onClick={() => {
+                          if (notif.type === "friend_request") handleFriendAction(notif._id, "reject");
+                          else handleTeamAction(notif._id, "reject");
+                        }}
+                        className="px-3 py-1 text-xs font-mono font-bold border border-red-500/50 text-red-400 rounded hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))
             )}

@@ -78,6 +78,12 @@ export default async function AdminPage() {
             >
               Manage Users
             </a>
+            <a
+              href="/teams"
+              className="px-4 py-2 border border-green-700 rounded font-mono text-sm text-green-400 hover:bg-green-700 hover:text-black transition-all duration-200"
+            >
+              Manage Teams
+            </a>
             <button
               disabled
               className="px-4 py-2 border border-green-800 rounded font-mono text-sm text-green-600 opacity-50 cursor-not-allowed"

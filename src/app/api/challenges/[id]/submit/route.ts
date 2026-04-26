@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { getChallengeById, recordSolve } from "@/lib/storage/challengeStore";
-import { mongoFindOne, mongoInsertOne } from "@/lib/db/mongodb";
+import { mongoFindOne, mongoInsertOne, mongoUpdateOne } from "@/lib/db/mongodb";
+import { ObjectId } from "mongodb";
 import {
   parseGuestSessionToken,
   getGuestCookieName,
@@ -96,9 +97,13 @@ export async function POST(
   
   // Calculate bonus points based on solves BEFORE this submission
   let bonusPoints = 0;
-  if (challenge.solves === 0) bonusPoints = 500;
-  else if (challenge.solves === 1) bonusPoints = 250;
-  else if (challenge.solves === 2) bonusPoints = 50;
+  if (challenge.type === "weekly") {
+    if (challenge.solves === 0) bonusPoints = 100;
+  } else {
+    if (challenge.solves === 0) bonusPoints = 500;
+    else if (challenge.solves === 1) bonusPoints = 250;
+    else if (challenge.solves === 2) bonusPoints = 50;
+  }
 
   await Promise.all([
     mongoInsertOne("solves", {
@@ -110,6 +115,30 @@ export async function POST(
     }),
     recordSolve(id, session.username, isFirstBlood),
   ]);
+
+  // Handle Team Points
+  const user = await mongoFindOne<any>("users", { id: session.userId });
+  if (user && user.teamId) {
+    const existingTeamSolve = await mongoFindOne("team_solves", {
+      challengeId: id,
+      teamId: user.teamId,
+    });
+
+    if (!existingTeamSolve) {
+      await Promise.all([
+        mongoInsertOne("team_solves", {
+          challengeId: id,
+          teamId: user.teamId,
+          solvedAt: new Date().toISOString(),
+        }),
+        mongoUpdateOne(
+          "teams",
+          { _id: new ObjectId(user.teamId) as any },
+          { $inc: { totalPoints: challenge.points + bonusPoints, totalSolves: 1 } } as any
+        ),
+      ]);
+    }
+  }
 
   return NextResponse.json({
     result: "correct",
