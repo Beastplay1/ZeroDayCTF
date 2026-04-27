@@ -43,7 +43,6 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                 ["/", "Home"],
                 ["/challenges", "Challenges"],
                 ["/leaderboard", "Leaderboard"],
-                ["/teams", "Teams"],
                 ["/about", "About Us"],
               ].map(([href, label]) => (
                 <Link
@@ -55,12 +54,20 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                 </Link>
               ))}
               {isLoggedIn && (
-                <Link
-                  href="/profile"
-                  className="font-[Koulen] text-lg 2xl:text-xl px-2 xl:px-3 py-1 text-white hover:text-zerogreen transition-colors"
-                >
-                  Profile
-                </Link>
+                <>
+                  <Link
+                    href="/profile"
+                    className="font-[Koulen] text-lg 2xl:text-xl px-2 xl:px-3 py-1 text-white hover:text-zerogreen transition-colors"
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    href="/teams"
+                    className="font-[Koulen] text-lg 2xl:text-xl px-2 xl:px-3 py-1 text-white hover:text-zerogreen transition-colors"
+                  >
+                    Teams
+                  </Link>
+                </>
               )}
             </div>
 
@@ -145,7 +152,6 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                 ["/", "Home"],
                 ["/challanges", "Challenges"],
                 ["/leaderboard", "Leaderboard"],
-                ["/teams", "Teams"],
                 ["/about", "About Us"],
               ].map(([href, label]) => (
                 <Link
@@ -158,6 +164,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                 </Link>
               ))}
               {isLoggedIn && (
+                <>
                 <Link
                   href="/profile"
                   onClick={() => setIsOpen(false)}
@@ -165,6 +172,14 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                 >
                   Profile
                 </Link>
+                <Link
+                  href="/teams"
+                  onClick={() => setIsOpen(false)}
+                  className="font-[Koulen] text-lg px-3 py-2 border border-gray-700 text-white hover:text-zerogreen transition-colors text-center"
+                >
+                  Teams
+                </Link>
+                </>
               )}
               {!isLoggedIn ? (
                 <>
