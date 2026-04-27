@@ -150,7 +150,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
             <div className="flex flex-col space-y-3 pb-4">
               {[
                 ["/", "Home"],
-                ["/challanges", "Challenges"],
+                ["/challenges", "Challenges"],
                 ["/leaderboard", "Leaderboard"],
                 ["/about", "About Us"],
               ].map(([href, label]) => (

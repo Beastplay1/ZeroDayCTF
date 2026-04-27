@@ -38,8 +38,8 @@ export function NotificationsDropdown() {
   useEffect(() => {
     fetchNotifications();
 
-    // Poll every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
+    // Poll every 3 minutes instead of 30 seconds to reduce DB load
+    const interval = setInterval(fetchNotifications, 180000);
     return () => clearInterval(interval);
   }, []);
 
@@ -54,6 +54,9 @@ export function NotificationsDropdown() {
   }, []);
 
   const handleOpen = async () => {
+    if (!isOpen) {
+      await fetchNotifications();
+    }
     setIsOpen(!isOpen);
     if (!isOpen && unreadCount > 0) {
       // Mark as read

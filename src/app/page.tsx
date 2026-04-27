@@ -264,7 +264,7 @@ export default function Home() {
         </div>
 
         <a
-          href="/challanges"
+          href="/challenges"
           className="mt-6 md:mt-8 px-4 sm:px-6 py-3 bg-black/50 border border-cyan-500/30 text-cyan-400 
     font-mono text-sm sm:text-base hover:bg-cyan-500/10 transition-all duration-300 flex items-center gap-2"
         >

@@ -204,7 +204,7 @@ export default function About() {
                   CREATE ACCOUNT
                 </a>
                 <a
-                  href="/challanges"
+                  href="/challenges"
                   className="px-8 py-3 bg-transparent border-2 border-zerogreen text-zerogreen font-bold rounded hover:bg-zerogreen/10 transition-all duration-300"
                 >
                   VIEW CHALLENGES
