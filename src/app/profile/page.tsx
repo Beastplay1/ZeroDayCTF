@@ -36,6 +36,7 @@ interface ProfileData {
   solvedChallenges?: SolvedChallenge[];
   categoryBreakdown?: Record<string, number>;
   joinedDate?: string | null;
+  isEmailVerified?: boolean;
 }
 
 export default function Profile() {
@@ -103,6 +104,27 @@ export default function Profile() {
     loadTeam();
   }, []);
 
+  const [resending, setResending] = useState(false);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    setResendStatus(null);
+    try {
+      const res = await fetch("/api/auth/resend-verification", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setResendStatus("Verification email sent!");
+      } else {
+        setResendStatus(data.error || "Failed to send email.");
+      }
+    } catch (err) {
+      setResendStatus("An error occurred.");
+    } finally {
+      setResending(false);
+    }
+  };
+
   const isAnonymous = sessionUsername === "anonymous";
   const rawUsername = profileData?.username || sessionUsername || "";
   const usernameWithoutTag = rawUsername.includes("#")
@@ -122,6 +144,7 @@ export default function Profile() {
           year: "numeric",
         })
       : null,
+    isEmailVerified: profileData?.isEmailVerified ?? false,
   };
   if (loading) {
     return (
@@ -194,6 +217,11 @@ export default function Profile() {
   return (
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
+        {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('message') === 'already_verified' && (
+          <div className="mb-6 p-4 bg-yellow-500/20 border border-yellow-500 text-yellow-500 font-bold rounded-lg text-center">
+             Account is already verified
+          </div>
+        )}
         <Card className="bg-gradient-to-r from-zerogreen/10 via-transparent to-purple-500/10 border-2 border-zerogreen/30 mb-8">
           <CardBody className="p-8">
             <div className="flex flex-col md:flex-row items-center gap-6">
@@ -250,6 +278,30 @@ export default function Profile() {
                     <Chip className="bg-red-500/20 text-red-400 font-bold">
                       🩸 {userData.firstBloods} First Bloods
                     </Chip>
+                    {userData.isEmailVerified ? (
+                      <Chip className="bg-zerogreen/20 text-zerogreen font-bold border border-zerogreen/50">
+                        ✓ Verified Account
+                      </Chip>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Chip className="bg-orange-500/20 text-orange-400 font-bold border border-orange-500/50">
+                          ⚠ Email Not Verified
+                        </Chip>
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          color="warning"
+                          className="h-7 text-xs font-bold"
+                          isLoading={resending}
+                          onClick={handleResendVerification}
+                        >
+                          Resend Email
+                        </Button>
+                        {resendStatus && (
+                          <span className="text-xs text-gray-400">{resendStatus}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

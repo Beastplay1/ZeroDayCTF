@@ -78,7 +78,8 @@ export default function EditProfilePage() {
         username,
         email,
         avatarUrl: finalAvatarUrl,
-        ...(newPassword ? { oldPassword, newPassword } : {}),
+        ...(oldPassword ? { oldPassword } : {}),
+        ...(newPassword ? { newPassword } : {}),
       };
 
       const res = await fetch("/api/profile/update", {
@@ -200,6 +201,11 @@ export default function EditProfilePage() {
                   classNames={{ inputWrapper: "bg-white/5 border-white/10" }}
                   isRequired
                 />
+                {email !== originalEmail && (
+                  <p className="text-xs text-orange-400 font-mono mt-1">
+                    ⚠ Note: Changing your email will require re-verification and you will be logged out.
+                  </p>
+                )}
                 
                 <div className="p-6 bg-white/5 rounded-lg space-y-4">
                   <p className="text-sm text-gray-400 font-mono mb-2">Change Password / Security Confirmation</p>

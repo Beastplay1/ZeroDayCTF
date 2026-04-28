@@ -30,6 +30,7 @@ export type StoredUser = {
   userTag: string;
   role: UserRole;
   avatarUrl?: string;
+  isEmailVerified: boolean;
 };
 
 let mongoMigrationDone = false;
@@ -113,6 +114,7 @@ async function createStoredUser(
     createdAt: new Date().toISOString(),
     userTag,
     role: "user",
+    isEmailVerified: false,
   } as StoredUser;
 }
 

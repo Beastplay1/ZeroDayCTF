@@ -6,6 +6,8 @@ import { saveUser } from "@/lib/storage/userStore";
 import { createSessionToken, getSessionCookieName } from "@/lib/auth/session";
 import { parseGuestSessionToken, getGuestCookieName } from "@/lib/auth/guestSession";
 import { migrateGuestSolves } from "@/lib/storage/migrateGuestSolves";
+import { createVerificationToken } from "@/lib/storage/tokenStore";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const POST = async (request: NextRequest) => {
   try {
@@ -72,6 +74,15 @@ export const POST = async (request: NextRequest) => {
       const guestSession = guestCookie ? await parseGuestSessionToken(guestCookie) : null;
       if (guestSession) {
         await migrateGuestSolves(guestSession.guestId, stored.id, stored.username);
+      }
+
+      // Send verification email
+      try {
+        const verifToken = await createVerificationToken(stored.email);
+        await sendVerificationEmail(stored.email, verifToken);
+      } catch (mailError) {
+        console.error("Failed to send verification email:", mailError);
+        // We don't fail the signup if mail fails, user can resend from profile
       }
 
       // Create session token and set cookie so user is logged in after signup

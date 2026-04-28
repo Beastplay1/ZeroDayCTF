@@ -20,38 +20,44 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTimeout(async () => {
-      // basic client-side validation
-      if (!validateEmail(email).isValid) {
-        alert("Please enter a valid email.");
+    setErrorMessage("");
+    
+    // basic client-side validation
+    if (!validateEmail(email).isValid) {
+      setErrorMessage("Please enter a valid email.");
+      return;
+    }
+
+    try {
+      const res = await axios.post("/api/auth/signin", {
+        identifier: email,
+        password,
+        rememberMe,
+      });
+
+      if (res.status >= 200 && res.status < 300) {
+        window.location.replace("/profile");
         return;
       }
-
-      try {
-        const res = await axios.post("/api/auth/signin", {
-          identifier: email,
-          password,
-          rememberMe,
-        });
-
-        if (res.status >= 200 && res.status < 300) {
-          window.location.replace("/profile");
-          return;
-        }
-      } catch (err: any) {
-        const msg = err.response?.data?.error || "Authentication failed";
-        alert(msg);
-      }
-    }, 0);
+    } catch (err: any) {
+      const msg = err.response?.data?.error || "Authentication failed";
+      setErrorMessage(msg);
+    }
   };
 
   return (
     <SessionProvider>
       <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-md">
+          {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('message') === 'already_verified' && (
+            <div className="mb-6 p-4 bg-yellow-500/20 border border-yellow-500 text-yellow-500 font-bold rounded-lg text-center">
+               Account is already verified
+            </div>
+          )}
           <div className="text-center mb-8">
             <h1
               className={`text-4xl font-bold text-white mb-2 ${orbitron.className}`}
@@ -128,12 +134,20 @@ export default function SignIn() {
                     Remember me
                   </Checkbox>
                   <Link
-                    href="#"
+                    href="/forgot-password"
                     className="text-zerogreen hover:text-zerogreen/80 text-sm transition-colors"
                   >
                     Forgot password?
                   </Link>
                 </div>
+
+                {errorMessage && (
+                  <div className="mb-2">
+                    <span className="text-lg font-bold text-red-500">
+                      {errorMessage}
+                    </span>
+                  </div>
+                )}
 
                 <Button
                   type="submit"

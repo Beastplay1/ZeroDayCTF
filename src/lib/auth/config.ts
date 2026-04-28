@@ -78,6 +78,7 @@ export const authOptions: NextAuthOptions = {
             username,
             userTag: await generateUserTag(),
             role: "user",
+            isEmailVerified: true,
           };
           await mongoInsertOne("users", newUser);
         } else {
@@ -90,6 +91,7 @@ export const authOptions: NextAuthOptions = {
           if (!existingUser.userTag) {
             setData.userTag = await generateUserTag();
           }
+          setData.isEmailVerified = true;
 
           // Update user info if they already exist, and set username if missing
           await mongoUpdateOne(

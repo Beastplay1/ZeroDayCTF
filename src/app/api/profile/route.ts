@@ -115,6 +115,7 @@ export async function GET() {
     userTag?: string;
     email?: string;
     avatarUrl?: string;
+    isEmailVerified?: boolean;
   }>("users", {
     id: session.userId,
   });
@@ -137,5 +138,6 @@ export async function GET() {
     solvedChallenges,
     categoryBreakdown,
     joinedDate: userDoc?.createdAt ?? null,
+    isEmailVerified: userDoc?.isEmailVerified ?? false,
   });
 }

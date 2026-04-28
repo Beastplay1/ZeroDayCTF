@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromCookies, createSessionToken, getSessionCookieName } from "@/lib/auth/session";
 import { getUserById, updateUser, StoredUser } from "@/lib/storage/userStore";
+import { createVerificationToken } from "@/lib/storage/tokenStore";
+import { sendVerificationEmail } from "@/lib/mail";
 import crypto from "crypto";
 
 export async function PUT(req: NextRequest) {
@@ -66,6 +68,16 @@ export async function PUT(req: NextRequest) {
       }
       
       updates.email = email.trim();
+      updates.isEmailVerified = false;
+      
+      // Send verification email to the NEW email
+      try {
+        const token = await createVerificationToken(email.trim());
+        await sendVerificationEmail(email.trim(), token);
+      } catch (mailError) {
+        console.error("Failed to send verification email for new address:", mailError);
+      }
+
       requiresLogout = true;
     }
 
