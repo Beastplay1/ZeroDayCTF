@@ -31,6 +31,7 @@ export type StoredUser = {
   role: UserRole;
   avatarUrl?: string;
   isEmailVerified: boolean;
+  bonusPoints: number;
 };
 
 let mongoMigrationDone = false;
@@ -115,6 +116,7 @@ async function createStoredUser(
     userTag,
     role: "user",
     isEmailVerified: false,
+    bonusPoints: 0,
   } as StoredUser;
 }
 

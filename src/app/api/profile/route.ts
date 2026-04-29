@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionFromCookies } from "@/lib/auth/session";
-import { mongoAggregate, mongoFindOne } from "@/lib/db/mongodb";
+import { mongoAggregate, mongoFindOne, mongoFindMany } from "@/lib/db/mongodb";
+import { UnlockedHint } from "@/lib/storage/hintStore";
 import { formatUserDisplayHandle } from "@/lib/storage/userStore";
 
 export async function GET() {
@@ -73,6 +74,24 @@ export async function GET() {
     };
   });
 
+  const userDoc = await mongoFindOne<{
+    createdAt?: string;
+    username?: string;
+    userTag?: string;
+    email?: string;
+    avatarUrl?: string;
+    isEmailVerified?: boolean;
+    bonusPoints?: number;
+  }>("users", {
+    id: session.userId,
+  });
+
+  // Calculate hints cost
+  const unlockedHints = await mongoFindMany<UnlockedHint>("unlocked_hints", { userId: session.userId });
+  const hintsCost = unlockedHints.reduce((acc, h) => acc + (h.cost || 0), 0);
+  
+  totalPoints = (totalPoints || 0) + (userDoc?.bonusPoints || 0) - hintsCost;
+
   // Compute rank: position of this user sorted by total points (only existing users)
   const rankList = await mongoAggregate<{ _id: number; totalPoints: number }>(
     "solves",
@@ -102,6 +121,40 @@ export async function GET() {
           totalPoints: { $sum: "$challenge.points" },
         },
       },
+      // Join with bonus points from users collection
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "id",
+          as: "userDoc"
+        }
+      },
+      { $unwind: "$userDoc" },
+      {
+        $addFields: {
+          totalPoints: { $add: ["$totalPoints", { $ifNull: ["$userDoc.bonusPoints", 0] }] }
+        }
+      },
+      // Join with hint costs
+      {
+        $lookup: {
+          from: "unlocked_hints",
+          localField: "_id",
+          foreignField: "userId",
+          as: "hints"
+        }
+      },
+      {
+        $addFields: {
+          hintsCost: { $sum: "$hints.cost" }
+        }
+      },
+      {
+        $addFields: {
+          totalPoints: { $subtract: ["$totalPoints", "$hintsCost"] }
+        }
+      },
       { $sort: { totalPoints: -1 } },
     ],
   );
@@ -109,16 +162,6 @@ export async function GET() {
   const rankIndex = rankList.findIndex((r) => r._id === session.userId);
   const rank = rankIndex >= 0 ? rankIndex + 1 : null;
 
-  const userDoc = await mongoFindOne<{
-    createdAt?: string;
-    username?: string;
-    userTag?: string;
-    email?: string;
-    avatarUrl?: string;
-    isEmailVerified?: boolean;
-  }>("users", {
-    id: session.userId,
-  });
   const profileUsername = userDoc?.username
     ? formatUserDisplayHandle({
         username: userDoc.username,

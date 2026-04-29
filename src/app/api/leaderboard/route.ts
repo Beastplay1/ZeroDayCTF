@@ -155,6 +155,40 @@ export async function GET(req: NextRequest) {
           solves: { $sum: 1 },
         },
       },
+      // Join with user document to get bonusPoints
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id.userId",
+          foreignField: "id",
+          as: "userDoc"
+        }
+      },
+      { $unwind: "$userDoc" },
+      {
+        $addFields: {
+          points: { $add: ["$points", { $ifNull: ["$userDoc.bonusPoints", 0] }] }
+        }
+      },
+      // Join with ALL hint costs correctly
+      {
+        $lookup: {
+          from: "unlocked_hints",
+          localField: "_id.userId",
+          foreignField: "userId",
+          as: "hints"
+        }
+      },
+      {
+        $addFields: {
+          hintsCost: { $sum: "$hints.cost" }
+        }
+      },
+      {
+        $addFields: {
+          points: { $subtract: ["$points", "$hintsCost"] }
+        }
+      },
       { $sort: { points: -1 } },
       { $limit: 100 },
     ];

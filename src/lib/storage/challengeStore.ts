@@ -8,6 +8,11 @@ import {
 } from "@/lib/db/mongodb";
 import { ObjectId } from "mongodb";
 
+export interface Hint {
+  content: string;
+  cost: number;
+}
+
 export interface ChallengeDoc {
   _id?: string;
   name: string;
@@ -23,6 +28,7 @@ export interface ChallengeDoc {
   firstBlood?: string; // username of first solver
   createdAt: string;
   expiresAt?: string; // for daily challenges
+  hints?: Hint[];
 }
 
 // Public view — no flag field

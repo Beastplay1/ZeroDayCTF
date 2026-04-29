@@ -6,6 +6,7 @@ import {
   mongoDeleteOne,
   mongoDeleteMany,
   mongoUpdateOne,
+  mongoAggregate,
 } from "@/lib/db/mongodb";
 
 interface UserDoc {
@@ -101,7 +102,7 @@ export async function PUT(
   }
 
   const body = await req.json();
-  const { username, email, role, avatarUrl, password } = body;
+  const { username, email, role, avatarUrl, password, totalPoints } = body;
 
   const user = await mongoFindOne<UserDoc>("users", { id: userId });
   if (!user) {
@@ -115,6 +116,37 @@ export async function PUT(
   if (role) updates.role = role;
   if (avatarUrl !== undefined) {
     updates.avatarUrl = avatarUrl.trim() === "" ? undefined : avatarUrl;
+  }
+  
+  if (totalPoints !== undefined) {
+    const desiredTotal = parseInt(totalPoints, 10) || 0;
+    
+    // Calculate current solve points and hint costs to find the required bonus
+    const solveData = await mongoAggregate<any>("solves", [
+      { $match: { userId: userId } },
+      { $addFields: { challengeObjectId: { $toObjectId: "$challengeId" } } },
+      {
+        $lookup: {
+          from: "challenges",
+          localField: "challengeObjectId",
+          foreignField: "_id",
+          as: "challenge",
+        },
+      },
+      { $unwind: "$challenge" },
+      { $group: { _id: null, total: { $sum: "$challenge.points" } } }
+    ]);
+    
+    const hintData = await mongoAggregate<any>("unlocked_hints", [
+      { $match: { userId: userId } },
+      { $group: { _id: null, total: { $sum: "$cost" } } }
+    ]);
+    
+    const solvePoints = solveData[0]?.total || 0;
+    const hintCosts = hintData[0]?.total || 0;
+    
+    // Formula: Total = Solves + Bonus - Hints => Bonus = Total - Solves + Hints
+    updates.bonusPoints = desiredTotal - solvePoints + hintCosts;
   }
   
   if (password && password.trim() !== "") {

@@ -45,10 +45,21 @@ export default function Challenges() {
     | "invalid_format"
   >("idle");
   const [showGuestCTA, setShowGuestCTA] = useState(false);
+  const [isGuest, setIsGuest] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hints, setHints] = useState<{ index: number; cost: number; content: string | null; isUnlocked: boolean }[]>([]);
+  const [loadingHints, setLoadingHints] = useState(false);
+  const [activeTab, setActiveTab] = useState<"description" | "hints">("description");
 
   useEffect(() => {
     // Initialize guest session for anonymous users (safe no-op for logged-in users).
-    fetch("/api/guest/ensure", { method: "POST" }).catch(() => {});
+    fetch("/api/guest/ensure", { method: "POST" })
+      .then(r => r.json())
+      .then(data => {
+        setIsAuthenticated(data.mode === "user");
+        setIsGuest(data.mode === "guest");
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -127,6 +138,44 @@ export default function Challenges() {
     setSelectedChallenge(challenge);
     setFlagInput("");
     setSubmitStatus("idle");
+    setActiveTab("description");
+    fetchHints(challenge.mongoId);
+  };
+
+  const fetchHints = async (challengeId: string) => {
+    setLoadingHints(true);
+    try {
+      const res = await fetch(`/api/challenges/${challengeId}/hints`);
+      const data = await res.json();
+      setHints(data.hints || []);
+    } catch (err) {
+      console.error("Failed to fetch hints:", err);
+    } finally {
+      setLoadingHints(false);
+    }
+  };
+
+  const [hintError, setHintError] = useState<string | null>(null);
+
+  const unlockHint = async (hintIndex: number) => {
+    if (!selectedChallenge) return;
+    setHintError(null);
+    try {
+      const res = await fetch(`/api/challenges/${selectedChallenge.mongoId}/hints/unlock`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hintIndex })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Refresh hints
+        fetchHints(selectedChallenge.mongoId);
+      } else {
+        setHintError(data.error || "Failed to unlock hint");
+      }
+    } catch (err) {
+      setHintError("Failed to unlock hint");
+    }
   };
 
   const closeModal = () => {
@@ -424,11 +473,83 @@ export default function Challenges() {
               </button>
             </div>
 
+            {/* Tabs */}
+            <div className="flex border-b border-zerogreen/20">
+              <button
+                onClick={() => setActiveTab("description")}
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${activeTab === "description" ? "text-zerogreen bg-zerogreen/5 border-b-2 border-zerogreen" : "text-gray-500 hover:text-gray-300"}`}
+              >
+                DESCRIPTION
+              </button>
+              <button
+                onClick={() => setActiveTab("hints")}
+                className={`flex-1 py-3 text-sm font-bold transition-colors ${activeTab === "hints" ? "text-zerogreen bg-zerogreen/5 border-b-2 border-zerogreen" : "text-gray-500 hover:text-gray-300"}`}
+              >
+                HINTS ({hints.length})
+              </button>
+            </div>
+
             {/* Body */}
             <div className="p-6 space-y-5">
-              <p className="text-gray-300 text-sm leading-relaxed">
-                {selectedChallenge.description}
-              </p>
+              {activeTab === "description" ? (
+                <>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    {selectedChallenge.description}
+                  </p>
+                </>
+              ) : (
+                <div className="space-y-4 min-h-[100px]">
+                  {loadingHints ? (
+                    <div className="text-center py-4 animate-pulse text-gray-500 font-mono text-sm">
+                      LOADING HINTS...
+                    </div>
+                  ) : hints.length === 0 ? (
+                    <div className="text-center py-4 text-gray-600 italic text-sm">
+                      No hints available for this challenge.
+                    </div>
+                  ) : (
+                    <>
+                      {hintError && (
+                        <div className="p-2 bg-red-500/20 border border-red-500 text-red-500 text-xs font-mono rounded-sm text-center">
+                          {hintError}
+                        </div>
+                      )}
+                      {hints.map((hint) => (
+                        <div key={hint.index} className="border border-zerogreen/20 bg-black/40 p-4 rounded-sm">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs font-bold text-zerogreen/60 uppercase">Hint #{hint.index + 1}</span>
+                            {!hint.isUnlocked && (
+                              <span className="text-xs font-bold text-yellow-500/80">-{hint.cost} PTS</span>
+                            )}
+                          </div>
+                          {hint.isUnlocked ? (
+                            <p className="text-gray-200 text-sm font-mono whitespace-pre-wrap">{hint.content}</p>
+                          ) : (
+                            <div className="space-y-2">
+                              <button
+                                onClick={() => {
+                                  if (!isAuthenticated) return;
+                                  unlockHint(hint.index);
+                                }}
+                                disabled={!isAuthenticated}
+                                className="w-full py-2 bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 font-bold text-xs hover:bg-yellow-500 hover:text-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                UNLOCK HINT FOR {hint.cost} POINTS
+                              </button>
+                              {!isAuthenticated && (
+                                <p className="text-[10px] text-yellow-500/70 text-center font-mono italic">
+                                  [!] Please sign in to unlock hints
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+
 
               <div className="flex gap-4 text-sm text-gray-500">
                 <span>
