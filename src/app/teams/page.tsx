@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Card, CardBody, Button, Input } from "@heroui/react";
 import Link from "next/link";
 import { Orbitron, Roboto_Mono } from "next/font/google";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 const robotoMono = Roboto_Mono({ subsets: ["latin"] });
@@ -19,6 +20,7 @@ interface Team {
 }
 
 export default function TeamsPage() {
+  const { t } = useI18n();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -99,10 +101,10 @@ export default function TeamsPage() {
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
           <div className="text-center md:text-left">
             <h1 className={`text-5xl font-bold text-white mb-2 ${orbitron.className}`}>
-              <span className="text-zerogreen">◆</span> Teams Leaderboard
+              <span className="text-zerogreen">◆</span> {t("teamsPage.leaderboard")}
             </h1>
             <p className="text-gray-400 font-mono text-lg max-w-2xl">
-              Join forces with other hackers, form a team, and dominate the scoreboard.
+              {t("teamsPage.subtitle")}
             </p>
           </div>
           
@@ -111,7 +113,7 @@ export default function TeamsPage() {
               className="bg-zerogreen text-black font-bold font-mono px-8 py-6 rounded-sm uppercase tracking-wider text-lg hover:bg-white transition-colors"
               onClick={() => setShowCreateModal(true)}
             >
-              + Create Team
+              {t("teamsPage.createTeamBtn")}
             </Button>
           )}
           {isLoggedIn && userTeamId && (
@@ -121,7 +123,7 @@ export default function TeamsPage() {
               variant="bordered"
               className="border-zerogreen text-zerogreen font-bold font-mono px-8 py-6 rounded-sm uppercase tracking-wider text-lg hover:bg-zerogreen/10 transition-colors"
             >
-              My Team
+              {t("teamsPage.myTeamBtn")}
             </Button>
           )}
         </div>
@@ -137,11 +139,11 @@ export default function TeamsPage() {
                 ✕
               </button>
               <h2 className={`text-2xl font-bold text-white mb-6 ${orbitron.className}`}>
-                Create Team
+                {t("teamsPage.createTeamTitle")}
               </h2>
               <form onSubmit={handleCreateTeam} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-1">Team Name (Max 32)</label>
+                  <label className="block text-sm font-mono text-gray-400 mb-1">{t("teamsPage.teamNameLabel")}</label>
                   <input
                     type="text"
                     required
@@ -149,11 +151,11 @@ export default function TeamsPage() {
                     value={createForm.name}
                     onChange={(e) => setCreateForm({...createForm, name: e.target.value})}
                     className="w-full bg-black border border-gray-700 text-white px-4 py-2 font-mono focus:border-zerogreen outline-none"
-                    placeholder="e.g. ZeroDay Hackers"
+                    placeholder={t("teamsPage.teamNamePlaceholder")}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-1">Team Tag (Max 8)</label>
+                  <label className="block text-sm font-mono text-gray-400 mb-1">{t("teamsPage.teamTagLabel")}</label>
                   <input
                     type="text"
                     required
@@ -161,17 +163,17 @@ export default function TeamsPage() {
                     value={createForm.tag}
                     onChange={(e) => setCreateForm({...createForm, tag: e.target.value.toUpperCase()})}
                     className="w-full bg-black border border-gray-700 text-white px-4 py-2 font-mono focus:border-zerogreen outline-none uppercase"
-                    placeholder="e.g. ZDH"
+                    placeholder={t("teamsPage.teamTagPlaceholder")}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-1">Description (Optional)</label>
+                  <label className="block text-sm font-mono text-gray-400 mb-1">{t("teamsPage.descriptionLabel")}</label>
                   <textarea
                     maxLength={100}
                     value={createForm.description}
                     onChange={(e) => setCreateForm({...createForm, description: e.target.value})}
                     className="w-full bg-black border border-gray-700 text-white px-4 py-2 font-mono focus:border-zerogreen outline-none resize-none h-24"
-                    placeholder="We are the best."
+                    placeholder={t("teamsPage.descriptionPlaceholder")}
                   />
                 </div>
                 {createError && <div className="text-red-500 font-mono text-sm">{createError}</div>}
@@ -180,7 +182,7 @@ export default function TeamsPage() {
                   disabled={isCreating}
                   className="w-full bg-zerogreen text-black font-bold font-mono"
                 >
-                  {isCreating ? "Creating..." : "Create"}
+                  {isCreating ? t("teamsPage.creating") : t("teamsPage.create")}
                 </Button>
               </form>
             </div>
@@ -189,9 +191,9 @@ export default function TeamsPage() {
 
         {/* Teams List */}
         {loading ? (
-          <div className="text-center text-gray-500 font-mono py-12">Loading teams...</div>
+          <div className="text-center text-gray-500 font-mono py-12">{t("teamsPage.loadingTeams")}</div>
         ) : teams.length === 0 ? (
-          <div className="text-center text-gray-500 font-mono py-12">No teams found. Be the first to create one!</div>
+          <div className="text-center text-gray-500 font-mono py-12">{t("teamsPage.noTeams")}</div>
         ) : (
           <div className="grid gap-4">
             {teams.map((team, index) => (
@@ -217,11 +219,11 @@ export default function TeamsPage() {
                     <div className="flex gap-6 mt-4 sm:mt-0 font-mono">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-zerogreen">{team.totalPoints}</div>
-                        <div className="text-xs text-gray-500 uppercase">Points</div>
+                        <div className="text-xs text-gray-500 uppercase">{t("teamsPage.points")}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-white">{team.memberCount}</div>
-                        <div className="text-xs text-gray-500 uppercase">Members</div>
+                        <div className="text-xs text-gray-500 uppercase">{t("teamsPage.members")}</div>
                       </div>
                     </div>
                   </CardBody>

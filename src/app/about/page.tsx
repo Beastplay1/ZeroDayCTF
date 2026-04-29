@@ -1,48 +1,27 @@
 "use client";
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { Orbitron } from "next/font/google";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function About() {
+  const { t } = useI18n();
+
   const features = [
-    {
-      icon: "🎯",
-      title: "7-Day Challenges",
-      description: "Battle proven CTF challenges from real competitions. First blood gets bonus points!"
-    },
-    {
-      icon: "⚡",
-      title: "24-Hour Unique",
-      description: "Fresh AI-generated and exclusive challenges daily. Top 3 solvers earn massive bonuses!"
-    },
-    {
-      icon: "🏆",
-      title: "Competitive Ranking",
-      description: "Climb the global leaderboard. Track your progress with detailed stats and achievements."
-    },
-    {
-      icon: "📚",
-      title: "All Categories",
-      description: "Web, Crypto, Pwn, Reverse Engineering, Forensics, Mobile, Hardware, OSINT, and more!"
-    },
-    {
-      icon: "🔥",
-      title: "Streak System",
-      description: "Build your solving streak and maintain momentum with daily challenges."
-    },
-    {
-      icon: "🎓",
-      title: "Learn & Grow",
-      description: "Progress from beginner to elite with challenges ranging from Easy to Insane difficulty."
-    }
+    { icon: "🎯", titleKey: "about.f1Title", descKey: "about.f1Desc" },
+    { icon: "⚡", titleKey: "about.f2Title", descKey: "about.f2Desc" },
+    { icon: "🏆", titleKey: "about.f3Title", descKey: "about.f3Desc" },
+    { icon: "📚", titleKey: "about.f4Title", descKey: "about.f4Desc" },
+    { icon: "🔥", titleKey: "about.f5Title", descKey: "about.f5Desc" },
+    { icon: "🎓", titleKey: "about.f6Title", descKey: "about.f6Desc" },
   ];
 
   const stats = [
-    { number: "10,000+", label: "Active Hackers" },
-    { number: "500+", label: "Challenges" },
-    { number: "24/7", label: "New Content" },
-    { number: "100+", label: "Countries" }
+    { number: "10,000+", labelKey: "about.activeHackers" },
+    { number: "500+",    labelKey: "about.challenges" },
+    { number: "24/7",    labelKey: "about.newContent" },
+    { number: "100+",    labelKey: "about.countries" },
   ];
 
   return (
@@ -50,10 +29,10 @@ export default function About() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h1 className={`text-5xl font-bold text-white mb-4 ${orbitron.className}`}>
-            <span className="text-zerogreen">{'>'}</span> About ZeroDayCTF
+            <span className="text-zerogreen">{">"}</span> {t("about.title")}
           </h1>
           <p className="text-gray-400 text-xl max-w-3xl mx-auto">
-            The ultimate cybersecurity challenge platform where hackers learn, compete, and evolve
+            {t("about.subtitle")}
           </p>
         </div>
 
@@ -61,22 +40,16 @@ export default function About() {
           <Card className="bg-gradient-to-br from-zerogreen/5 to-transparent border-2 border-zerogreen/30">
             <CardBody className="p-8">
               <h2 className={`text-3xl font-bold text-white mb-6 ${orbitron.className}`}>
-                <span className="text-zerogreen">◆</span> Our Mission
+                <span className="text-zerogreen">◆</span> {t("about.ourMission")}
               </h2>
               <p className="text-gray-300 text-lg leading-relaxed mb-4">
-                ZeroDayCTF is a cutting-edge Capture The Flag platform designed to challenge and elevate cybersecurity
-                enthusiasts worldwide. We curate real challenges from past CTF tournaments sourced from CTFtime and other
-                prestigious platforms, giving you the opportunity to solve authentic security puzzles.
+                {t("about.missionText1")}
               </p>
               <p className="text-gray-300 text-lg leading-relaxed mb-4">
-                Our unique approach combines <span className="text-zerogreen font-bold">7-day challenges</span> from real
-                CTF competitions with <span className="text-purple-400 font-bold">24-hour exclusive challenges</span> that
-                are either AI-generated or crafted by our community of expert hackers.
+                {t("about.missionText2")}
               </p>
               <p className="text-gray-300 text-lg leading-relaxed">
-                Whether you're a beginner taking your first steps into cybersecurity or an elite hacker looking for the
-                next challenge, ZeroDayCTF provides a competitive environment to test your skills, learn new techniques,
-                and climb the global leaderboard.
+                {t("about.missionText3")}
               </p>
             </CardBody>
           </Card>
@@ -84,7 +57,7 @@ export default function About() {
 
         <div className="mb-16">
           <h2 className={`text-3xl font-bold text-white text-center mb-8 ${orbitron.className}`}>
-            <span className="text-zerogreen">{'>'}</span> Platform Features
+            <span className="text-zerogreen">{">"}</span> {t("about.platformFeatures")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
@@ -95,9 +68,9 @@ export default function About() {
                 <CardBody className="p-6">
                   <div className="text-5xl mb-4">{feature.icon}</div>
                   <h3 className={`text-xl font-bold text-white mb-2 ${orbitron.className}`}>
-                    {feature.title}
+                    {t(feature.titleKey)}
                   </h3>
-                  <p className="text-gray-400">{feature.description}</p>
+                  <p className="text-gray-400">{t(feature.descKey)}</p>
                 </CardBody>
               </Card>
             ))}
@@ -106,33 +79,23 @@ export default function About() {
 
         <div className="mb-16">
           <h2 className={`text-3xl font-bold text-white text-center mb-8 ${orbitron.className}`}>
-            <span className="text-zerogreen">{'>'}</span> How It Works
+            <span className="text-zerogreen">{">"}</span> {t("about.howItWorks")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-2 border-blue-500/30">
               <CardHeader className="pb-0 pt-6 px-6">
                 <h3 className={`text-2xl font-bold text-blue-400 ${orbitron.className}`}>
-                  📅 7-Day Challenges
+                  📅 {t("about.w1Title")}
                 </h3>
               </CardHeader>
               <CardBody className="px-6 pb-6">
                 <ul className="space-y-2 text-gray-300">
-                  <li className="flex items-start gap-2">
-                    <span className="text-zerogreen mt-1">▸</span>
-                    <span>Real challenges from past CTF competitions worldwide</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-zerogreen mt-1">▸</span>
-                    <span>Available for 7 days with rotating challenges</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-zerogreen mt-1">▸</span>
-                    <span>First blood earns bonus points</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-zerogreen mt-1">▸</span>
-                    <span>Points based on difficulty and category</span>
-                  </li>
+                  {["about.w1l1","about.w1l2","about.w1l3","about.w1l4"].map((key) => (
+                    <li key={key} className="flex items-start gap-2">
+                      <span className="text-zerogreen mt-1">▸</span>
+                      <span>{t(key)}</span>
+                    </li>
+                  ))}
                 </ul>
               </CardBody>
             </Card>
@@ -140,26 +103,18 @@ export default function About() {
             <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-2 border-purple-500/30">
               <CardHeader className="pb-0 pt-6 px-6">
                 <h3 className={`text-2xl font-bold text-purple-400 ${orbitron.className}`}>
-                  ⚡ 24-Hour Unique Challenges
+                  ⚡ {t("about.w2Title")}
                 </h3>
               </CardHeader>
               <CardBody className="px-6 pb-6">
                 <ul className="space-y-2 text-gray-300">
-                  <li className="flex items-start gap-2">
-                    <span className="text-zerogreen mt-1">▸</span>
-                    <span>AI-generated or community-exclusive challenges</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-zerogreen mt-1">▸</span>
-                    <span>Fresh content every 24 hours</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-zerogreen mt-1">▸</span>
-                    <span>Top 3 solvers get massive bonuses:</span>
-                  </li>
-                  <li className="pl-6 text-yellow-400 font-bold">
-                    1st: +500 pts | 2nd: +250 pts | 3rd: +50 pts
-                  </li>
+                  {["about.w2l1","about.w2l2","about.w2l3"].map((key) => (
+                    <li key={key} className="flex items-start gap-2">
+                      <span className="text-zerogreen mt-1">▸</span>
+                      <span>{t(key)}</span>
+                    </li>
+                  ))}
+                  <li className="pl-6 text-yellow-400 font-bold">{t("about.w2l4")}</li>
                 </ul>
               </CardBody>
             </Card>
@@ -168,7 +123,7 @@ export default function About() {
 
         <div className="mb-16">
           <h2 className={`text-3xl font-bold text-white text-center mb-8 ${orbitron.className}`}>
-            <span className="text-zerogreen">{'>'}</span> By The Numbers
+            <span className="text-zerogreen">{">"}</span> {t("about.byTheNumbers")}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
@@ -180,7 +135,7 @@ export default function About() {
                   <div className={`text-4xl font-bold text-zerogreen mb-2 ${orbitron.className}`}>
                     {stat.number}
                   </div>
-                  <div className="text-gray-400">{stat.label}</div>
+                  <div className="text-gray-400">{t(stat.labelKey)}</div>
                 </CardBody>
               </Card>
             ))}
@@ -191,23 +146,23 @@ export default function About() {
           <Card className="bg-gradient-to-r from-zerogreen/10 via-transparent to-purple-500/10 border-2 border-zerogreen/30">
             <CardBody className="p-8">
               <h2 className={`text-3xl font-bold text-white mb-4 ${orbitron.className}`}>
-                Ready to Start Hacking?
+                {t("about.readyToHack")}
               </h2>
               <p className="text-gray-400 text-lg mb-6">
-                Join thousands of hackers from around the world and prove your skills
+                {t("about.readySubtitle")}
               </p>
               <div className="flex gap-4 justify-center flex-wrap">
                 <a
                   href="/signup"
                   className="px-8 py-3 bg-zerogreen text-black font-bold rounded hover:bg-zerogreen/90 transition-all duration-300"
                 >
-                  CREATE ACCOUNT
+                  {t("about.createAccount")}
                 </a>
                 <a
                   href="/challenges"
                   className="px-8 py-3 bg-transparent border-2 border-zerogreen text-zerogreen font-bold rounded hover:bg-zerogreen/10 transition-all duration-300"
                 >
-                  VIEW CHALLENGES
+                  {t("about.viewChallenges")}
                 </a>
               </div>
             </CardBody>

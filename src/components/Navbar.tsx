@@ -5,10 +5,12 @@ import { useState, useEffect } from "react";
 import { UserSearch } from "@/components/UserSearch";
 import { NotificationsDropdown } from "@/components/NotificationsDropdown";
 import "@/styles/navbar.css";
+import { useI18n, type Locale } from "@/lib/i18n/context";
 
 export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(initialIsLoggedIn);
+  const { t, locale, setLocale } = useI18n();
 
   useEffect(() => {
     const loadSession = async () => {
@@ -39,12 +41,12 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
           {/* Desktop Navigation */}
           <div className="hidden lg:flex justify-between items-center py-4">
             <div className="flex items-center space-x-2 2xl:space-x-6">
-              {[
-                ["/", "Home"],
-                ["/challenges", "Challenges"],
-                ["/leaderboard", "Leaderboard"],
-                ["/about", "About Us"],
-              ].map(([href, label]) => (
+              {([
+                ["/", t("nav.home")],
+                ["/challenges", t("nav.challenges")],
+                ["/leaderboard", t("nav.leaderboard")],
+                ["/about", t("nav.about")],
+              ] as [string, string][]).map(([href, label]) => (
                 <Link
                   key={href}
                   href={href}
@@ -59,13 +61,13 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                     href="/profile"
                     className="font-[Koulen] text-lg 2xl:text-xl px-2 xl:px-3 py-1 text-white hover:text-zerogreen transition-colors"
                   >
-                    Profile
+                    {t("nav.profile")}
                   </Link>
                   <Link
                     href="/teams"
                     className="font-[Koulen] text-lg 2xl:text-xl px-2 xl:px-3 py-1 text-white hover:text-zerogreen transition-colors"
                   >
-                    Teams
+                    {t("nav.teams")}
                   </Link>
                 </>
               )}
@@ -73,12 +75,16 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
 
             <div className="flex items-center space-x-3">
               {isLoggedIn && <NotificationsDropdown />}
-              <UserSearch placeholder="Search Users or Teams" />
+              <UserSearch placeholder={t("search.placeholderAll")} />
               <div className="relative">
-                <select className="bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-bold cursor-pointer border-2 border-zerogreen/30 hover:border-zerogreen transition-colors">
-                  <option value="EN">EN</option>
-                  <option value="RU">RU</option>
-                  <option value="AM">AM</option>
+                <select
+                  value={locale}
+                  onChange={(e) => setLocale(e.target.value as Locale)}
+                  className="bg-gray-800 text-white px-3 py-2 rounded-md text-sm font-bold cursor-pointer border-2 border-zerogreen/30 hover:border-zerogreen transition-colors"
+                >
+                  <option value="en">EN</option>
+                  <option value="ru">RU</option>
+                  <option value="hy">ՀԱՅ</option>
                 </select>
               </div>
               {!isLoggedIn ? (
@@ -89,7 +95,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                     variant="solid"
                     className="signup bg-[#09CC26] border-2 border-[#09CC26] rounded-sm text-lg px-4 py-2 transition-colors font-[Koulen] text-white hover:bg-[#07a020]"
                   >
-                    Sign Up
+                    {t("nav.signUp")}
                   </Button>
                   <Button
                     as={Link}
@@ -97,7 +103,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                     variant="bordered"
                     className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors text-white bg-transparent hover:bg-zerogreen/10"
                   >
-                    Sign In
+                    {t("nav.signIn")}
                   </Button>
                 </>
               ) : (
@@ -107,7 +113,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                     variant="bordered"
                     className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-4 py-2 transition-colors text-white bg-transparent hover:bg-zerogreen/10"
                   >
-                    Sign Out
+                    {t("nav.signOut")}
                   </Button>
                 </>
               )}
@@ -120,12 +126,16 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
             <div className="flex items-center gap-2">
               {isLoggedIn && <NotificationsDropdown />}
               <div className="sm:block sm:px-1 sm:w-52">
-                <UserSearch placeholder="Search Users or Teams" />
+                <UserSearch placeholder={t("search.placeholderAll")} />
               </div>
-              <select className="bg-gray-800 text-white px-2 py-1 rounded text-xs font-bold cursor-pointer border border-zerogreen/30">
-                <option value="EN">EN</option>
-                <option value="RU">RU</option>
-                <option value="AM">AM</option>
+              <select
+                value={locale}
+                onChange={(e) => setLocale(e.target.value as Locale)}
+                className="bg-gray-800 text-white px-2 py-1 rounded text-xs font-bold cursor-pointer border border-zerogreen/30"
+              >
+                <option value="en">EN</option>
+                <option value="ru">RU</option>
+                <option value="hy">ՀԱՅ</option>
               </select>
               <label className="burger" htmlFor="burger">
                 <input
@@ -148,12 +158,12 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
             }`}
           >
             <div className="flex flex-col space-y-3 pb-4">
-              {[
-                ["/", "Home"],
-                ["/challenges", "Challenges"],
-                ["/leaderboard", "Leaderboard"],
-                ["/about", "About Us"],
-              ].map(([href, label]) => (
+              {([
+                ["/", t("nav.home")],
+                ["/challenges", t("nav.challenges")],
+                ["/leaderboard", t("nav.leaderboard")],
+                ["/about", t("nav.about")],
+              ] as [string, string][]).map(([href, label]) => (
                 <Link
                   key={href}
                   href={href}
@@ -170,14 +180,14 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                   onClick={() => setIsOpen(false)}
                   className="font-[Koulen] text-lg px-3 py-2 border border-gray-700 text-white hover:text-zerogreen transition-colors text-center"
                 >
-                  Profile
+                  {t("nav.profile")}
                 </Link>
                 <Link
                   href="/teams"
                   onClick={() => setIsOpen(false)}
                   className="font-[Koulen] text-lg px-3 py-2 border border-gray-700 text-white hover:text-zerogreen transition-colors text-center"
                 >
-                  Teams
+                  {t("nav.teams")}
                 </Link>
                 </>
               )}
@@ -190,7 +200,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                     variant="solid"
                     className="signup bg-[#09CC26] border-2 border-[#09CC26] rounded-sm text-lg px-3 py-2 transition-colors font-[Koulen] text-white w-full"
                   >
-                    Sign Up
+                    {t("nav.signUp")}
                   </Button>
                   <Button
                     as={Link}
@@ -199,7 +209,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                     variant="bordered"
                     className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full text-white bg-transparent"
                   >
-                    Sign In
+                    {t("nav.signIn")}
                   </Button>
                 </>
               ) : (
@@ -211,7 +221,7 @@ export function Navbar({ initialIsLoggedIn = false }: { initialIsLoggedIn?: bool
                   variant="bordered"
                   className="signin border-2 border-[#09CC26] rounded-sm font-[Koulen] text-lg px-3 py-2 transition-colors w-full text-white bg-transparent"
                 >
-                  Sign Out
+                  {t("nav.signOut")}
                 </Button>
               )}
             </div>

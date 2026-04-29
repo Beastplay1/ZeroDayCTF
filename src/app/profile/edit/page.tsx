@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { Card, CardBody, Input, Button, Spacer } from "@heroui/react";
 import { Orbitron } from "next/font/google";
 import { useRouter } from "next/navigation";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -53,7 +55,7 @@ export default function EditProfilePage() {
       body: formData,
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Failed to upload avatar");
+    if (!res.ok) throw new Error(data.error || t("profileEdit.failAvatar"));
     return data.avatarUrl;
   };
 
@@ -65,7 +67,7 @@ export default function EditProfilePage() {
 
     try {
       if (newPassword && newPassword !== confirmPassword) {
-        throw new Error("New passwords do not match.");
+        throw new Error(t("profileEdit.pwNotMatch"));
       }
 
       let finalAvatarUrl = avatarUrl;
@@ -90,14 +92,14 @@ export default function EditProfilePage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to update profile");
+        throw new Error(data.error || t("profileEdit.failUpdate"));
       }
 
       if (data.loggedOut) {
-        setSuccess("Profile updated. You must sign in again.");
+        setSuccess(t("profileEdit.updateLogout"));
         setTimeout(() => router.push("/signin"), 2000);
       } else {
-        setSuccess("Profile updated successfully!");
+        setSuccess(t("profileEdit.updateSuccess"));
         setOriginalEmail(email);
         setOldPassword("");
         setNewPassword("");
@@ -114,7 +116,7 @@ export default function EditProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-zerogreen animate-pulse font-mono">Loading...</div>
+        <div className="text-zerogreen animate-pulse font-mono">{t("profileEdit.loading")}</div>
       </div>
     );
   }
@@ -124,14 +126,14 @@ export default function EditProfilePage() {
       <div className="max-w-full mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className={`text-3xl font-bold text-white ${orbitron.className}`}>
-            <span className="text-zerogreen">◆</span> Edit Profile
+            <span className="text-zerogreen">◆</span> {t("profileEdit.title")}
           </h1>
           <Button
             variant="light"
             onClick={() => router.push("/profile")}
             className="text-gray-400 hover:text-white"
           >
-            ← Back
+            {t("profileEdit.back")}
           </Button>
         </div>
 
@@ -151,11 +153,11 @@ export default function EditProfilePage() {
 
               <div className="space-y-6">
                 <h3 className={`text-3xl text-white ${orbitron.className}`}>
-                  Public Info
+                  {t("profileEdit.publicInfo")}
                 </h3>
                 <div className="flex flex-col gap-6">
                   <div>
-                    <label className="block text-lg font-mono text-gray-300 mb-4">Avatar Upload</label>
+                    <label className="block text-lg font-mono text-gray-300 mb-4">{t("profileEdit.avatarUpload")}</label>
                     <div className="flex items-center gap-6 bg-black/40 p-6 rounded-xl border border-gray-800">
                       {avatarUrl ? (
                         <img src={avatarUrl} alt="Avatar" referrerPolicy="no-referrer" className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-zerogreen" />
@@ -169,13 +171,13 @@ export default function EditProfilePage() {
                           onChange={(e) => setFile(e.target.files?.[0] || null)}
                           className="text-base text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-base file:font-semibold file:bg-zerogreen/20 file:text-zerogreen hover:file:bg-zerogreen/30 cursor-pointer"
                         />
-                        <p className="text-xs text-gray-500 font-mono ml-2">PNG, JPG, WEBP or GIF (Max 2MB)</p>
+                        <p className="text-xs text-gray-500 font-mono ml-2">{t("profileEdit.avatarDesc")}</p>
                       </div>
                     </div>
                   </div>
                   <Input
                     size="lg"
-                    label="Username"
+                    label={t("profileEdit.username")}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     classNames={{ inputWrapper: "bg-white/5 border-white/10" }}
@@ -190,12 +192,12 @@ export default function EditProfilePage() {
 
               <div className="space-y-6">
                 <h3 className={`text-3xl text-white ${orbitron.className}`}>
-                  Account Security
+                  {t("profileEdit.accountSecurity")}
                 </h3>
                 <Input
                   size="lg"
                   type="email"
-                  label="Email Address"
+                  label={t("profileEdit.emailAddress")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   classNames={{ inputWrapper: "bg-white/5 border-white/10" }}
@@ -203,18 +205,18 @@ export default function EditProfilePage() {
                 />
                 {email !== originalEmail && (
                   <p className="text-xs text-orange-400 font-mono mt-1">
-                    ⚠ Note: Changing your email will require re-verification and you will be logged out.
+                    {t("profileEdit.emailChangeWarning")}
                   </p>
                 )}
                 
                 <div className="p-6 bg-white/5 rounded-lg space-y-4">
-                  <p className="text-sm text-gray-400 font-mono mb-2">Change Password / Security Confirmation</p>
+                  <p className="text-sm text-gray-400 font-mono mb-2">{t("profileEdit.securityConfirmation")}</p>
                   
                   <Input
                     size="lg"
                     type="password"
-                    label="Current Password"
-                    placeholder={email !== originalEmail ? "Required to change email" : "Required to change password"}
+                    label={t("profileEdit.currentPassword")}
+                    placeholder={email !== originalEmail ? t("profileEdit.reqChangeEmail") : t("profileEdit.reqChangePassword")}
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     classNames={{ inputWrapper: "bg-black/40 border-black/50" }}
@@ -224,8 +226,8 @@ export default function EditProfilePage() {
                   <Input
                     size="lg"
                     type="password"
-                    label="New Password"
-                    placeholder="Leave blank to keep current"
+                    label={t("profileEdit.newPassword")}
+                    placeholder={t("profileEdit.leaveBlank")}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     classNames={{ inputWrapper: "bg-black/40 border-black/50" }}
@@ -234,7 +236,7 @@ export default function EditProfilePage() {
                   <Input
                     size="lg"
                     type="password"
-                    label="Confirm New Password"
+                    label={t("profileEdit.confirmNewPassword")}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     classNames={{ inputWrapper: "bg-black/40 border-black/50" }}
@@ -249,7 +251,7 @@ export default function EditProfilePage() {
                   className="bg-zerogreen text-black font-bold hover:bg-zerogreen/80"
                   isLoading={saving}
                 >
-                  Save Changes
+                  {t("profileEdit.saveChanges")}
                 </Button>
               </div>
             </form>

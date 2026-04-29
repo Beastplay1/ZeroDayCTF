@@ -1,23 +1,18 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { signIn, SessionProvider } from "next-auth/react";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-  Button,
-  Checkbox,
-} from "@heroui/react";
+import { Card, CardBody, CardHeader, Input, Button, Checkbox } from "@heroui/react";
 import { Orbitron } from "next/font/google";
 import axios from "axios";
 import Link from "next/link";
 import { validateUsername } from "@/lib/validations/validateUsername";
 import { validateEmail } from "@/lib/validations/validateEmail";
 import { validatePassword } from "@/lib/validations/validatePassword";
+import { useI18n } from "@/lib/i18n/context";
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function SignUp() {
+  const { t } = useI18n();
 
   //FUTURE IDEA!! Encrypt creds in db with AES-256 i mean why not :D
 
@@ -81,9 +76,9 @@ export default function SignUp() {
             <h1
               className={`text-4xl font-bold text-white mb-2 ${orbitron.className}`}
             >
-              <span className="text-zerogreen">{">"}</span> Join the Elite
+              <span className="text-zerogreen">{">"}</span> {t("signup.title")}
             </h1>
-            <p className="text-gray-400">Create your hacker profile</p>
+            <p className="text-gray-400">{t("signup.subtitle")}</p>
           </div>
 
           <Card className="bg-[#0a0a0a] border-2 border-zerogreen/30 shadow-xl shadow-zerogreen/10">
@@ -91,10 +86,8 @@ export default function SignUp() {
               <div className="w-full">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-zerogreen animate-pulse">█</span>
-                  <span
-                    className={`text-zerogreen font-bold ${orbitron.className}`}
-                  >
-                    NEW USER REGISTRATION
+                  <span className={`text-zerogreen font-bold ${orbitron.className}`}>
+                    {t("signup.registrationHeader")}
                   </span>
                 </div>
                 <div className="h-px bg-gradient-to-r from-zerogreen via-zerogreen/50 to-transparent mb-4"></div>
@@ -107,10 +100,7 @@ export default function SignUp() {
                 className="space-y-4"
               >
                 <div>
-                  <Input
-                    type="text"
-                    label="Username"
-                    placeholder="elite_hacker"
+                  <Input type="text" label={t("signup.username")} placeholder="elite_hacker"
                     required
                     value={user.username}
                     onChange={(e) =>
@@ -130,10 +120,7 @@ export default function SignUp() {
                 </div>
 
                 <div>
-                  <Input
-                    type="email"
-                    label="Email"
-                    placeholder="hacker@example.com"
+                  <Input type="email" label={t("signup.email")} placeholder="hacker@example.com"
                     required
                     value={user.email}
                     onChange={(e) =>
@@ -153,10 +140,7 @@ export default function SignUp() {
                 </div>
 
                 <div>
-                  <Input
-                    type="password"
-                    label="Password"
-                    placeholder="••••••••"
+                  <Input type="password" label={t("signup.password")} placeholder="••••••••"
                     required
                     value={user.password}
                     onChange={(e) =>
@@ -173,16 +157,11 @@ export default function SignUp() {
                       <span className="text-zerogreen text-sm">{">"}</span>
                     }
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Use at least 8 characters with numbers & symbols
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">{t("signup.passwordHint")}</p>
                 </div>
 
                 <div>
-                  <Input
-                    type="password"
-                    label="Confirm Password"
-                    placeholder="••••••••"
+                  <Input type="password" label={t("signup.confirmPassword")} placeholder="••••••••"
                     required
                     value={user.confirmPassword}
                     onChange={(e) =>
@@ -226,20 +205,10 @@ export default function SignUp() {
                     }}
                   >
                     <span className="text-sm text-gray-400">
-                      I agree to the{" "}
-                      <Link
-                        href="#"
-                        className="text-zerogreen hover:text-zerogreen/80"
-                      >
-                        Terms of Service
-                      </Link>{" "}
-                      and{" "}
-                      <Link
-                        href="#"
-                        className="text-zerogreen hover:text-zerogreen/80"
-                      >
-                        Privacy Policy
-                      </Link>
+                      {t("signup.agreeToTerms")}{" "}
+                      <Link href="#" className="text-zerogreen hover:text-zerogreen/80">{t("signup.termsOfService")}</Link>{" "}
+                      {t("signup.and")}{" "}
+                      <Link href="#" className="text-zerogreen hover:text-zerogreen/80">{t("signup.privacyPolicy")}</Link>
                     </span>
                   </Checkbox>
                 </div>
@@ -256,7 +225,7 @@ export default function SignUp() {
                   className="w-full bg-zerogreen text-black font-bold text-lg hover:bg-zerogreen/90 transition-all duration-300 mt-6"
                   size="lg"
                 >
-                  <span className={orbitron.className}>CREATE ACCOUNT</span>
+                  <span className={orbitron.className}>{t("signup.createAccount")}</span>
                 </Button>
 
                 <div className="relative my-6">
@@ -264,7 +233,7 @@ export default function SignUp() {
                     <div className="w-full border-t border-gray-700"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-[#0a0a0a] text-gray-500">OR</span>
+                    <span className="px-2 bg-[#0a0a0a] text-gray-500">{t("signup.or")}</span>
                   </div>
                 </div>
 
@@ -275,31 +244,18 @@ export default function SignUp() {
                     }
                     className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                     variant="bordered"
-                    startContent={<span>🔐</span>}
-                  >
-                    Continue with GitHub
+                    startContent={<span>🔐</span>}>
+                    {t("signup.continueWithGithub")}
                   </Button>
-                  <Button
-                    onClick={() =>
-                      signIn("google", { callbackUrl: "/profile" })
-                    }
-                    className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
-                    variant="bordered"
-                    startContent={<span>🌐</span>}
-                  >
-                    Continue with Google
+                  <Button onClick={() => signIn("google", { callbackUrl: "/profile" })} className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white" variant="bordered" startContent={<span>🌐</span>}>
+                    {t("signup.continueWithGoogle")}
                   </Button>
                 </div>
 
                 <div className="text-center mt-6">
-                  <span className="text-gray-400">
-                    Already have an account?{" "}
-                  </span>
-                  <Link
-                    href="/signin"
-                    className="text-zerogreen hover:text-zerogreen/80 font-bold transition-colors"
-                  >
-                    Sign in
+                  <span className="text-gray-400">{t("signup.alreadyHaveAccount")}{" "}</span>
+                  <Link href="/signin" className="text-zerogreen hover:text-zerogreen/80 font-bold transition-colors">
+                    {t("signup.signIn")}
                   </Link>
                 </div>
               </form>
@@ -309,10 +265,10 @@ export default function SignUp() {
           <div
             className={`text-center mt-6 text-gray-600 text-xs ${orbitron.className}`}
           >
-            <p>[ SECURE CONNECTION ESTABLISHED ]</p>
+            <p>[ {t("signin.secureConnection")} ]</p>
             <p className="mt-1 flex items-center justify-center gap-2">
               <span className="w-2 h-2 bg-zerogreen rounded-full animate-pulse"></span>
-              ENCRYPTED WITH AES-256
+              {t("signin.encrypted")}
             </p>
           </div>
         </div>

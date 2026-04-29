@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Orbitron } from "next/font/google";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
@@ -24,6 +25,7 @@ interface UserSearchProps {
 }
 
 export function UserSearch({ onSelect, placeholder, searchType = "all" }: UserSearchProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -109,7 +111,7 @@ export function UserSearch({ onSelect, placeholder, searchType = "all" }: UserSe
             setQuery(e.target.value);
             if (!isOpen && e.target.value.trim().length >= 2) setIsOpen(true);
           }}
-          placeholder={placeholder || "Search Users"}
+          placeholder={placeholder || t("search.placeholderUsers")}
           className="w-full bg-gray-900 border border-gray-700 text-gray-300 text-sm rounded-md pl-9 pr-8 py-2 focus:outline-none focus:border-zerogreen focus:ring-1 focus:ring-zerogreen transition-colors placeholder-gray-500 font-mono"
         />
         {query && (
@@ -129,7 +131,7 @@ export function UserSearch({ onSelect, placeholder, searchType = "all" }: UserSe
       {isOpen && (query.trim().length >= 2) && (
         <div className="absolute top-full mt-2 left-0 w-[300px] bg-[#111827] border border-gray-700 rounded-md shadow-2xl overflow-hidden z-50">
           {isLoading && results.length === 0 ? (
-            <div className="p-4 text-center text-gray-400 font-mono text-sm">Searching...</div>
+            <div className="p-4 text-center text-gray-400 font-mono text-sm">{t("search.searching")}</div>
           ) : results.length > 0 ? (
             <div className="max-h-80 overflow-y-auto">
               {results.map((item) => {
@@ -159,7 +161,7 @@ export function UserSearch({ onSelect, placeholder, searchType = "all" }: UserSe
                           {item.username}
                           {item.userTag && <span className="text-gray-500 text-sm ml-1 font-mono">{isTeam ? `[${item.userTag}]` : `#${item.userTag}`}</span>}
                         </span>
-                        <span className="text-gray-500 text-xs uppercase tracking-widest font-mono">{isTeam ? 'Team' : 'User'}</span>
+                        <span className="text-gray-500 text-xs uppercase tracking-widest font-mono">{isTeam ? t("search.team") : t("search.user")}</span>
                       </div>
                     </button>
                   );
@@ -184,14 +186,14 @@ export function UserSearch({ onSelect, placeholder, searchType = "all" }: UserSe
                         {item.username}
                         {item.userTag && <span className="text-gray-500 text-sm ml-1 font-mono">{isTeam ? `[${item.userTag}]` : `#${item.userTag}`}</span>}
                       </span>
-                      <span className="text-gray-500 text-xs uppercase tracking-widest font-mono">{isTeam ? 'Team' : 'User'}</span>
+                      <span className="text-gray-500 text-xs uppercase tracking-widest font-mono">{isTeam ? t("search.team") : t("search.user")}</span>
                     </div>
                   </Link>
                 );
               })}
             </div>
           ) : (
-            <div className="p-4 text-center text-gray-400 font-mono text-sm">No users found</div>
+            <div className="p-4 text-center text-gray-400 font-mono text-sm">{searchType === "all" ? t("search.noResultsFound") : t("search.noUsersFound")}</div>
           )}
         </div>
       )}

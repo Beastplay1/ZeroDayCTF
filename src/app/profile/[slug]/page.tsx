@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Orbitron, Roboto_Mono } from "next/font/google";
 import { Card, CardBody, Chip, Button, Progress } from "@heroui/react";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 const robotoMono = Roboto_Mono({ subsets: ["latin"] });
@@ -45,6 +46,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   const unwrappedParams = use(params);
   const slug = decodeURIComponent(unwrappedParams.slug);
   const router = useRouter();
+  const { t } = useI18n();
   
   const [profile, setProfile] = useState<PublicProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,8 +73,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
       try {
         const res = await fetch(`/api/users/profile/${encodeURIComponent(slug)}`);
         if (!res.ok) {
-          if (res.status === 404) setError("User not found");
-          else setError("Error loading profile");
+          if (res.status === 404) setError(t("profile.userNotFound"));
+          else setError(t("profile.errorLoadingProfile"));
           return;
         }
         const data = await res.json();
@@ -88,7 +90,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
           setFriendStatus(data.friendStatus);
         }
       } catch (err) {
-        setError("Network error");
+        setError(t("profile.networkError"));
       } finally {
         setLoading(false);
       }
@@ -171,14 +173,14 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   }
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-white font-mono">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-white font-mono">{t("profile.loading")}</div>;
   }
 
   if (error || !profile) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-red-500 font-mono">
         <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p>{error || "User not found"}</p>
+        <p>{error || t("profile.userNotFound")}</p>
       </div>
     );
   }
@@ -216,7 +218,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                       variant="bordered"
                       className="border-red-500/50 text-red-400 hover:bg-red-500/10 font-bold font-mono px-6 rounded-full uppercase tracking-wider text-sm mt-2 md:mt-0 transition-colors"
                     >
-                      Remove Friend
+                      {t("profile.removeFriend")}
                     </Button>
                   ) : friendStatus === "pending" ? (
                     <Button 
@@ -224,7 +226,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                       variant="bordered"
                       className="border-yellow-500/50 text-yellow-500 font-bold font-mono px-6 rounded-full uppercase tracking-wider text-sm mt-2 md:mt-0 opacity-80 cursor-not-allowed"
                     >
-                      Request Sent
+                      {t("profile.requestSent")}
                     </Button>
                   ) : (
                     <Button 
@@ -232,30 +234,30 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                       disabled={!isLoggedIn}
                       className={`${isLoggedIn ? "bg-zerogreen text-black hover:bg-[#07a020]" : "bg-gray-600 text-gray-300 cursor-not-allowed"} font-bold font-mono px-6 rounded-full uppercase tracking-wider text-sm mt-2 md:mt-0 transition-colors`}
                     >
-                      {!isLoggedIn ? "Sign Up/Sign In to Add Friend" : "Add Friend"}
+                      {!isLoggedIn ? t("profile.signInToAddFriend") : t("profile.addFriend")}
                     </Button>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                   {profile.rank !== null && (
                     <Chip className="bg-yellow-500/20 text-yellow-400 font-bold">
-                      🏆 Rank #{profile.rank}
+                      {t("profile.rank").replace("#{rank}", `#${profile.rank}`)}
                     </Chip>
                   )}
                   <Chip className="bg-zerogreen/20 text-zerogreen font-bold">
-                    {profile.totalPoints.toLocaleString()} Points
+                    {profile.totalPoints.toLocaleString()} {t("profile.points")}
                   </Chip>
                   <Chip className="bg-blue-500/20 text-blue-400 font-bold">
-                    {profile.solveCount} Solves
+                    {profile.solveCount} {t("profile.solves")}
                   </Chip>
                   <Chip className="bg-red-500/20 text-red-400 font-bold">
-                    🩸 {profile.firstBloods} First Bloods
+                    {t("profile.firstBloods").replace("{count}", String(profile.firstBloods))}
                   </Chip>
                 </div>
               </div>
               <div className="text-center">
                 <p className="text-gray-500 text-sm mt-2">
-                  Joined {new Date(profile.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  {t("profile.joined")} {new Date(profile.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </p>
               </div>
             </div>
@@ -275,7 +277,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                   )}
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs font-mono uppercase tracking-wider">Team</p>
+                  <p className="text-gray-500 text-xs font-mono uppercase tracking-wider">{t("search.team")}</p>
                   <Link href={`/teams/${profile.team.id}`} className="text-white font-bold hover:text-zerogreen transition-colors">
                     {profile.team.name} <span className="text-gray-500">[{profile.team.tag}]</span>
                   </Link>
@@ -295,7 +297,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
             } transition-all duration-300 font-bold`}
             onClick={() => setActiveTab("overview")}
           >
-            Overview
+            {t("profile.overview")}
           </Button>
           <Button
             className={`${
@@ -305,27 +307,19 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
             } transition-all duration-300 font-bold`}
             onClick={() => setActiveTab("stats")}
           >
-            Statistics
+            {t("profile.statistics")}
           </Button>
         </div>
 
         {activeTab === "overview" && (
           <div className="space-y-6">
-            {/* Achievements */}
-            <div>
-              <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
-                <span className="text-zerogreen">◆</span> Achievements
-              </h2>
-              <p className="text-gray-500">Coming soon.</p>
-            </div>
-
             {/* Recent Solves */}
             <div>
               <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
-                <span className="text-zerogreen">◆</span> Recent Solves
+                <span className="text-zerogreen">◆</span> {t("profile.recentSolves")}
               </h2>
               {recentSolves.length === 0 ? (
-                <p className="text-gray-500">No solves yet.</p>
+                <p className="text-gray-500">{t("profile.noSolves")}</p>
               ) : (
                 <div className="space-y-3">
                   {recentSolves.map((challenge) => (
@@ -342,7 +336,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                               </h3>
                               {challenge.wasFirstBlood && (
                                 <Chip size="sm" className="bg-red-500/20 text-red-400 font-bold">
-                                  🩸 First Blood
+                                  {t("profile.firstBloodLabel")}
                                 </Chip>
                               )}
                             </div>
@@ -378,7 +372,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
             {categoryStats.length > 0 ? (
               <div>
                 <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
-                  <span className="text-zerogreen">◆</span> Category Progress
+                  <span className="text-zerogreen">◆</span> {t("profile.categoryProgress")}
                 </h2>
                 <div className="space-y-4">
                   {categoryStats.map((stat, index) => {
@@ -388,7 +382,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                         <CardBody className="p-4">
                           <div className="flex justify-between items-center mb-2">
                             <span className="text-white font-bold">{stat.category}</span>
-                            <span className="text-gray-400">{stat.solved} solved</span>
+                            <span className="text-gray-400">{stat.solved} {t("profile.solved")}</span>
                           </div>
                           <Progress
                             value={(stat.solved / maxSolved) * 100}
@@ -404,9 +398,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
             ) : (
               <div>
                 <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
-                  <span className="text-zerogreen">◆</span> Category Progress
+                  <span className="text-zerogreen">◆</span> {t("profile.categoryProgress")}
                 </h2>
-                <p className="text-gray-500">No solves yet.</p>
+                <p className="text-gray-500">{t("profile.noSolves")}</p>
               </div>
             )}
           </div>

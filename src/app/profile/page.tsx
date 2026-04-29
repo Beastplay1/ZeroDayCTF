@@ -11,6 +11,7 @@ import {
 import { Orbitron, Roboto_Mono } from "next/font/google";
 import { FriendsTab } from "@/components/FriendsTab";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 const robotoMono = Roboto_Mono({ subsets: ["latin"] });
@@ -40,6 +41,7 @@ interface ProfileData {
 }
 
 export default function Profile() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<"overview" | "solved" | "stats" | "friends" | "teams">(
     "overview",
   );
@@ -114,12 +116,12 @@ export default function Profile() {
       const res = await fetch("/api/auth/resend-verification", { method: "POST" });
       const data = await res.json();
       if (res.ok) {
-        setResendStatus("Verification email sent!");
+        setResendStatus(t("profile.verificationSent"));
       } else {
-        setResendStatus(data.error || "Failed to send email.");
+        setResendStatus(data.error || t("profile.failedToSend"));
       }
     } catch (err) {
-      setResendStatus("An error occurred.");
+      setResendStatus(t("profile.errorOccurred"));
     } finally {
       setResending(false);
     }
@@ -150,7 +152,7 @@ export default function Profile() {
     return (
       <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4">
         <div className="text-center text-zerogreen text-xl animate-pulse">
-          Loading profile...
+          {t("profile.loading")}
         </div>
       </div>
     );
@@ -219,7 +221,7 @@ export default function Profile() {
       <div className="max-w-7xl mx-auto">
         {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('message') === 'already_verified' && (
           <div className="mb-6 p-4 bg-yellow-500/20 border border-yellow-500 text-yellow-500 font-bold rounded-lg text-center">
-             Account is already verified
+             {t("profile.alreadyVerified")}
           </div>
         )}
         <Card className="bg-gradient-to-r from-zerogreen/10 via-transparent to-purple-500/10 border-2 border-zerogreen/30 mb-8">
@@ -246,46 +248,46 @@ export default function Profile() {
                       className="border-gray-600 text-gray-300"
                       onClick={() => setShowTag((prev) => !prev)}
                     >
-                      {showTag ? "Hide tag" : "Show tag"}
+                      {showTag ? t("profile.hideTag") : t("profile.showTag")}
                     </Button>
                   )}
                 </div>
                 {isAnonymous ? (
                   <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                     <Chip className="bg-gray-500/20 text-gray-400 border border-dashed border-gray-600">
-                      🔒 Solves — sign up to unlock
+                      {t("profile.solvesSignUp")}
                     </Chip>
                     <Chip className="bg-gray-500/20 text-gray-400 border border-dashed border-gray-600">
-                      🔒 Rank — sign up to unlock
+                      {t("profile.rankSignUp")}
                     </Chip>
                     <Chip className="bg-gray-500/20 text-gray-400 border border-dashed border-gray-600">
-                      🔒 Points — sign up to unlock
+                      {t("profile.pointsSignUp")}
                     </Chip>
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                     {userData.rank !== null && (
                       <Chip className="bg-yellow-500/20 text-yellow-400 font-bold">
-                        🏆 Rank #{userData.rank}
+                        {t("profile.rank", { rank: userData.rank })}
                       </Chip>
                     )}
                     <Chip className="bg-zerogreen/20 text-zerogreen font-bold">
-                      {userData.totalPoints.toLocaleString()} Points
+                      {userData.totalPoints.toLocaleString()} {t("profile.points")}
                     </Chip>
                     <Chip className="bg-blue-500/20 text-blue-400 font-bold">
-                      {userData.totalSolves} Solves
+                      {userData.totalSolves} {t("profile.solves")}
                     </Chip>
                     <Chip className="bg-red-500/20 text-red-400 font-bold">
-                      🩸 {userData.firstBloods} First Bloods
+                      {t("profile.firstBloods", { count: userData.firstBloods })}
                     </Chip>
                     {userData.isEmailVerified ? (
                       <Chip className="bg-zerogreen/20 text-zerogreen font-bold border border-zerogreen/50">
-                        ✓ Verified Account
+                        {t("profile.verifiedAccount")}
                       </Chip>
                     ) : (
                       <div className="flex items-center gap-2">
                         <Chip className="bg-orange-500/20 text-orange-400 font-bold border border-orange-500/50">
-                          ⚠ Email Not Verified
+                          {t("profile.emailNotVerified")}
                         </Chip>
                         <Button
                           size="sm"
@@ -295,7 +297,7 @@ export default function Profile() {
                           isLoading={resending}
                           onClick={handleResendVerification}
                         >
-                          Resend Email
+                          {t("profile.resendEmail")}
                         </Button>
                         {resendStatus && (
                           <span className="text-xs text-gray-400">{resendStatus}</span>
@@ -312,12 +314,12 @@ export default function Profile() {
                     href="/profile/edit"
                     className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90"
                   >
-                    Edit Profile
+                    {t("profile.editProfile")}
                   </Button>
                 )}
                 {userData.joinedDate && (
                   <p className="text-gray-500 text-sm mt-2">
-                    Joined {userData.joinedDate}
+                    {t("profile.joined")} {userData.joinedDate}
                   </p>
                 )}
               </div>
@@ -334,7 +336,7 @@ export default function Profile() {
             } transition-all duration-300 font-bold`}
             onClick={() => setActiveTab("overview")}
           >
-            Overview
+            {t("profile.overview")}
           </Button>
           <Button
             className={`${
@@ -344,7 +346,7 @@ export default function Profile() {
             } transition-all duration-300 font-bold`}
             onClick={() => setActiveTab("solved")}
           >
-            Solved Challenges
+            {t("profile.solvedChallenges")}
           </Button>
           <Button
             className={`${
@@ -354,7 +356,7 @@ export default function Profile() {
             } transition-all duration-300 font-bold`}
             onClick={() => setActiveTab("stats")}
           >
-            Statistics
+            {t("profile.statistics")}
           </Button>
           {!isAnonymous && (
             <Button
@@ -365,7 +367,7 @@ export default function Profile() {
               } transition-all duration-300 font-bold`}
               onClick={() => setActiveTab("friends")}
             >
-              Friends
+              {t("profile.friends")}
             </Button>
           )}
           {!isAnonymous && (
@@ -377,7 +379,7 @@ export default function Profile() {
               } transition-all duration-300 font-bold`}
               onClick={() => setActiveTab("teams")}
             >
-              Teams
+              {t("profile.teams")}
             </Button>
           )}
         </div>
@@ -388,51 +390,13 @@ export default function Profile() {
               <h2
                 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
               >
-                <span className="text-zerogreen">◆</span> Achievements
+                <span className="text-zerogreen">◆</span> {t("profile.recentSolves")}
               </h2>
               {isAnonymous ? (
                 <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
                   <CardBody className="text-center p-6">
                     <p className="text-gray-400 mb-3">
-                      Achievements are only available to registered users.
-                    </p>
-                    <div className="flex gap-3 justify-center">
-                      <Button
-                        as="a"
-                        href="/signup"
-                        className="bg-zerogreen text-black font-bold"
-                        size="sm"
-                      >
-                        Sign Up
-                      </Button>
-                      <Button
-                        as="a"
-                        href="/signin"
-                        variant="bordered"
-                        className="border-zerogreen text-zerogreen"
-                        size="sm"
-                      >
-                        Sign In
-                      </Button>
-                    </div>
-                  </CardBody>
-                </Card>
-              ) : (
-                <p className="text-gray-500">Coming soon.</p>
-              )}
-            </div>
-
-            <div>
-              <h2
-                className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
-              >
-                <span className="text-zerogreen">◆</span> Recent Solves
-              </h2>
-              {isAnonymous ? (
-                <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
-                  <CardBody className="text-center p-6">
-                    <p className="text-gray-400 mb-3">
-                      Recent solves are only available to registered users.
+                      {t("profile.recentSolvesSignUp")}
                     </p>
                     <div className="flex gap-3 justify-center">
                       <Button
@@ -458,7 +422,7 @@ export default function Profile() {
               ) : (
                 <>
                   {recentSolves.length === 0 && (
-                    <p className="text-gray-500">No solves yet.</p>
+                    <p className="text-gray-500">{t("profile.noSolves")}</p>
                   )}
                   <div className="space-y-3">
                     {recentSolves.map((challenge) => (
@@ -480,7 +444,7 @@ export default function Profile() {
                                     size="sm"
                                     className="bg-red-500/20 text-red-400 font-bold"
                                   >
-                                    🩸 First Blood
+                                    {t("profile.firstBloodLabel")}
                                   </Chip>
                                 )}
                               </div>
@@ -519,14 +483,14 @@ export default function Profile() {
             <h2
               className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
             >
-              <span className="text-zerogreen">◆</span> All Solved Challenges (
+              <span className="text-zerogreen">◆</span> {t("profile.allSolvedChallenges")} (
               {userData.totalSolves})
             </h2>
             {isAnonymous ? (
               <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
                 <CardBody className="text-center p-6">
                   <p className="text-gray-400 mb-3">
-                    Solved challenges are only available to registered users.
+                    {t("profile.solvedSignUp")}
                   </p>
                   <div className="flex gap-3 justify-center">
                     <Button
@@ -535,7 +499,7 @@ export default function Profile() {
                       className="bg-zerogreen text-black font-bold"
                       size="sm"
                     >
-                      Sign Up
+                      {t("profile.signUp")}
                     </Button>
                     <Button
                       as="a"
@@ -544,7 +508,7 @@ export default function Profile() {
                       className="border-zerogreen text-zerogreen"
                       size="sm"
                     >
-                      Sign In
+                      {t("profile.signIn")}
                     </Button>
                   </div>
                 </CardBody>
@@ -552,7 +516,7 @@ export default function Profile() {
             ) : (
               <>
                 {solvedChallenges.length === 0 && (
-                  <p className="text-gray-500">No solves yet.</p>
+                  <p className="text-gray-500">{t("profile.noSolves")}</p>
                 )}
                 <div className="space-y-3">
                   {solvedChallenges.map((challenge) => (
@@ -574,7 +538,7 @@ export default function Profile() {
                                   size="sm"
                                   className="bg-red-500/20 text-red-400 font-bold"
                                 >
-                                  🩸 First Blood
+                                  {t("profile.firstBloodLabel")}
                                 </Chip>
                               )}
                             </div>
@@ -613,11 +577,11 @@ export default function Profile() {
               <h2
                 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
               >
-                <span className="text-zerogreen">◆</span> Category Progress
+                <span className="text-zerogreen">◆</span> {t("profile.categoryProgress")}
               </h2>
               <div className="space-y-4">
                 {categoryStats.length === 0 && (
-                  <p className="text-gray-500">No solves yet.</p>
+                  <p className="text-gray-500">{t("profile.noSolves")}</p>
                 )}
                 {categoryStats.map((stat, index) => {
                   const maxSolved = Math.max(
@@ -635,7 +599,7 @@ export default function Profile() {
                             {stat.category}
                           </span>
                           <span className="text-gray-400">
-                            {stat.solved} solved
+                            {stat.solved} {t("profile.solved")}
                           </span>
                         </div>
                         <Progress
@@ -656,7 +620,7 @@ export default function Profile() {
               <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
                 <CardBody className="text-center p-6">
                   <p className="text-gray-400 mb-3">
-                    Detailed stats are only available to registered users.
+                    {t("profile.statsSignUp")}
                   </p>
                   <div className="flex gap-3 justify-center">
                     <Button
@@ -665,7 +629,7 @@ export default function Profile() {
                       className="bg-zerogreen text-black font-bold"
                       size="sm"
                     >
-                      Sign Up
+                      {t("profile.signUp")}
                     </Button>
                     <Button
                       as="a"
@@ -674,7 +638,7 @@ export default function Profile() {
                       className="border-zerogreen text-zerogreen"
                       size="sm"
                     >
-                      Sign In
+                      {t("profile.signIn")}
                     </Button>
                   </div>
                 </CardBody>
@@ -690,7 +654,7 @@ export default function Profile() {
         {activeTab === "teams" && !isAnonymous && (
           <div className="space-y-6">
             <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
-              <span className="text-zerogreen">◆</span> My Team
+              <span className="text-zerogreen">◆</span> {t("profile.myTeam")}
             </h2>
             {teamData ? (
               <Card className="bg-[#0f0f0f] border border-gray-800 hover:border-zerogreen/50 transition-all duration-300">
@@ -707,14 +671,14 @@ export default function Profile() {
                       <Link href={`/teams/${teamData.id}`} className="text-2xl font-bold text-white hover:text-zerogreen transition-colors">
                         {teamData.name} <span className="text-gray-500 text-lg">[{teamData.tag}]</span>
                       </Link>
-                      <p className="text-gray-500 text-sm font-mono mt-1">Click to view team page</p>
+                      <p className="text-gray-500 text-sm font-mono mt-1">{t("profile.clickViewTeam")}</p>
                     </div>
                     <Button
                       as={Link}
                       href={`/teams/${teamData.id}`}
                       className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90"
                     >
-                      View Team
+                      {t("profile.viewTeam")}
                     </Button>
                   </div>
                 </CardBody>
@@ -722,13 +686,13 @@ export default function Profile() {
             ) : (
               <Card className="bg-[#0f0f0f] border border-dashed border-gray-600">
                 <CardBody className="text-center p-8">
-                  <p className="text-gray-400 mb-4">You are not in any team yet.</p>
+                  <p className="text-gray-400 mb-4">{t("profile.notInTeam")}</p>
                   <Button
                     as={Link}
                     href="/teams"
                     className="bg-zerogreen text-black font-bold hover:bg-zerogreen/90"
                   >
-                    Browse Teams
+                    {t("profile.browseTeams")}
                   </Button>
                 </CardBody>
               </Card>

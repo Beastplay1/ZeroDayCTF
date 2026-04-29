@@ -7,12 +7,14 @@ import MatrixRainTriangle from "@/components/Matrix/MatrixRainTriangle";
 import "@/components/Matrix/matrix.css";
 import Image from "next/image";
 import flag from "../../public/home_page/flag.png";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 const bungee = Bungee({ weight: "400", subsets: ["latin"] });
 const roboto = Roboto_Mono({ subsets: ["latin"] });
 
 export default function Home() {
+  const { t } = useI18n();
   const [weeklyCount, setWeeklyCount] = useState<number>(0);
   const [dailyExpiry, setDailyExpiry] = useState<string | null>(null);
 
@@ -77,7 +79,7 @@ export default function Home() {
             textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
           }}
         >
-          Welcome to
+          {t("home.welcomeTo")}
         </span>
       </div>
       <div
@@ -183,16 +185,16 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/20 backdrop-blur-sm -z-10"></div>
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 relative text-transparent bg-clip-text bg-gradient-to-l from-gray-500 to-white z-10 leading-tight">
-            From Challenge to Mastery
+            {t("home.fromChallengeToMastery")}
           </h2>
 
           <p className="text-gray-400 text-base sm:text-lg md:text-xl font-light tracking-wide px-2 sm:px-4 relative group">
             <span className="inline-block group-hover:scale-105 transition-transform duration-300">
-              Weekly rotating challenges from real CTF competitions.
+              {t("home.tagline1")}
             </span>
             <br />
             <span className="inline-block text-cyan-400 font-medium mt-2 group-hover:text-purple-400 transition-colors duration-300">
-              One unique daily mission. No repeats.
+              {t("home.tagline2")}
             </span>
           </p>
 
@@ -200,7 +202,7 @@ export default function Home() {
           <div className="flex items-center justify-center mt-6 md:mt-8 px-4 sm:px-6 py-3 bg-black/30 backdrop-blur-sm border border-cyan-500/20 rounded-sm group hover:bg-black/40 transition-all duration-300">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
             <span className="text-sm sm:text-base text-green-400 font-mono tracking-wider group-hover:text-green-300 transition-colors">
-              24/7 ACTIVE CHALLENGES
+              {t("home.alwaysActive")}
             </span>
           </div>
         </div>
@@ -210,7 +212,7 @@ export default function Home() {
       <div className="mt-16 flex flex-col justify-center items-center px-4">
         <div className="relative mb-8 md:mb-12 overflow-visible">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-white text-center pb-2">
-            Active Challenges
+            {t("home.activeChallenges")}
           </h2>
         </div>
 
@@ -223,7 +225,7 @@ export default function Home() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
               <h3 className="text-cyan-400 text-lg sm:text-xl font-mono">
-                7-DAY CHALLENGES
+                {t("home.weeklyLabel")}
               </h3>
             </div>
             <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
@@ -239,7 +241,7 @@ export default function Home() {
               ))}
             </div>
             <p className="text-gray-400 font-mono text-xs sm:text-sm">
-              {weeklyCount} / 7 real CTF challenges active. New selection every 7 days.
+              {t("home.weeklyDesc", { count: weeklyCount })}
             </p>
           </div>
 
@@ -251,14 +253,14 @@ export default function Home() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-2 bg-purple-500 rounded-full animate-ping"></div>
               <h3 className="text-purple-400 text-lg sm:text-xl font-mono">
-                24H CHALLENGE
+                {t("home.dailyLabel")}
               </h3>
             </div>
             <div className="text-3xl sm:text-4xl font-mono text-purple-500 mb-4">
-              {dailyExpiry ? <HomeTimer expiresAt={dailyExpiry} /> : "STANDBY"}
+              {dailyExpiry ? <HomeTimer expiresAt={dailyExpiry} /> : t("home.standby")}
             </div>
             <p className="text-gray-400 font-mono text-xs sm:text-sm">
-              Daily bonus challenge. Earn extra points. Gone in 24h.
+              {t("home.dailyDesc")}
             </p>
           </div>
         </div>
@@ -269,7 +271,7 @@ export default function Home() {
     font-mono text-sm sm:text-base hover:bg-cyan-500/10 transition-all duration-300 flex items-center gap-2"
         >
           <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></span>
-          START MISSION
+          {t("home.startMission")}
         </a>
       </div>
     </>

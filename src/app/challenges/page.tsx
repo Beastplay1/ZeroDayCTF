@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardBody, CardHeader, Chip, Button } from "@heroui/react";
 import { Orbitron } from "next/font/google";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ const sevenDayChallenges: Challenge[] = [];
 const uniqueChallenges: Challenge[] = [];
 
 export default function Challenges() {
+  const { t } = useI18n();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("All");
   const [weeklyChallenges, setWeeklyChallenges] =
@@ -299,8 +301,8 @@ export default function Challenges() {
         </p>
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-500">
-            <span className="text-cyan-400 font-bold">{challenge.solves}</span>{" "}
-            solves
+            {challenge.solves}{" "}
+            {t("challenges.solves")}
           </div>
           {challenge.firstBlood && (
             <div className="text-xs text-red-400 font-bold flex items-center gap-1">
@@ -310,7 +312,7 @@ export default function Challenges() {
         </div>
         <div className="mt-auto pt-4 w-full">
           <div className="w-full bg-zerogreen/10 border border-zerogreen text-zerogreen font-bold text-center py-2 text-sm rounded-xl group-hover:bg-zerogreen group-hover:text-black transition-all duration-300">
-            View Challenge
+            {t("challenges.viewChallenge")}
           </div>
         </div>
       </CardBody>
@@ -324,10 +326,10 @@ export default function Challenges() {
           <h1
             className={`text-5xl font-bold text-white mb-4 ${orbitron.className}`}
           >
-            <span className="text-zerogreen">{">"}</span> Challenges
+            <span className="text-zerogreen">{">"}</span> {t("challenges.title")}
           </h1>
           <p className="text-gray-400 text-lg">
-            Test your skills against real CTF challenges
+            {t("challenges.subtitle")}
           </p>
         </div>
 
@@ -366,15 +368,14 @@ export default function Challenges() {
             <h2
               className={`text-3xl font-bold text-white ${orbitron.className}`}
             >
-              <span className="text-zerogreen animate-pulse">◆</span> 7-Day
-              Challenges
+              <span className="text-zerogreen animate-pulse">◆</span> {t("challenges.weeklyTitle")}
             </h2>
             <div className="h-px flex-grow bg-gradient-to-r from-transparent via-zerogreen to-transparent"></div>
           </div>
           <p className="text-center text-gray-400 mb-6">
-            These challenges run for 7 days.{" "}
+            {t("challenges.weeklyDesc")}{" "}
             <span className="text-red-400 font-bold">
-              First blood gets bonus points!
+              {t("challenges.weeklyFirstBlood")}
             </span>
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -392,7 +393,7 @@ export default function Challenges() {
           {!loadingChallenges &&
             filterChallenges(weeklyChallenges).length === 0 && (
               <div className="text-center text-gray-500 py-12">
-                No challenges found for the selected filters
+              {t("challenges.noResults")}
               </div>
             )}
         </div>
@@ -404,15 +405,14 @@ export default function Challenges() {
             <h2
               className={`text-3xl font-bold text-white ${orbitron.className}`}
             >
-              <span className="text-purple-400 animate-pulse">★</span> 24-Hour
-              Bonus Challenges
+              <span className="text-purple-400 animate-pulse">★</span> {t("challenges.dailyTitle")}
             </h2>
             <div className="h-px flex-grow bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
           </div>
           <p className="text-center text-gray-400 mb-6">
-            Special challenges refreshed every 24 hours.{" "}
+            {t("challenges.dailyDesc")}{" "}
             <span className="text-yellow-400 font-bold">
-              Top 3 get bonus points: 1st (+500), 2nd (+250), 3rd (+50)
+              {t("challenges.dailyBonus")}
             </span>
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -425,7 +425,7 @@ export default function Challenges() {
           {!loadingChallenges &&
             filterChallenges(dailyChallenges).length === 0 && (
               <div className="text-center text-gray-500 py-12">
-                No active bonus challenges right now
+              {t("challenges.noBonus")}
               </div>
             )}
         </div>
@@ -479,13 +479,13 @@ export default function Challenges() {
                 onClick={() => setActiveTab("description")}
                 className={`flex-1 py-3 text-sm font-bold transition-colors ${activeTab === "description" ? "text-zerogreen bg-zerogreen/5 border-b-2 border-zerogreen" : "text-gray-500 hover:text-gray-300"}`}
               >
-                DESCRIPTION
+                {t("challenges.description")}
               </button>
               <button
                 onClick={() => setActiveTab("hints")}
                 className={`flex-1 py-3 text-sm font-bold transition-colors ${activeTab === "hints" ? "text-zerogreen bg-zerogreen/5 border-b-2 border-zerogreen" : "text-gray-500 hover:text-gray-300"}`}
               >
-                HINTS ({hints.length})
+                {t("challenges.hints")} ({hints.length})
               </button>
             </div>
 
@@ -501,11 +501,11 @@ export default function Challenges() {
                 <div className="space-y-4 min-h-[100px]">
                   {loadingHints ? (
                     <div className="text-center py-4 animate-pulse text-gray-500 font-mono text-sm">
-                      LOADING HINTS...
+                      {t("challenges.loadingHints")}
                     </div>
                   ) : hints.length === 0 ? (
                     <div className="text-center py-4 text-gray-600 italic text-sm">
-                      No hints available for this challenge.
+                      {t("challenges.noHints")}
                     </div>
                   ) : (
                     <>
@@ -534,11 +534,11 @@ export default function Challenges() {
                                 disabled={!isAuthenticated}
                                 className="w-full py-2 bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 font-bold text-xs hover:bg-yellow-500 hover:text-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                UNLOCK HINT FOR {hint.cost} POINTS
+                                {t("challenges.unlockHint", { cost: hint.cost })}
                               </button>
                               {!isAuthenticated && (
                                 <p className="text-[10px] text-yellow-500/70 text-center font-mono italic">
-                                  [!] Please sign in to unlock hints
+                                  {t("challenges.signInForHints")}
                                 </p>
                               )}
                             </div>
@@ -553,17 +553,13 @@ export default function Challenges() {
 
               <div className="flex gap-4 text-sm text-gray-500">
                 <span>
-                  Solves:{" "}
-                  <span className="text-cyan-400 font-bold">
-                    {selectedChallenge.solves}
-                  </span>
+                  {t("challenges.solves")}:{" "}
+                  <span className="text-cyan-400 font-bold">{selectedChallenge.solves}</span>
                 </span>
                 {selectedChallenge.firstBlood && (
                   <span className="text-red-400">
-                    🩸 First blood:{" "}
-                    <span className="font-bold">
-                      {selectedChallenge.firstBlood}
-                    </span>
+                    🩸 {t("challenges.firstBlood")}:{" "}
+                    <span className="font-bold">{selectedChallenge.firstBlood}</span>
                   </span>
                 )}
               </div>
@@ -594,51 +590,39 @@ export default function Challenges() {
                     }
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleFlagSubmit()}
-                  placeholder="zerodayctf{...}"
+                  placeholder={t("challenges.placeholder")}
                   className="w-full bg-black border border-gray-700 focus:border-zerogreen outline-none px-4 py-2 text-white font-mono text-sm placeholder:text-gray-600 transition-colors"
                 />
                 {submitStatus === "correct" && (
                   <p className="text-green-400 font-mono text-xs">
-                    ✓ Correct flag!
+                    {t("challenges.correct")}
                   </p>
                 )}
                 {submitStatus === "wrong" && (
-                  <p className="text-red-400 font-mono text-xs">
-                    ✗ Wrong flag. Try again.
-                  </p>
+                  <p className="text-red-400 font-mono text-xs">{t("challenges.incorrect")}</p>
                 )}
                 {submitStatus === "already_solved" && (
-                  <p className="text-yellow-400 font-mono text-xs">
-                    ⚡ Already solved.
-                  </p>
+                  <p className="text-yellow-400 font-mono text-xs">{t("challenges.alreadySolved")}</p>
                 )}
                 {submitStatus === "invalid_format" && (
-                  <p className="text-orange-400 font-mono text-xs">
-                    ✗ Invalid format. Expected: zerodayctf&#123;...&#125;
-                  </p>
+                  <p className="text-orange-400 font-mono text-xs">{t("challenges.invalidFormat")}</p>
                 )}
                 {submitStatus === "unauthenticated" && (
                   <p className="text-yellow-400 font-mono text-xs">
-                    ⚠ You must be{" "}
-                    <a
-                      href="/signin"
-                      className="underline hover:text-yellow-300"
-                    >
-                      signed in
+                    ⚠ {t("challenges.mustSignIn")}{" "}
+                    <a href="/signin" className="underline hover:text-yellow-300">
+                      {t("challenges.signedIn")}
                     </a>{" "}
-                    to submit this challenge.
+                    {t("challenges.toSubmit")}
                   </p>
                 )}
                 {submitStatus === "guest_restricted" && (
                   <p className="text-yellow-400 font-mono text-xs">
-                    ⚠ Guest accounts can submit only 7-day challenges.{" "}
-                    <a
-                      href="/signup"
-                      className="underline hover:text-yellow-300"
-                    >
-                      Sign up
+                    ⚠ {t("challenges.guestRestricted")}{" "}
+                    <a href="/signup" className="underline hover:text-yellow-300">
+                      {t("challenges.signUpTo")}
                     </a>{" "}
-                    to submit daily challenges.
+                    {t("challenges.toSubmitDaily")}
                   </p>
                 )}
                 <button
@@ -646,7 +630,7 @@ export default function Challenges() {
                   disabled={submitStatus === "loading"}
                   className="w-full py-2 bg-zerogreen/10 border border-zerogreen text-zerogreen font-bold font-mono text-sm hover:bg-zerogreen hover:text-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {submitStatus === "loading" ? "CHECKING..." : "SUBMIT FLAG"}
+                  {submitStatus === "loading" ? t("challenges.checking") : t("challenges.submit")}
                 </button>
               </div>
             </div>
@@ -672,11 +656,10 @@ export default function Challenges() {
               <h2
                 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}
               >
-                Challenge Solved!
+                {t("challenges.guestSolvedTitle")}
               </h2>
               <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                You just solved this challenge as a <span className="text-zerogreen font-bold">guest</span>! 
-                Your progress is saved for 24 hours. Create an account to permanently save your solves, get on the leaderboard, and unlock daily challenges.
+                {t("challenges.guestSolvedDesc")}
               </p>
               
               <div className="flex flex-col gap-3">
@@ -684,13 +667,13 @@ export default function Challenges() {
                   href="/signup"
                   className="w-full py-3 bg-zerogreen text-black font-bold font-mono text-sm hover:bg-green-400 transition-colors rounded-sm shadow-[0_0_15px_rgba(0,255,0,0.3)]"
                 >
-                  SIGN UP NOW
+                  {t("challenges.signUpNow")}
                 </a>
                 <button
                   onClick={() => setShowGuestCTA(false)}
                   className="w-full py-2 text-gray-500 hover:text-white font-mono text-xs transition-colors"
                 >
-                  Continue as Guest
+                  {t("challenges.continueAsGuest")}
                 </button>
               </div>
             </div>

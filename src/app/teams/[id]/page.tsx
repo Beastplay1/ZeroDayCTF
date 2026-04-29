@@ -4,6 +4,7 @@ import { Card, CardBody, Button } from "@heroui/react";
 import Link from "next/link";
 import { Orbitron, Roboto_Mono } from "next/font/google";
 import { UserSearch } from "@/components/UserSearch";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 const robotoMono = Roboto_Mono({ subsets: ["latin"] });
@@ -11,6 +12,7 @@ const robotoMono = Roboto_Mono({ subsets: ["latin"] });
 export default function TeamDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
   const teamId = unwrappedParams.id;
+  const { t } = useI18n();
   
   const [team, setTeam] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +60,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
   }, [teamId]);
 
   const handleLeaveTeam = async () => {
-    if (!confirm("Are you sure you want to leave this team?")) return;
+    if (!confirm(t("teamDetail.leaveConfirm"))) return;
     setIsLeaving(true);
     try {
       const res = await fetch("/api/teams/leave", { method: "POST" });
@@ -76,7 +78,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
   };
 
   const handleDisbandTeam = async () => {
-    if (!confirm("Are you sure you want to DISBAND this team? This action is irreversible and all members will be removed.")) return;
+    if (!confirm(t("teamDetail.disbandConfirm"))) return;
     setIsDisbanding(true);
     try {
       const res = await fetch("/api/teams/disband", {
@@ -111,7 +113,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
       const data = await res.json();
 
       if (res.ok) {
-        setInviteSuccess(`Invite sent to ${user.username}${user.userTag ? '#' + user.userTag : ''}!`);
+        setInviteSuccess(t("teamDetail.inviteSent").replace("{username}", `${user.username}${user.userTag ? '#' + user.userTag : ''}`));
       } else {
         setInviteError(data.error || "Failed to send invite");
       }
@@ -134,7 +136,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
       const res = await fetch(`/api/teams/${teamId}/apply`, { method: "POST" });
       const data = await res.json();
       if (res.ok) {
-        setApplyMessage("Application sent successfully!");
+        setApplyMessage(t("teamDetail.applicationSent"));
       } else {
         setApplyMessage(data.error || "Failed to send application");
       }
@@ -145,8 +147,8 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-white font-mono">Loading team...</div>;
-  if (error || !team) return <div className="min-h-screen flex items-center justify-center text-red-500 font-mono text-xl">{error || "Team not found"}</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-white font-mono">{t("teamDetail.loadingTeam")}</div>;
+  if (error || !team) return <div className="min-h-screen flex items-center justify-center text-red-500 font-mono text-xl">{error || t("teamDetail.teamNotFound")}</div>;
 
   const isCaptain = sessionUser?.id === team.captainId;
   const isMember = team.members.some((m: any) => m.id === sessionUser?.id);
@@ -155,7 +157,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
     <div className="min-h-screen py-12 px-4">
       <div className="max-w-5xl mx-auto">
         <Link href="/teams" className="text-zerogreen hover:text-white font-mono mb-8 inline-block transition-colors">
-          ← Back to Teams
+          {t("teamDetail.backToTeams")}
         </Link>
         
         <Card className="bg-gradient-to-r from-zerogreen/10 via-transparent to-blue-500/10 border-2 border-zerogreen/30 mb-8">
@@ -178,13 +180,13 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
                 
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 font-mono">
                   <div className="bg-blue-900/40 border border-blue-700/50 text-blue-400 px-4 py-1.5 rounded-sm">
-                    {team.totalPoints} Points
+                    {team.totalPoints} {t("teamDetail.points")}
                   </div>
                   <div className="bg-purple-900/40 border border-purple-700/50 text-purple-400 px-4 py-1.5 rounded-sm">
-                    {team.totalSolves} Solves
+                    {team.totalSolves} {t("teamDetail.solves")}
                   </div>
                   <div className="bg-gray-800/40 border border-gray-700/50 text-gray-400 px-4 py-1.5 rounded-sm">
-                    Founded {new Date(team.createdAt).toLocaleDateString()}
+                    {t("teamDetail.founded")} {new Date(team.createdAt).toLocaleDateString()}
                   </div>
                 </div>
               </div>
@@ -195,7 +197,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
                     href="/signin"
                     className="border-2 border-zerogreen text-zerogreen font-mono hover:bg-zerogreen/10 px-4 py-2 rounded-lg text-center transition-colors"
                   >
-                    Sign Up / Sign In to Join
+                    {t("teamDetail.signInToJoin")}
                   </Link>
                 )}
                 {!isMember && sessionUser && (
@@ -206,7 +208,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
                       onClick={handleApplyToJoin}
                       disabled={isApplying}
                     >
-                      {isApplying ? "Applying..." : "Apply to Join"}
+                      {isApplying ? t("teamDetail.applying") : t("teamDetail.applyToJoin")}
                     </Button>
                     {applyMessage && <span className="text-xs font-mono text-gray-400 text-right">{applyMessage}</span>}
                   </div>
@@ -218,7 +220,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
                     onClick={handleLeaveTeam}
                     disabled={isLeaving}
                   >
-                    {isLeaving ? "Leaving..." : "Leave Team"}
+                    {isLeaving ? t("teamDetail.leaving") : t("teamDetail.leaveTeam")}
                   </Button>
                 )}
                 {isCaptain && (
@@ -228,7 +230,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
                     onClick={handleDisbandTeam}
                     disabled={isDisbanding}
                   >
-                    {isDisbanding ? "Disbanding..." : "Disband Team"}
+                    {isDisbanding ? t("teamDetail.disbanding") : t("teamDetail.disbandTeam")}
                   </Button>
                 )}
               </div>
@@ -238,7 +240,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
 
         <div className="mb-6 flex justify-between items-center">
           <h2 className={`text-2xl font-bold text-white ${orbitron.className}`}>
-            <span className="text-zerogreen">◆</span> Members ({team.members.length})
+            <span className="text-zerogreen">◆</span> {t("teamDetail.members")} ({team.members.length})
           </h2>
           {isCaptain && (
             <div className="flex gap-2">
@@ -248,13 +250,13 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
                 variant="bordered"
                 className="border-zerogreen text-zerogreen font-bold font-mono"
               >
-                Edit Team
+                {t("teamDetail.editTeam")}
               </Button>
               <Button
                 className="bg-zerogreen text-black font-bold font-mono"
                 onClick={() => { setShowInviteModal(true); setInviteError(""); setInviteSuccess(""); setSelectedUserToInvite(null); }}
               >
-                Invite Player
+                {t("teamDetail.invitePlayer")}
               </Button>
             </div>
           )}
@@ -271,14 +273,14 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
                 ✕
               </button>
               <h2 className={`text-2xl font-bold text-white mb-2 ${orbitron.className}`}>
-                Invite Player
+                {t("teamDetail.invitePlayer")}
               </h2>
               <p className="text-gray-500 font-mono text-sm mb-6">
-                Search for a user and select them to invite.
+                {t("teamDetail.searchUserToInvite")}
               </p>
 
               <UserSearch
-                placeholder="Search player..."
+                placeholder={t("teamDetail.searchPlayer")}
                 searchType="users"
                 onSelect={(user) => {
                   setSelectedUserToInvite(user);
@@ -299,7 +301,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
                     size="sm"
                     className="bg-zerogreen text-black font-bold font-mono"
                   >
-                    {isInviting ? "Sending..." : "Send Invite"}
+                    {isInviting ? t("teamDetail.sending") : t("teamDetail.sendInvite")}
                   </Button>
                 </div>
               )}

@@ -3,20 +3,15 @@ import { useState } from "react";
 import axios from "axios";
 import { signIn, SessionProvider } from "next-auth/react";
 import { validateEmail } from "@/lib/validations/validateEmail";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-  Button,
-  Checkbox,
-} from "@heroui/react";
+import { Card, CardBody, CardHeader, Input, Button, Checkbox } from "@heroui/react";
 import { Orbitron } from "next/font/google";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
 export default function SignIn() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -59,12 +54,10 @@ export default function SignIn() {
             </div>
           )}
           <div className="text-center mb-8">
-            <h1
-              className={`text-4xl font-bold text-white mb-2 ${orbitron.className}`}
-            >
-              <span className="text-zerogreen">{">"}</span> Access Terminal
+            <h1 className={`text-4xl font-bold text-white mb-2 ${orbitron.className}`}>
+              <span className="text-zerogreen">{">"}</span> {t("signin.title")}
             </h1>
-            <p className="text-gray-400">Enter your credentials to continue</p>
+            <p className="text-gray-400">{t("signin.subtitle")}</p>
           </div>
 
           <Card className="bg-[#0a0a0a] border-2 border-zerogreen/30 shadow-xl shadow-zerogreen/10">
@@ -72,10 +65,8 @@ export default function SignIn() {
               <div className="w-full">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-zerogreen animate-pulse">█</span>
-                  <span
-                    className={`text-zerogreen font-bold ${orbitron.className}`}
-                  >
-                    AUTHENTICATION REQUIRED
+                  <span className={`text-zerogreen font-bold ${orbitron.className}`}>
+                    {t("signin.authRequired")}
                   </span>
                 </div>
                 <div className="h-px bg-gradient-to-r from-zerogreen via-zerogreen/50 to-transparent mb-4"></div>
@@ -86,7 +77,7 @@ export default function SignIn() {
                 <div>
                   <Input
                     type="email"
-                    label="Email"
+                    label={t("signin.email")}
                     placeholder="hacker@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -105,7 +96,7 @@ export default function SignIn() {
                 <div>
                   <Input
                     type="password"
-                    label="Password"
+                    label={t("signin.password")}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -125,19 +116,12 @@ export default function SignIn() {
                   <Checkbox
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    classNames={{
-                      wrapper:
-                        "border-zerogreen data-[selected=true]:bg-zerogreen",
-                      label: "text-gray-400 text-sm",
-                    }}
+                    classNames={{ wrapper: "border-zerogreen data-[selected=true]:bg-zerogreen", label: "text-gray-400 text-sm" }}
                   >
-                    Remember me
+                    {t("signin.rememberMe")}
                   </Checkbox>
-                  <Link
-                    href="/forgot-password"
-                    className="text-zerogreen hover:text-zerogreen/80 text-sm transition-colors"
-                  >
-                    Forgot password?
+                  <Link href="/forgot-password" className="text-zerogreen hover:text-zerogreen/80 text-sm transition-colors">
+                    {t("signin.forgotPassword")}
                   </Link>
                 </div>
 
@@ -154,7 +138,7 @@ export default function SignIn() {
                   className="w-full bg-zerogreen text-black font-bold text-lg hover:bg-zerogreen/90 transition-all duration-300 mt-6"
                   size="lg"
                 >
-                  <span className={orbitron.className}>AUTHENTICATE</span>
+                  <span className={orbitron.className}>{t("signin.authenticate")}</span>
                 </Button>
 
                 <div className="relative my-6">
@@ -162,7 +146,7 @@ export default function SignIn() {
                     <div className="w-full border-t border-gray-700"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-[#0a0a0a] text-gray-500">OR</span>
+                    <span className="px-2 bg-[#0a0a0a] text-gray-500">{t("signin.or")}</span>
                   </div>
                 </div>
 
@@ -175,27 +159,22 @@ export default function SignIn() {
                     variant="bordered"
                     startContent={<span>🔐</span>}
                   >
-                    Continue with GitHub
+                    {t("signin.continueWithGithub")}
                   </Button>
                   <Button
-                    onClick={() =>
-                      signIn("google", { callbackUrl: "/profile" })
-                    }
+                    onClick={() => signIn("google", { callbackUrl: "/profile" })}
                     className="w-full bg-[#0f0f0f] border border-gray-700 hover:border-gray-500 text-white"
                     variant="bordered"
                     startContent={<span>🌐</span>}
                   >
-                    Continue with Google
+                    {t("signin.continueWithGoogle")}
                   </Button>
                 </div>
 
                 <div className="text-center mt-6">
-                  <span className="text-gray-400">New to ZeroDayCTF? </span>
-                  <Link
-                    href="/signup"
-                    className="text-zerogreen hover:text-zerogreen/80 font-bold transition-colors"
-                  >
-                    Create account
+                  <span className="text-gray-400">{t("signin.newToZeroday")} </span>
+                  <Link href="/signup" className="text-zerogreen hover:text-zerogreen/80 font-bold transition-colors">
+                    {t("signin.createAccount")}
                   </Link>
                 </div>
               </form>
@@ -205,10 +184,10 @@ export default function SignIn() {
           <div
             className={`text-center mt-6 text-gray-600 text-xs ${orbitron.className}`}
           >
-            <p>[ SECURE CONNECTION ESTABLISHED ]</p>
+            <p>[ {t("signin.secureConnection")} ]</p>
             <p className="mt-1 flex items-center justify-center gap-2">
               <span className="w-2 h-2 bg-zerogreen rounded-full animate-pulse"></span>
-              ENCRYPTED WITH AES-256
+              {t("signin.encrypted")}
             </p>
           </div>
         </div>

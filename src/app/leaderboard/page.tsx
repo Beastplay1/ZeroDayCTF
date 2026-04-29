@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardBody, Chip, Button } from "@heroui/react";
 import { Orbitron, Roboto_Mono } from "next/font/google";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 const robotoMono = Roboto_Mono({ subsets: ["latin"] });
@@ -15,6 +16,7 @@ interface LeaderboardEntry {
 }
 
 export default function Leaderboard() {
+  const { t } = useI18n();
   const [timeframe, setTimeframe] = useState<"all-time" | "monthly" | "weekly">("all-time");
   const [type, setType] = useState<"users" | "teams">("users");
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
@@ -67,35 +69,27 @@ export default function Leaderboard() {
           <h1
             className={`text-5xl font-bold text-white mb-4 ${orbitron.className}`}
           >
-            <span className="text-zerogreen">{">"}</span> Leaderboard
+            {t("leaderboard.title")}
           </h1>
           <p className="text-gray-400 text-lg">
-            The elite hackers who conquered the challenges
+            {t("leaderboard.subtitle")}
           </p>
         </div>
 
         {isLoggedIn === false && (
           <div className="mb-8 border border-zerogreen/40 bg-zerogreen/5 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p
-              className={`text-zerogreen font-mono text-sm ${robotoMono.className}`}
-            >
+            <p className={`text-zerogreen font-mono text-sm ${robotoMono.className}`}>
               <span className="text-white font-bold">
-                Want to appear on the leaderboard?
+                {t("leaderboard.wantToAppear")}
               </span>{" "}
-              Create an account, or sign in if you already have one.
+              {t("leaderboard.createOrSignIn")}
             </p>
             <div className="flex gap-3 shrink-0">
-              <a
-                href="/signup"
-                className="px-4 py-2 bg-zerogreen text-black font-bold font-mono text-sm hover:bg-zerogreen/80 transition-colors"
-              >
-                Sign Up
+              <a href="/signup" className="px-4 py-2 bg-zerogreen text-black font-bold font-mono text-sm hover:bg-zerogreen/80 transition-colors">
+                {t("nav.signUp")}
               </a>
-              <a
-                href="/signin"
-                className="px-4 py-2 border border-zerogreen text-zerogreen font-bold font-mono text-sm hover:bg-zerogreen/10 transition-colors"
-              >
-                Sign In
+              <a href="/signin" className="px-4 py-2 border border-zerogreen text-zerogreen font-bold font-mono text-sm hover:bg-zerogreen/10 transition-colors">
+                {t("nav.signIn")}
               </a>
             </div>
           </div>
@@ -115,7 +109,7 @@ export default function Leaderboard() {
               }`}
               onClick={() => setType("users")}
             >
-              Users
+              {t("leaderboard.users")}
             </button>
             <button
               className={`relative z-10 px-6 py-2 rounded-md font-bold duration-300 ${
@@ -123,7 +117,7 @@ export default function Leaderboard() {
               }`}
               onClick={() => setType("teams")}
             >
-              Teams
+              {t("leaderboard.teams")}
             </button>
           </div>
 
@@ -138,7 +132,7 @@ export default function Leaderboard() {
               } transition-all duration-300 font-bold`}
               onClick={() => setTimeframe("all-time")}
             >
-              All Time
+              {t("leaderboard.allTime")}
             </Button>
             <Button
               size="md"
@@ -149,7 +143,7 @@ export default function Leaderboard() {
               } transition-all duration-300 font-bold`}
               onClick={() => setTimeframe("monthly")}
             >
-              Monthly
+              {t("leaderboard.monthly")}
             </Button>
             <Button
               size="md"
@@ -160,7 +154,7 @@ export default function Leaderboard() {
               } transition-all duration-300 font-bold`}
               onClick={() => setTimeframe("weekly")}
             >
-              Weekly
+              {t("leaderboard.weekly")}
             </Button>
           </div>
         </div>
@@ -172,30 +166,20 @@ export default function Leaderboard() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-zerogreen/30 bg-zerogreen/10">
-                      <th
-                        className={`text-left p-4 text-zerogreen font-bold ${orbitron.className}`}
-                      >
-                        Rank
+                      <th className={`text-left p-4 text-zerogreen font-bold ${orbitron.className}`}>
+                        {t("leaderboard.rank")}
                       </th>
-                      <th
-                        className={`text-left p-4 text-zerogreen font-bold ${orbitron.className}`}
-                      >
-                        {type === "users" ? "Player" : "Team"}
+                      <th className={`text-left p-4 text-zerogreen font-bold ${orbitron.className}`}>
+                        {type === "users" ? t("leaderboard.player") : t("leaderboard.team")}
                       </th>
-                      <th
-                        className={`text-center p-4 text-zerogreen font-bold ${orbitron.className}`}
-                      >
-                        Points
+                      <th className={`text-center p-4 text-zerogreen font-bold ${orbitron.className}`}>
+                        {t("leaderboard.points")}
                       </th>
-                      <th
-                        className={`text-center p-4 text-zerogreen font-bold ${orbitron.className}`}
-                      >
-                        Solves
+                      <th className={`text-center p-4 text-zerogreen font-bold ${orbitron.className}`}>
+                        {t("leaderboard.solves")}
                       </th>
-                      <th
-                        className={`text-center p-4 text-zerogreen font-bold ${orbitron.className}`}
-                      >
-                        First Bloods
+                      <th className={`text-center p-4 text-zerogreen font-bold ${orbitron.className}`}>
+                        {t("leaderboard.firstBloods")}
                       </th>
                     </tr>
                   </thead>
@@ -213,11 +197,8 @@ export default function Leaderboard() {
                       ))
                     ) : leaderboardData.length === 0 ? (
                       <tr>
-                        <td
-                          colSpan={5}
-                          className="p-12 text-center text-gray-500"
-                        >
-                          No solves yet. Be the first!
+                        <td colSpan={5} className="p-12 text-center text-gray-500">
+                          {t("leaderboard.noSolves")}
                         </td>
                       </tr>
                     ) : (
@@ -280,10 +261,8 @@ export default function Leaderboard() {
             <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border-2 border-yellow-500">
               <CardBody className="text-center py-8">
                 <div className="text-5xl mb-3">🥇</div>
-                <h3
-                  className={`text-2xl font-bold text-yellow-400 mb-2 ${orbitron.className}`}
-                >
-                  1st Place
+                <h3 className={`text-2xl font-bold text-yellow-400 mb-2 ${orbitron.className}`}>
+                  {t("leaderboard.place1")}
                 </h3>
                 <p
                   className={`text-white text-xl font-bold ${robotoMono.className}`}
@@ -299,10 +278,8 @@ export default function Leaderboard() {
             <Card className="bg-gradient-to-br from-gray-300/10 to-gray-400/10 border-2 border-gray-400">
               <CardBody className="text-center py-8">
                 <div className="text-5xl mb-3">🥈</div>
-                <h3
-                  className={`text-2xl font-bold text-gray-300 mb-2 ${orbitron.className}`}
-                >
-                  2nd Place
+                <h3 className={`text-2xl font-bold text-gray-300 mb-2 ${orbitron.className}`}>
+                  {t("leaderboard.place2")}
                 </h3>
                 <p
                   className={`text-white text-xl font-bold ${robotoMono.className}`}
@@ -318,10 +295,8 @@ export default function Leaderboard() {
             <Card className="bg-gradient-to-br from-orange-600/10 to-orange-700/10 border-2 border-orange-600">
               <CardBody className="text-center py-8">
                 <div className="text-5xl mb-3">🥉</div>
-                <h3
-                  className={`text-2xl font-bold text-orange-400 mb-2 ${orbitron.className}`}
-                >
-                  3rd Place
+                <h3 className={`text-2xl font-bold text-orange-400 mb-2 ${orbitron.className}`}>
+                  {t("leaderboard.place3")}
                 </h3>
                 <p
                   className={`text-white text-xl font-bold ${robotoMono.className}`}
