@@ -13,15 +13,8 @@ export default function About() {
     { icon: "⚡", titleKey: "about.f2Title", descKey: "about.f2Desc" },
     { icon: "🏆", titleKey: "about.f3Title", descKey: "about.f3Desc" },
     { icon: "📚", titleKey: "about.f4Title", descKey: "about.f4Desc" },
-    { icon: "🔥", titleKey: "about.f5Title", descKey: "about.f5Desc" },
+    { icon: "👥", titleKey: "about.f5Title", descKey: "about.f5Desc" },
     { icon: "🎓", titleKey: "about.f6Title", descKey: "about.f6Desc" },
-  ];
-
-  const stats = [
-    { number: "10,000+", labelKey: "about.activeHackers" },
-    { number: "500+",    labelKey: "about.challenges" },
-    { number: "24/7",    labelKey: "about.newContent" },
-    { number: "100+",    labelKey: "about.countries" },
   ];
 
   return (
@@ -121,26 +114,7 @@ export default function About() {
           </div>
         </div>
 
-        <div className="mb-16">
-          <h2 className={`text-3xl font-bold text-white text-center mb-8 ${orbitron.className}`}>
-            <span className="text-zerogreen">{">"}</span> {t("about.byTheNumbers")}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <Card
-                key={index}
-                className="bg-[#0f0f0f] border border-zerogreen/30 hover:border-zerogreen transition-all duration-300"
-              >
-                <CardBody className="text-center py-8">
-                  <div className={`text-4xl font-bold text-zerogreen mb-2 ${orbitron.className}`}>
-                    {stat.number}
-                  </div>
-                  <div className="text-gray-400">{t(stat.labelKey)}</div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        </div>
+
 
         <div className="text-center">
           <Card className="bg-gradient-to-r from-zerogreen/10 via-transparent to-purple-500/10 border-2 border-zerogreen/30">

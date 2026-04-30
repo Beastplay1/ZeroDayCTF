@@ -58,7 +58,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await fetch("/api/auth/session");
+        const res = await fetch("/api/auth/session", { cache: "no-store" });
         const data = await res.json();
         setIsLoggedIn(Boolean(data.authenticated));
       } catch (e) {

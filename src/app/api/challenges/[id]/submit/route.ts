@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionFromCookies } from "@/lib/auth/session";
+import { getVerifiedSessionFromCookies } from "@/lib/auth/session";
 import { getChallengeById, recordSolve } from "@/lib/storage/challengeStore";
 import { mongoFindOne, mongoInsertOne, mongoUpdateOne } from "@/lib/db/mongodb";
 import { ObjectId } from "mongodb";
@@ -19,7 +19,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSessionFromCookies();
+  const session = await getVerifiedSessionFromCookies();
 
   const { id } = await params;
   const body = await req.json();

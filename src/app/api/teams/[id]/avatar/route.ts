@@ -52,7 +52,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const filePath = path.join(uploadDir, filename);
     await fs.writeFile(filePath, buffer);
 
-    const avatarUrl = `/team_avatars/${filename}`;
+    const avatarUrl = `/api/images/team_avatars/${filename}`;
 
     await mongoUpdateOne("teams", { _id: new ObjectId(id) as any }, { $set: { avatarUrl } } as any);
 

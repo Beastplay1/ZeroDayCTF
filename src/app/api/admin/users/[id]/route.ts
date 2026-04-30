@@ -15,6 +15,7 @@ interface UserDoc {
   email: string;
   salt: string;
   passwordHash: string;
+  teamId?: string;
 }
 
 interface SolveDoc {
@@ -84,7 +85,30 @@ export async function DELETE(
   // 3. Удалить все solve'ы пользователя
   await mongoDeleteMany("solves", { userId });
 
-  // 4. Удалить самого пользователя
+  // 4. Удалить unlocked_hints пользователя
+  await mongoDeleteMany("unlocked_hints", { userId });
+
+  // 5. Удалить уведомления пользователя
+  await mongoDeleteMany("notifications", { userId });
+  await mongoDeleteMany("notifications", { "data.senderId": userId });
+
+  // 6. Удалить пользователя из списков друзей других юзеров
+  await mongoUpdateOne(
+    "users",
+    { friends: userId } as unknown as Record<string, unknown>,
+    { $pull: { friends: userId } } as unknown as Record<string, unknown>,
+  );
+
+  // 7. Снять пользователя из команды если был
+  if (user.teamId) {
+    await mongoUpdateOne(
+      "teams",
+      { _id: new ObjectId(user.teamId) as unknown as Record<string, unknown> },
+      { $pull: { members: userId } } as unknown as Record<string, unknown>,
+    );
+  }
+
+  // 8. Удалить самого пользователя
   await mongoDeleteOne("users", { id: userId });
 
   return NextResponse.json({ success: true, deleted: user.username });

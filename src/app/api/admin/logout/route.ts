@@ -12,7 +12,7 @@ export const POST = async () => {
     value: "",
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && process.env.REQUIRE_HTTPS === "true",
     path: "/",
     expires: new Date(0),
   });

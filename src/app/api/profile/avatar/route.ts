@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const filePath = path.join(uploadDir, filename);
     await fs.writeFile(filePath, buffer);
 
-    const avatarUrl = `/avatars/${filename}`;
+    const avatarUrl = `/api/images/avatars/${filename}`;
 
     await updateUser(session.userId, { avatarUrl });
 

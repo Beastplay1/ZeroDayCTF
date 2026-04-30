@@ -24,9 +24,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (currentUser.teamsCreated && currentUser.teamsCreated >= 2) {
-      return NextResponse.json({ error: "You have reached the maximum limit of creating 2 teams." }, { status: 403 });
-    }
 
     if (currentUser.teamId) {
       return NextResponse.json({ error: "You are already in a team" }, { status: 400 });

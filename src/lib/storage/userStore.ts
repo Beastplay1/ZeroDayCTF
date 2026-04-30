@@ -131,14 +131,28 @@ export async function saveUser({
     const existingEmail = await mongoFindOne<StoredUser>("users", { email });
     if (existingEmail) throwDuplicateError("email");
 
+    // Get max ID from users collection
     const latestUser = await mongoFindMany<StoredUser>(
       "users",
       {},
       { id: -1 },
       1,
     );
+    const maxUserTableId = latestUser[0]?.id || 0;
+
+    // Also check max userId in solves to avoid reusing IDs of deleted users
+    const latestSolve = await mongoFindMany<{ userId: number }>(
+      "solves",
+      {},
+      { userId: -1 },
+      1,
+    );
+    const maxSolveUserId = latestSolve[0]?.userId || 0;
+
+    const maxId = Math.max(maxUserTableId, maxSolveUserId);
+
     const newUser = await createStoredUser(
-      latestUser[0]?.id || 0,
+      maxId,
       username,
       email,
       password,

@@ -95,7 +95,7 @@ export const POST = async (request: NextRequest) => {
     value: token,
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && process.env.REQUIRE_HTTPS === "true",
     path: "/",
     maxAge: 60 * 60 * 8,
   });

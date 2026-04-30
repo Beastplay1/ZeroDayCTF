@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Card, CardBody } from "@heroui/react";
 import Link from "next/link";
 import { Orbitron } from "next/font/google";
+import { useI18n } from "@/lib/i18n/context";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
@@ -24,6 +25,7 @@ interface Friend {
 }
 
 export function FriendsTab() {
+  const { t } = useI18n();
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,18 +67,18 @@ export function FriendsTab() {
     }
   };
 
-  if (loading) return <div className="text-gray-400 font-mono">Loading friends...</div>;
-  if (error) return <div className="text-red-400 font-mono">{error}</div>;
+  if (loading) return <div className="text-gray-400 font-mono">{t("profile.loadingFriends")}</div>;
+  if (error) return <div className="text-red-400 font-mono">{t("profile.errorLoadingFriends")}</div>;
 
   return (
     <div className="space-y-8">
       {/* Pending Requests */}
       <div>
         <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
-          <span className="text-zerogreen">◆</span> Friend Requests
+          <span className="text-zerogreen">◆</span> {t("profile.friendRequests")}
         </h2>
         {requests.length === 0 ? (
-          <p className="text-gray-500 font-mono italic">No pending requests.</p>
+          <p className="text-gray-500 font-mono italic">{t("profile.noPendingRequests")}</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {requests.map((req) => (
@@ -85,7 +87,7 @@ export function FriendsTab() {
                   <div className="font-mono">
                     <span className="text-white font-bold">{req.data.senderUsername}</span>
                     {req.data.senderTag && <span className="text-gray-500">#{req.data.senderTag}</span>}
-                    <div className="text-xs text-gray-500 mt-1">wants to be your friend</div>
+                    <div className="text-xs text-gray-500 mt-1">{t("profile.wantsToBeFriend")}</div>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -93,7 +95,7 @@ export function FriendsTab() {
                       className="bg-zerogreen text-black font-bold font-mono"
                       onClick={() => handleRequest(req._id, "accept")}
                     >
-                      Accept
+                      {t("profile.accept")}
                     </Button>
                     <Button
                       size="sm"
@@ -101,7 +103,7 @@ export function FriendsTab() {
                       className="border-red-500/50 text-red-400 hover:bg-red-500/10 font-mono"
                       onClick={() => handleRequest(req._id, "reject")}
                     >
-                      Reject
+                      {t("profile.reject")}
                     </Button>
                   </div>
                 </CardBody>
@@ -114,10 +116,10 @@ export function FriendsTab() {
       {/* Friends List */}
       <div>
         <h2 className={`text-2xl font-bold text-white mb-4 ${orbitron.className}`}>
-          <span className="text-zerogreen">◆</span> My Friends
+          <span className="text-zerogreen">◆</span> {t("profile.myFriends")}
         </h2>
         {friends.length === 0 ? (
-          <p className="text-gray-500 font-mono italic">You don't have any friends yet.</p>
+          <p className="text-gray-500 font-mono italic">{t("profile.noFriendsYet")}</p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {friends.map((friend) => (

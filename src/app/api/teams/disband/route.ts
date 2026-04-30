@@ -25,6 +25,13 @@ export async function POST(req: NextRequest) {
       { $unset: { teamId: "" } } as any
     );
 
+    // Decrement teamsCreated for the captain so they can create a new team
+    await mongoUpdateMany(
+      "users",
+      { id: team.captainId },
+      { $inc: { teamsCreated: -1 } } as any
+    );
+
     // Delete the team
     await mongoDeleteOne("teams", { _id: new ObjectId(teamId) as any });
 

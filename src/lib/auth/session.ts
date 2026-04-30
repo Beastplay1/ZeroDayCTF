@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { cookies } from "next/headers";
 import type { UserRole } from "@/lib/storage/userStore";
+import { mongoFindOne } from "@/lib/db/mongodb";
 
 const SESSION_COOKIE = "zeroday_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
@@ -61,7 +62,19 @@ export function parseSessionToken(token: string | undefined): SessionPayload | n
 export async function getSessionFromCookies(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
-  return parseSessionToken(token);
+  const session = parseSessionToken(token);
+  if (!session) return null;
+
+  // Verify user still exists in DB — handles deleted accounts automatically
+  const userExists = await mongoFindOne<{ id: number }>("users", { id: session.userId });
+  if (!userExists) return null;
+
+  return session;
+}
+
+/** Alias kept for backwards compatibility — same as getSessionFromCookies. */
+export async function getVerifiedSessionFromCookies(): Promise<SessionPayload | null> {
+  return getSessionFromCookies();
 }
 
 export function getSessionCookieName(): string {

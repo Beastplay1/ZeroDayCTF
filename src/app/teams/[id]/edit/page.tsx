@@ -98,7 +98,7 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
 
   return (
     <div className="min-h-screen py-12 px-4 flex items-center justify-center">
-      <div className="max-w-md w-full">
+      <div className="max-w-2xl w-full">
         <Card className="bg-[#0f0f0f] border-2 border-zerogreen/30">
           <CardBody className="p-8">
             <h1 className={`${orbitron.className} text-2xl font-bold text-white mb-6`}>
@@ -155,9 +155,9 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
                       onChange={(e) => setFile(e.target.files?.[0] || null)}
-                      className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-zerogreen/20 file:text-zerogreen hover:file:bg-zerogreen/30 cursor-pointer"
+                      className="text-base text-gray-400 file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:text-base file:font-semibold file:bg-zerogreen/20 file:text-zerogreen hover:file:bg-zerogreen/30 cursor-pointer"
                     />
-                    <p className="text-xs text-gray-500 font-mono ml-2">PNG, JPG, WEBP (Max 5MB)</p>
+                    <p className="text-base text-gray-500 font-mono ml-2">PNG, JPG, WEBP (Max 5MB)</p>
                   </div>
                 </div>
               </div>

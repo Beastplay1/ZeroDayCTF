@@ -24,7 +24,7 @@ export default function Leaderboard() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetch("/api/auth/session")
+    fetch("/api/auth/session", { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => setIsLoggedIn(!!data?.user))
       .catch(() => setIsLoggedIn(false));

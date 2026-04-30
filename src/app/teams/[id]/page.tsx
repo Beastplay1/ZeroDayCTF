@@ -50,7 +50,7 @@ export default function TeamDetailsPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await fetch("/api/auth/session");
+        const res = await fetch("/api/auth/session", { cache: "no-store" });
         const data = await res.json();
         if (data.authenticated) setSessionUser(data.user);
       } catch (e) {}
