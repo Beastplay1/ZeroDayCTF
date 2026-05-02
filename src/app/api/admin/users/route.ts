@@ -56,7 +56,7 @@ export async function GET() {
           createdAt: { $first: "$createdAt" },
           bonusPoints: { $first: "$bonusPoints" },
           hintCosts: { $first: "$hintCosts" },
-          solvePoints: { $sum: "$challengeData.points" },
+          solvePoints: { $sum: { $add: [{ $ifNull: ["$challengeData.points", 0] }, { $ifNull: ["$userSolves.bonusPoints", 0] }] } },
           solveCount: { $sum: { $cond: [{ $ifNull: ["$userSolves", false] }, 1, 0] } },
         }
       },

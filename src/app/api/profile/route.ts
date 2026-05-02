@@ -14,6 +14,7 @@ export async function GET() {
   // Get all solves for this user joined with challenge data
   const solves = await mongoAggregate<{
     challengeId: string;
+    bonusPoints?: number;
     solvedAt: string;
     challenge: {
       name: string;
@@ -38,6 +39,7 @@ export async function GET() {
       $project: {
         _id: 0,
         challengeId: 1,
+        bonusPoints: 1,
         solvedAt: 1,
         "challenge.name": 1,
         "challenge.category": 1,
@@ -54,7 +56,7 @@ export async function GET() {
   const categoryBreakdown: Record<string, number> = {};
 
   const solvedChallenges = solves.map((s) => {
-    const pts = s.challenge.points || 0;
+    const pts = (s.challenge.points || 0) + (s.bonusPoints || 0);
     totalPoints += pts;
 
     const isFB = s.challenge.firstBlood === session.username;
@@ -118,7 +120,7 @@ export async function GET() {
       {
         $group: {
           _id: "$userId",
-          totalPoints: { $sum: "$challenge.points" },
+          totalPoints: { $sum: { $add: ["$challenge.points", { $ifNull: ["$bonusPoints", 0] }] } },
         },
       },
       // Join with bonus points from users collection

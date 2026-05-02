@@ -17,10 +17,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ users: [] });
     }
 
-    // Example query: "alexa#7772" or just "alexa"
+    // Example query: "alexa#7772", "alexa #7772", "#7772" or just "alexa"
     const parts = q.trim().split("#");
-    const namePart = parts[0];
-    const tagPart = parts[1];
+    const namePart = parts[0].trim();
+    const tagPart = parts[1]?.trim();
 
     const matchStage: any = {};
 
@@ -30,7 +30,8 @@ export async function GET(req: NextRequest) {
     }
 
     if (tagPart) {
-      matchStage.userTag = tagPart; // Exact match for tag if provided
+      // Partial match for tag if provided (starts with)
+      matchStage.userTag = { $regex: "^" + tagPart, $options: "i" };
     }
 
     const pipeline: any[] = [

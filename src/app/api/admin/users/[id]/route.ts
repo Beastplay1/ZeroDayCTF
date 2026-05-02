@@ -145,7 +145,7 @@ export async function PUT(
   if (totalPoints !== undefined) {
     const desiredTotal = parseInt(totalPoints, 10) || 0;
     
-    // Calculate current solve points and hint costs to find the required bonus
+    // Calculate current solve points (including First Blood bonuses) and hint costs to find the required bonus
     const solveData = await mongoAggregate<any>("solves", [
       { $match: { userId: userId } },
       { $addFields: { challengeObjectId: { $toObjectId: "$challengeId" } } },
@@ -158,7 +158,7 @@ export async function PUT(
         },
       },
       { $unwind: "$challenge" },
-      { $group: { _id: null, total: { $sum: "$challenge.points" } } }
+      { $group: { _id: null, total: { $sum: { $add: ["$challenge.points", { $ifNull: ["$bonusPoints", 0] }] } } } }
     ]);
     
     const hintData = await mongoAggregate<any>("unlocked_hints", [

@@ -11,8 +11,8 @@ export async function GET(req: NextRequest) {
     }
 
     const parts = q.trim().split("#");
-    const namePart = parts[0];
-    const tagPart = parts[1];
+    const namePart = parts[0].trim();
+    const tagPart = parts[1]?.trim();
 
     const userMatchStage: any = {};
     const teamMatchStage: any = {};
@@ -23,8 +23,9 @@ export async function GET(req: NextRequest) {
     }
 
     if (tagPart) {
-      userMatchStage.userTag = tagPart;
-      teamMatchStage.tag = tagPart.toUpperCase();
+      // Partial match for tag if provided (starts with)
+      userMatchStage.userTag = { $regex: "^" + tagPart, $options: "i" };
+      teamMatchStage.tag = { $regex: "^" + tagPart, $options: "i" };
     }
 
     const userPipeline: any[] = [
