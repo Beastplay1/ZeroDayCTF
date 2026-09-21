@@ -62,5 +62,3 @@ curl -i -X POST http://localhost:3000/api/auth/signup \
 ## License & notes
 
 - This project is a learning/demo scaffold. Use and modify freely for education or prototyping.
-
-If you want, I can add a small `403` page, unit tests for `validateUsername`, or a database-backed user store next.
