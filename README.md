@@ -27,31 +27,6 @@ npm run dev
 
 2. Open your browser at http://localhost:3000
 
-## Testing validation and fake WAF
-
-- Use curl, Postman, or the UI to submit the signup form. Example curl commands:
-
-Valid username (expect 201):
-
-```bash
-curl -i -X POST http://localhost:3000/api/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{"username":"elite_hacker","email":"a@a.com","password":"pass1234","confirmPassword":"pass1234","agreeToTerms":true}'
-```
-
-Encoded XSS (expect 403):
-
-```bash
-curl -i -X POST http://localhost:3000/api/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{"username":"%3Cscript%3Ealert(1)%3C%2Fscript%3E","email":"a@a.com","password":"p","confirmPassword":"p","agreeToTerms":true}'
-```
-
-## What this repo is not
-
-- This is not production-ready security tooling. The fake WAF and heuristics are for development/testing only and will produce false positives.
-- Do not rely on client-side validation for security — always validate and sanitize on the server and use parameterized queries for database access.
-
 ## Roadmap / next steps
 
 - Add database persistence (SQLite or similar) and real authentication/session management.
